@@ -21,3 +21,14 @@
     <td align="center"><a href="https://github.com/SukbeomH"><b>홍석범</b></td>
   </tr>
 </table>
+
+## Manuals
+
+### Git Convention
+
+[git convention](./Manual/gitConvention.md)
+
+### Git
+
+[git](./Manual/git.md)
+
