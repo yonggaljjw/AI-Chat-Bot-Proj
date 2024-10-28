@@ -1,4 +1,5 @@
 # 5조
+
 🚧🚧 우리 FIS 아카데미 최종 프로젝트 🚧🚧
 
 ## 멤버
@@ -21,3 +22,21 @@
     <td align="center"><a href="https://github.com/SukbeomH"><b>홍석범</b></td>
   </tr>
 </table>
+
+## Manuals
+
+### Git
+
+[git convention](./Documents/Manual/gitConvention.md)
+
+[git](./Documents/Manual/git.md)
+
+## Project Structure
+
+![project structure](./Documents/diagrams/structure.png)
+
+기획 시점에서의 프로젝트 구조도는 위와 같다.
+
+![project structure 2](./Documents/diagrams/diagrams/슬라이드3.png)
+
+전체적으로 AWS의 서비스를 사용하여 구성할 계획이며, 변경 가능성 있음.
