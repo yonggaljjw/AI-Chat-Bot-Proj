@@ -8,15 +8,22 @@ base_url = "https://www.fsc.go.kr/po040301"
 # 데이터 저장을 위한 리스트 초기화
 data = []
 
-# 1~30페이지까지 반복 크롤링
-for page in range(1, 51):  # 30 페이지로 확장
+# 현재 페이지 번호 설정
+current_page = 1
+
+while True:
     # 페이지별 URL 생성
-    url = f"{base_url}?curPage={page}"
+    url = f"{base_url}?curPage={current_page}"
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     # 공고 목록에서 제목과 링크 추출
     subjects = soup.select('div.subject a')
+
+    # 공고가 없으면 반복 종료
+    if not subjects:
+        print(f"마지막 페이지: {current_page - 1}")
+        break
 
     for subject in subjects:
         title = subject.text.strip()
@@ -46,6 +53,9 @@ for page in range(1, 51):  # 30 페이지로 확장
             "URL": detail_url,
             "내용": content
         })
+
+    # 다음 페이지로 이동
+    current_page += 1
 
 # 데이터프레임으로 변환
 df = pd.DataFrame(data)
