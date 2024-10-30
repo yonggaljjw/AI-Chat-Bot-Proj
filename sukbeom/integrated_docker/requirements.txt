@@ -1,0 +1,10 @@
+yfinance
+pandas
+numpy
+oauth2client
+gspread
+mysqlclient
+fredapi
+PublicDataReader
+elasticsearch
+eland
