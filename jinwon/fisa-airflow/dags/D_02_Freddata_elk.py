@@ -14,10 +14,12 @@ from airflow.operators.python_operator import PythonOperator
 
 
 from elasticsearch import Elasticsearch
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
-
-fred = Fred(api_key='5cafaa9a5f90981d7a9c005ea24ba83a')
+fred = Fred(api_key=os.getenv('apikey'))
 
 
 # 현재 날짜를 end_date로 사용
