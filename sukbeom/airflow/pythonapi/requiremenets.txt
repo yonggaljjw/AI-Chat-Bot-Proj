@@ -1,3 +1,0 @@
-fredapi
-PublicDataReader
-pandas_datareader

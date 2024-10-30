@@ -1,7 +1,6 @@
 version: "3.4"
 
 services:
-
   es1:
     image: elasticsearch:${STACK_VERSION}
     container_name: es1
@@ -30,8 +29,8 @@ services:
     ports:
       - 9200:9200
     # volumes:
-    #  - ./es/es1/data:/usr/share/elasticsearch/data
-    #  - ./es/es1/log:/usr/share/elasticsearch/log
+    #   - ./es/es1/data:/usr/share/elasticsearch/data
+    #   - ./es/es1/log:/usr/share/elasticsearch/log
 
   es2:
     image: elasticsearch:${STACK_VERSION}
@@ -61,8 +60,8 @@ services:
     ports:
       - 9201:9200
     # volumes:
-    #  - ./es/es2/data:/usr/share/elasticsearch/data
-    #  - ./es/es2/log:/usr/share/elasticsearch/log
+    #   - ./es/es2/data:/usr/share/elasticsearch/data
+    #   - ./es/es2/log:/usr/share/elasticsearch/log
 
   es3:
     image: elasticsearch:${STACK_VERSION}
@@ -92,8 +91,8 @@ services:
     ports:
       - 9202:9200
     # volumes:
-    #  - ./es/es3/data:/usr/share/elasticsearch/data
-    #  - ./es/es3/log:/usr/share/elasticsearch/log
+    #   - ./es/es3/data:/usr/share/elasticsearch/data
+    #   - ./es/es3/log:/usr/share/elasticsearch/log
 
   kibana:
     image: kibana:${STACK_VERSION}
