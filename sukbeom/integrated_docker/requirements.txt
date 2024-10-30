@@ -1,4 +1,18 @@
 yfinance
+<<<<<<< HEAD
+=======
+numpy
+oauth2client
+gspread
+mysqlclient
+fredapi
+PublicDataReader
+elasticsearch
+eland
+requests==2.32.3
+pandas==2.2.2
+prophet==1.1.6yfinance
+>>>>>>> origin/44-feat-backend-framework
 pandas
 numpy
 oauth2client
