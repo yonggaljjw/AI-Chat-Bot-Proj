@@ -9,4 +9,13 @@ elasticsearch
 eland
 requests==2.32.3
 pandas==2.2.2
-prophet==1.1.6
+prophet==1.1.6yfinance
+pandas
+numpy
+oauth2client
+gspread
+mysqlclient
+fredapi
+PublicDataReader
+elasticsearch
+eland
