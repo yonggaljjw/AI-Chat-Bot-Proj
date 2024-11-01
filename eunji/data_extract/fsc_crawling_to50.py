@@ -9,7 +9,7 @@ base_url = "https://www.fsc.go.kr/po040301"
 data = []
 
 # 1~30페이지까지 반복 크롤링
-for page in range(1, 51):  # 30 페이지로 확장
+for page in range(1, 51):  
     # 페이지별 URL 생성
     url = f"{base_url}?curPage={page}"
     response = requests.get(url)
