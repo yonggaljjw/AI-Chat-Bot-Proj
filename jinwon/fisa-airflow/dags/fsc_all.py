@@ -8,24 +8,45 @@ from elasticsearch import Elasticsearch  # Elasticsearch 클라이언트
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
 es = Elasticsearch('http://host.docker.internal:9200')
 
-# Elasticsearch 인덱스 생성 (이미 존재하면 무시)
-try:
-    es.indices.create(index='raw_data')
-except Exception as e:
-    print(f"인덱스 생성 오류 또는 이미 존재: {e}")
+# Elasticsearch 인덱스 생성 또는 재설정 함수
+def create_or_update_index():
+    """Elasticsearch 인덱스를 생성 또는 갱신하여 '날짜' 필드를 date 타입으로 설정"""
+    # 인덱스가 이미 존재하면 삭제
+    if es.indices.exists(index='raw_data'):
+        es.indices.delete(index='raw_data')
+        print("기존 인덱스 삭제 완료")
 
-# Elasticsearch 인덱스 데이터 초기화 함수
+    # 새로운 인덱스 생성 (날짜 필드를 date 타입으로 설정)
+    index_settings = {
+        "mappings": {
+            "properties": {
+                "제목": {"type": "text"},
+                "날짜": {"type": "date"},
+                "URL": {"type": "text"},
+                "내용": {"type": "text"},
+                "개정이유": {"type": "text"},
+                "주요내용": {"type": "text"}
+            }
+        }
+    }
+    es.indices.create(index='raw_data', body=index_settings)
+    print("새로운 인덱스 생성 완료")
+
+# Elasticsearch 인덱스 데이터 초기화 작업
 def clear_elasticsearch_data():
-    """기존 Elasticsearch 데이터 삭제"""
-    es.delete_by_query(index='raw_data', body={"query": {"match_all": {}}})
-    print("기존 데이터 삭제 완료")
+    """기존 Elasticsearch 데이터 초기화 및 인덱스 재설정"""
+    create_or_update_index()
+    print("인덱스 초기화 및 재설정 완료")
 
 # CSV 데이터를 Elasticsearch로 업로드하는 함수 정의
 def dataframe_to_elasticsearch_first():
     """CSV 데이터를 Elasticsearch에 저장"""
     # CSV 파일 로드 및 결측치 제거
     df = pd.read_csv("./dags/fsc_announcements_extract.csv")
-    df = df.dropna()
+    df['내용'] = df['내용'].fillna('내용 없음')
+
+    # '날짜' 열을 datetime 형식으로 변환
+    df['날짜'] = pd.to_datetime(df['날짜'], format='%Y-%m-%d')  # 날짜 형식에 맞게 수정
 
     # DataFrame 데이터를 Elasticsearch로 전송
     ed.pandas_to_eland(
@@ -44,6 +65,7 @@ default_args = {
     'retry_delay': timedelta(minutes=5)  # 재시도 간격 (5분)
 }
 
+
 # DAG 정의 (Airflow에서 작업 흐름을 구성하는 단위)
 with DAG(
     'fsc_first_raw_elasticsearch',  # DAG 이름
@@ -52,7 +74,7 @@ with DAG(
     schedule_interval=None,  # DAG이 한 번만 실행되도록 설정
     start_date=datetime.now(),  # 현재 시점에서 실행
     catchup=False,  # 과거 날짜의 작업은 무시
-    tags=['elasticsearch', 'test', 'raw']  # 태그 설정 (DAG 분류에 사용)
+    tags=['elasticsearch', 'crawl', 'finance']  # 태그 설정 (DAG 분류에 사용)
 ) as dag:
 
     # Elasticsearch 데이터 초기화 작업

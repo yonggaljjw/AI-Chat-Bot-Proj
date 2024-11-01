@@ -2,14 +2,16 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 
-
-def crawling():
+# 크롤링
+def crawling(pages):
     # 금융위원회 입법예고 페이지의 기본 URL
     base_url = "https://www.fsc.go.kr/po040301"
+    
     # 데이터 저장을 위한 리스트 초기화
     data = []
-    # 1~5페이지까지 반복 크롤링
-    for page in range(1, 6):  
+
+    # 1~30페이지까지 반복 크롤링
+    for page in range(1, pages):  
         # 페이지별 URL 생성
         url = f"{base_url}?curPage={page}"
         response = requests.get(url)
@@ -46,6 +48,10 @@ def crawling():
                 "URL": detail_url,
                 "내용": content
             })
+
     # 데이터프레임으로 변환
     df = pd.DataFrame(data)
+    df['내용'] = df['내용'].fillna('내용 없음')
+    df['날짜'] = pd.to_datetime(df['날짜'], format='%Y-%m-%d')  # 날짜 형식에 맞게 수정
+    return df
             
