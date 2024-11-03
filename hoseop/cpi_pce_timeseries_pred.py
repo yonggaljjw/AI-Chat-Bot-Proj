@@ -207,34 +207,30 @@ import eland as ed
 
 # API 기본 URL과 분류 코드 설정
 BASE_URL = "https://ecos.bok.or.kr/api/StatisticSearch/2IJKJSOY6OFOQZ28900C/json/kr/1/100000/601Y002/M/200001/202409/X/{}/DAV"
-CODES = [1000, 1100, 1110, 1120, 1130, 1140, 1150, 1200, 1300, 1310, 1320, 1400, 1410, 1420, 1500]
+CODES = 1300
 
 # Elasticsearch 설정
 es = Elasticsearch('http://host.docker.internal:9200')
 
 def fetch_data_from_api():
     """API에서 데이터를 수집하고 병합합니다."""
-    df_list = []
-    for code in CODES:
-        url = BASE_URL.format(code)
-        response = requests.get(url)
-        data = response.json()
 
-        if 'StatisticSearch' in data and 'row' in data['StatisticSearch']:
-            df = pd.DataFrame(data['StatisticSearch']['row'])
-            item_name = df['ITEM_NAME2'].iloc[0]
-            df = df[['TIME', 'DATA_VALUE']].rename(columns={'DATA_VALUE': item_name})
-            df_list.append(df)
-        else:
-            print(f"데이터 없음: 코드 {code}")
+    url = BASE_URL.format(CODES)
+    response = requests.get(url)
+    data = response.json()
 
-    if df_list:
-        merged_df = reduce(lambda left, right: pd.merge(left, right, on='TIME', how='outer'), df_list)
-        merged_df['TIME'] = pd.to_datetime(merged_df['TIME'], format='%Y%m')
-        merged_df.iloc[:, 1:] = merged_df.iloc[:, 1:].apply(pd.to_numeric)
-        return merged_df
+    if 'StatisticSearch' in data and 'row' in data['StatisticSearch']:
+        df = pd.DataFrame(data['StatisticSearch']['row'])
+        item_name = df['ITEM_NAME2'].iloc[0]
+        df = df[['TIME', 'DATA_VALUE']].rename(columns={'DATA_VALUE': item_name})
+
     else:
-        raise ValueError("데이터프레임이 비어 있습니다.")
+        print(f"데이터 없음: 코드 {CODES}")
+
+    df['TIME'] = pd.to_datetime(df['TIME'], format='%Y%m')
+    df.iloc[:, 1:] = df.iloc[:, 1:].apply(pd.to_numeric)
+    return df
+
 
 def fetch_kosis_data():
     """KOSIS API에서 데이터를 수집하고 처리합니다."""
@@ -244,11 +240,15 @@ def fetch_kosis_data():
         "apiKey": "NGFlNDEwNzU4NTVjN2Y2ZTcyYzJiYmI5NjlhY2ExMzc=",
         "orgId": "101",
         "tblId": "DT_1J22112",
+        "itmId": "T+",
+        "objL1": "T10+",
+        "objL2": "ALL",
         "format": "json",
         "jsonVD": "Y",
         "prdSe": "M",
         "startPrdDe": "202001",
         "endPrdDe": "202409",
+        "outputFields": "NM PRD_DE"
     }
     response = requests.get(url, params=params)
     data = response.json()
@@ -264,27 +264,32 @@ def forecast_future(df, column_name, periods=3):
     df_prophet = df[['TIME', column_name]].rename(columns={'TIME': 'ds', column_name: 'y'})
     model = Prophet()
     model.fit(df_prophet)
-    future = model.make_future_dataframe(periods=periods, freq='MS')
+    future = model.make_future_dataframe(periods=periods, freq='M')
     forecast = model.predict(future)
     return forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']]
 
 def upload_to_elasticsearch(df, index_name):
+    """ 인덱스가 이미 존재하면 삭제"""
+    if es.indices.exists(index=index_name):
+        es.indices.delete(index=index_name)
+        print("기존 인덱스 삭제 완료")
+
     """데이터를 Elasticsearch에 업로드합니다."""
     ed.pandas_to_eland(
         pd_df=df,
         es_client=es,
         es_dest_index=index_name,
         es_if_exists="append",
-        es_refresh=True
+        es_refresh=True,
     )
 
-def create_indices():
-    """Elasticsearch 인덱스를 생성합니다."""
-    try:
-        es.indices.create(index='항목별_개인신용카드_소비현황')
-        es.indices.create(index='소비자물가지수')
-    except Exception as e:
-        print(f"인덱스 생성 중 오류 발생: {e}")
+# def create_indices():
+#     """Elasticsearch 인덱스를 생성합니다."""
+#     try:
+#         es.indices.create(index='항목별_개인신용카드_소비현황')
+#         # es.indices.create(index='소비자물가지수')
+#     except Exception as e:
+#         print(f"인덱스 생성 중 오류 발생: {e}")
 
 def run_data_pipeline():
     """데이터를 수집, 예측, 그리고 Elasticsearch에 업로드합니다."""
@@ -292,8 +297,8 @@ def run_data_pipeline():
     cpi_df = fetch_kosis_data()
 
     # 예측 수행
-    pce_forecast = forecast_future(pce_df, '합계')
-    cpi_forecast = forecast_future(cpi_df, '총지수')
+    pce_forecast = forecast_future(pce_df, '식료품')
+    cpi_forecast = forecast_future(cpi_df, '농축수산물')
 
     # Elasticsearch 업로드
     upload_to_elasticsearch(pce_forecast, '항목별_개인신용카드_소비현황')
@@ -307,26 +312,29 @@ default_args = {
 }
 
 with DAG(
-    'fred_uploader_elasticsearch',
+    'pce_uploader_elasticsearch',
     default_args=default_args,
-    description="연준 데이터를 Elasticsearch에 업로드하는 DAG",
-    schedule_interval='@daily',
-    start_date=datetime(2023, 1, 1),
+    description="tlqkf DAG",
+    schedule_interval=None,
+    start_date=datetime.now(),
     catchup=False,
-    tags=['elasticsearch', 'api', 'forecast']
+    tags=['elasticsearch', 'api', 'forecast'],
+    dagrun_timeout=timedelta(minutes=20)
 ) as dag:
 
     # 인덱스 생성 태스크
-    create_indices_task = PythonOperator(
-        task_id='create_indices',
-        python_callable=create_indices
-    )
+    # create_indices_task = PythonOperator(
+    #     task_id='create_indices',
+    #     python_callable=create_indices,
+    #     execution_timeout=timedelta(minutes=30)
+    # )
 
     # 데이터 파이프라인 실행 태스크
     run_pipeline_task = PythonOperator(
         task_id='run_data_pipeline',
-        python_callable=run_data_pipeline
+        python_callable=run_data_pipeline,
+        execution_timeout=timedelta(hours=1)
     )
 
     # 태스크 간의 의존성 설정
-    create_indices_task >> run_pipeline_task
+    run_pipeline_task
