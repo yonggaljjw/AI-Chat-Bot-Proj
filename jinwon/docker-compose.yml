@@ -1,3 +1,4 @@
 include:
   - ./ELK/docker-compose.yml
   - ./fisa-airflow/docker-compose.yaml
+  - ./dashboard/docker-compose.yml
