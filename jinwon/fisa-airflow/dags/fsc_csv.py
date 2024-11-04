@@ -68,10 +68,10 @@ default_args = {
 
 # DAG 정의 (Airflow에서 작업 흐름을 구성하는 단위)
 with DAG(
-    'fsc_first_raw_elasticsearch',  # DAG 이름
+    'fsc_csv',  # DAG 이름
     default_args=default_args,  # 기본 인자 설정
     description="입법예고/규정변경예고 데이터를 Elasticsearch에 저장합니다.",  # 설명
-    schedule_interval=None,  # DAG이 한 번만 실행되도록 설정
+    schedule_interval='@monthly',  # DAG이 한 번만 실행되도록 설정
     start_date=datetime.now(),  # 현재 시점에서 실행
     catchup=False,  # 과거 날짜의 작업은 무시
     tags=['elasticsearch', 'crawl', 'finance']  # 태그 설정 (DAG 분류에 사용)
@@ -85,7 +85,7 @@ with DAG(
 
     # Elasticsearch로 데이터 업로드 작업 정의
     upload_data = PythonOperator(
-        task_id="first_upload_raw_data_to_elasticsearch",  # 작업 ID
+        task_id="csv_upload_raw_data_to_elasticsearch",  # 작업 ID
         python_callable=dataframe_to_elasticsearch_first,  # 실행할 함수
     )
 
