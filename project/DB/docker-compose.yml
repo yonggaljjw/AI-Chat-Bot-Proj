@@ -1,0 +1,3 @@
+include:
+  - ./ELK/docker-compose.yml
+  - ./airflow/docker-compose.yaml

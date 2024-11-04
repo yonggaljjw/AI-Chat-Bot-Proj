@@ -1,2 +1,0 @@
-fredapi
-PublicDataReader --upgrade
