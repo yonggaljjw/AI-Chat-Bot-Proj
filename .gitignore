@@ -4,6 +4,9 @@
 __pycache__/
 node_modules/
 latest
+*.csv
+*.html
+
 
 HELP.md
 target/
