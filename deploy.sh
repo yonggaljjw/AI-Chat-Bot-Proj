@@ -13,7 +13,7 @@ cd project/WEB \
 
 # Move to the Airflow project and ELK stack directory
 cd ../../ \
-    && cd DB
+    && cd project/DB
 
 # Deploy the Airflow project
 cd airflow \
