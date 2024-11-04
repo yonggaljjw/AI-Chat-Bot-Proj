@@ -28,7 +28,7 @@ def crawling_extract_df():
         print("크롤링된 데이터가 없습니다. 빈 DataFrame을 반환합니다.")
         return pd.DataFrame(columns=['제목', '날짜', 'URL', '내용', '개정이유', '주요내용'])
 
-    df['내용'] = df['내용'].fillna('')
+    df['내용'] = df['내용'].fillna('내용없음')
     df['개정이유'] = df['내용'].apply(extract_reason)
     df['주요내용'] = df['내용'].apply(extract_main_content)
     df['날짜'] = pd.to_datetime(df['날짜'], errors='coerce').dt.strftime('%Y-%m-%d')  # 날짜 형식 통일
@@ -75,10 +75,10 @@ default_args = {
 
 # Airflow DAG 정의
 with DAG(
-    'fsc_hourly_raw_elasticsearch',  # DAG 이름
+    'fsc_daily',  # DAG 이름
     default_args=default_args,  # 기본 설정
     description="입법예고 데이터를 중복 없이 Elasticsearch에 저장합니다.",  # 설명
-    schedule_interval='@hourly',  # 1시간마다 실행
+    schedule_interval='@daily',  # 1시간마다 실행
     start_date=datetime.now(),  # 시작 날짜
     catchup=False,  # 과거 실행 건 무시
     tags=['elasticsearch', 'crawl', 'finance']  # 태그
