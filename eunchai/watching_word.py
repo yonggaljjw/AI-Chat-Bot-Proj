@@ -42,7 +42,7 @@ def update_wordcloud(*args):
 
     # 워드 클라우드 생성 (한글 폰트 설정)
     wordcloud = WordCloud(
-        font_path='C:\\ITStudy\\Final_Project\\NanumGothic.ttf',  # 올바른 경로로 수정
+        font_path='./NanumGothic.ttf',  # 올바른 경로로 수정
         width=800,
         height=600,
         background_color='white'
