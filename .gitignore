@@ -13,7 +13,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
-
+### eunji ###
+/project/FISA/eunji/sum_models/t5-large-korean-text-summary/
 
 ### STS ###
 .apt_generated
