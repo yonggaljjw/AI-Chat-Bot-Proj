@@ -88,7 +88,7 @@ def make_df() :
     return df
 
 
-es = Elasticsearch('http://host.docker.internal:9200')
+es = Elasticsearch('http://192.168.0.101:9200')
 
 try :
     es.indice.create('fred_data')
