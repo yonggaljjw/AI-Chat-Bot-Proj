@@ -79,3 +79,5 @@ zipp==3.20.2
 zstandard==0.23.0
 openai==0.28
 python-dotenv==1.0.1
+pandas matplotlib seaborn requests
+PublicDataReader --upgrade
