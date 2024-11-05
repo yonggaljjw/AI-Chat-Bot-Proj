@@ -8,11 +8,11 @@ from airflow.operators.python_operator import PythonOperator
 from elasticsearch import Elasticsearch, helpers
 import re
 
-from fsc_crawling import crawling
-from fsc_extract import extract_main_content, extract_reason
+from package.fsc_crawling import crawling
+from package.fsc_extract import extract_main_content, extract_reason
 
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
-es = Elasticsearch('http://host.docker.internal:9200')
+es = Elasticsearch('http://192.168.0.101:9200')
 
 # Elasticsearch 인덱스 생성 (이미 존재하면 무시)
 try:
