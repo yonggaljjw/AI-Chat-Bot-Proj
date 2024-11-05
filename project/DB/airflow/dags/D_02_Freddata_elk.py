@@ -84,7 +84,7 @@ def dataframe_to_elasticsearch():
 default_args = {
     'depends_on_past': False,
     'retires': 1,
-    'retry_delay': timedelta(minutes=5)
+    'retry_delay': timedelta(minutes=1)
 }
 
 # DAG 정의

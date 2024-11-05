@@ -1,8 +1,5 @@
 FROM apache/airflow:2.5.1-python3.8
 
-
-# root 사용자로 필요한 시스템 패키지 설치
-
 # root 사용자로 필요한 시스템 패키지 설치
 USER root
 RUN apt-get update && \
@@ -19,6 +16,7 @@ ENV PATH $JAVA_HOME/bin:$PATH
 USER airflow
 
 # 필요한 Python 패키지 설치
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade \
     yfinance \
     pandas \

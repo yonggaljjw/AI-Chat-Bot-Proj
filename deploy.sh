@@ -18,6 +18,7 @@ cd ../../ \
 # Deploy the Airflow project
 cd airflow \
     && printf "Deploying the Airflow project\n" \
+    && docker compose build \
     && docker compose up -d \
     && printf "Done! \n"
 
