@@ -12,7 +12,7 @@ client = OpenAI()
 # client = OpenAI(
 #   api_key=os.environ.get("CUSTOM_ENV_NAME"),
 # )
-gpt_model = "gpt-3.5-turbo-0125"
+gpt_model = "gpt-4o-mini"
 embedding_model = "text-embedding-ada-002"
 
 

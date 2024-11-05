@@ -36,10 +36,28 @@ def crawling_extract_df():
     return df
 
 def get_existing_entries():
-    query = {"query": {"range": {"날짜": {"gte": "2024-01-01","format": "yyyy-MM-dd"}}}}
+    # 현재 날짜와 1년 전 날짜 계산
+    current_date = datetime.now()
+    one_year_ago = current_date - timedelta(days=365)
+    
+    # 1년 전부터 현재까지의 범위 쿼리 생성
+    query = {
+        "query": {
+            "range": {
+                "날짜": {
+                    "gte": one_year_ago.strftime("%Y-%m-%d"),
+                    "lte": current_date.strftime("%Y-%m-%d"),
+                    "format": "yyyy-MM-dd"
+                }
+            }
+        }
+    }
+    
+    # Elasticsearch에서 검색
     response = es.search(index="raw_data", body=query, size=10000)
     existing_entries = {(hit['_source']['제목'], hit['_source']['날짜'], hit['_source']['URL']) for hit in response['hits']['hits']}
     
+    print(f"검색된 데이터 개수: {response['hits']['total']['value']}")
     print(f"기존 데이터 수: {len(existing_entries)}")
     return existing_entries
 
@@ -78,7 +96,7 @@ with DAG(
     'fsc_daily',  # DAG 이름
     default_args=default_args,  # 기본 설정
     description="입법예고 데이터를 중복 없이 Elasticsearch에 저장합니다.",  # 설명
-    schedule_interval='@daily',  # 1시간마다 실행
+    schedule_interval='@daily',  # 하루마다 실행
     start_date=datetime.now(),  # 시작 날짜
     catchup=False,  # 과거 실행 건 무시
     tags=['elasticsearch', 'crawl', 'finance']  # 태그
