@@ -16,6 +16,7 @@ ENV PATH $JAVA_HOME/bin:$PATH
 USER airflow
 
 # 필요한 Python 패키지 설치
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir --upgrade \
     yfinance \
     pandas \

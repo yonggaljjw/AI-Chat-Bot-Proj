@@ -12,7 +12,7 @@ from package.fsc_crawling import crawling
 from package.fsc_extract import extract_main_content, extract_reason
 
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
-es = Elasticsearch('http://192.168.0.101:9200')
+es = Elasticsearch('http://host.docker.internal:9200')
 
 # Elasticsearch 인덱스 생성 또는 재설정 함수
 def create_or_update_index():
