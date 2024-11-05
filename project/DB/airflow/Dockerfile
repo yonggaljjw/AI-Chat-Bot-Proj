@@ -1,10 +1,13 @@
 FROM apache/airflow:2.5.1-python3.8
 
+
+# root 사용자로 필요한 시스템 패키지 설치
+
 # root 사용자로 필요한 시스템 패키지 설치
 USER root
 RUN apt-get update && \
     apt-get install -y fonts-nanum && \
-    apt-get install -y build-essential default-libmysqlclient-dev openjdk-17-jre && \
+    apt-get install -y build-essential default-libmysqlclient-dev openjdk-17-jre pkg-config && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -16,94 +19,23 @@ ENV PATH $JAVA_HOME/bin:$PATH
 USER airflow
 
 # 필요한 Python 패키지 설치
-RUN pip install --no-cache-dir \
+RUN pip install --no-cache-dir --upgrade \
     yfinance \
-    pandas==2.2.3 \
-    numpy>=1.23,<2.0 \
+    pandas \
+    numpy \
     oauth2client \
     gspread \
     mysqlclient \
     fredapi \
-    PublicDataReader --upgrade \
-    elasticsearch==8.15.1 \
+    PublicDataReader \
+    elasticsearch \
     eland \
     prophet==1.1.6 \
-    plotly==5.24.1 \
-    dash==2.18.1 \
-    dash-core-components==2.0.0 \
-    dash-html-components==2.0.0 \
-    dash-table==5.0.0 \
-    konlpy==0.6.0 \
-    wordcloud==1.9.3 \
-    gensim==4.3.3 \
-    Brotli==1.1.0 \
-    Django==5.0.2 \
-    JPype1==1.5.0 \
-    Jinja2==3.1.4 \
-    MarkupSafe==3.0.2 \
-    PySocks==1.7.1 \
-    Werkzeug==3.0.6 \
-    beautifulsoup4==4.12.3 \
-    blinker==1.8.2 \
-    boto3==1.35.49 \
-    botocore==1.35.50 \
-    certifi==2024.8.30 \
-    cffi==1.17.1 \
-    charset-normalizer==3.4.0 \
-    click==8.1.7 \
-    colorama==0.4.6 \
-    contourpy==1.3.0 \
-    cycler==0.12.1 \
-    elastic-transport==8.15.1 \
-    fonttools==4.54.1 \
-    funcy==2.0 \
-    h2==4.1.0 \
-    hpack==4.0.0 \
-    hyperframe==6.0.1 \
-    idna==3.10 \
-    importlib_metadata==8.5.0 \
-    itsdangerous==2.2.0 \
-    jmespath==1.0.1 \
-    joblib==1.4.2 \
-    kiwisolver==1.4.7 \
-    lxml==5.3.0 \
-    matplotlib==3.9.2 \
-    nest-asyncio==1.6.0 \
-    numexpr==2.10.1 \
-    packaging==24.1 \
-    pillow==11.0.0 \
-    pip==24.2 \
-    pyLDAvis==3.4.1 \
-    pycparser==2.22 \
-    pyparsing==3.2.0 \
-    python-dateutil==2.9.0.post0 \
-    pytz==2024.2 \
-    regex==2024.9.11 \
-    requests==2.32.3 \
-    retrying==1.3.4 \
-    s3transfer==0.10.3 \
-    sacremoses==0.0.53 \
-    scikit-learn==1.5.2 \
-    scipy==1.13.1 \
-    setuptools==75.1.0 \
-    six==1.16.0 \
-    smart-open==7.0.5 \
-    soupsieve==2.5 \
-    tenacity==9.0.0 \
-    threadpoolctl==3.5.0 \
-    tqdm==4.66.6 \
-    transformers==2.1.1 \
-    typing_extensions==4.12.2 \
-    tzdata==2024.2 \
-    urllib3==2.2.3 \
-    wheel==0.44.0 \
-    win_inet_pton==1.1.0 \
-    wrapt==1.16.0 \
-    zipp==3.20.2 \
-    zstandard==0.23.0 \
-    openai==0.28 \
-    python-dotenv==1.0.1 \
-    seaborn
+    plotly \
+    dash \
+    konlpy \
+    wordcloud \
+    gensim
 
 # Airflow 웹 서버 시작
 CMD ["airflow", "webserver"]
