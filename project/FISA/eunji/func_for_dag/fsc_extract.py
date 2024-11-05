@@ -40,4 +40,3 @@ def extract_reason(text):
 
     # 이유 패턴이 없는 경우
     return "개정이유를 찾을 수 없습니다."
-
