@@ -85,7 +85,7 @@ with DAG(
     'fsc_first',
     default_args=default_args,
     description="입법예고/규정변경예고 데이터를 Elasticsearch에 저장합니다.",
-    schedule_interval='@montly',
+    schedule_interval='@monthly',
     start_date=datetime.now(),
     catchup=False,
     tags=['elasticsearch', 'crawl', 'finance']
