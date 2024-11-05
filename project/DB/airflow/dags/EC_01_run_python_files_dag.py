@@ -5,7 +5,7 @@ import subprocess
 
 def run_script(script_name):
     # Docker 환경에 맞게 파일 경로를 수정했습니다.
-    script_path = f"/opt/airflow/dags/{script_name}"
+    script_path = f"/opt/airflow/dags/package/{script_name}"
     print(f"Running script: {script_path}")
     
     # 스크립트 실행

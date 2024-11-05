@@ -210,7 +210,7 @@ BASE_URL = "https://ecos.bok.or.kr/api/StatisticSearch/2IJKJSOY6OFOQZ28900C/json
 CODES = 1300
 
 # Elasticsearch 설정
-es = Elasticsearch('http://192.168.0.101:9200')
+es = Elasticsearch('http://host.docker.internal:9200')
 
 def fetch_data_from_api():
     """API에서 데이터를 수집하고 병합합니다."""
@@ -308,13 +308,13 @@ def run_data_pipeline():
 default_args = {
     'depends_on_past': False,
     'retries': 1,
-    'retry_delay': timedelta(minutes=5)
+    'retry_delay': timedelta(minutes=1)
 }
 
 with DAG(
     'pce_uploader_elasticsearch',
     default_args=default_args,
-    description="tlqkf DAG",
+    description="신호섭 커피 언제사냐",
     schedule_interval=None,
     start_date=datetime.now(),
     catchup=False,

@@ -88,7 +88,8 @@ def make_df() :
     return df
 
 
-es = Elasticsearch('http://192.168.0.101:9200')
+es = Elasticsearch('http://host.docker.internal:9200')
+# es = Elasticsearch('http://moalm2keje.loclx.io:80')
 
 try :
     es.indice.create('fred_data')
@@ -110,7 +111,7 @@ def dataframe_to_elasticsearch():
 default_args = {
     'depends_on_past': False,
     'retires': 1,
-    'retry_delay': timedelta(minutes=5)
+    'retry_delay': timedelta(minutes=1)
 }
 
 # DAG 정의
