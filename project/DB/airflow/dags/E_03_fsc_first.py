@@ -10,6 +10,8 @@ import re
 
 from package.fsc_crawling import crawling
 from package.fsc_extract import extract_main_content, extract_reason
+from package.vector_embedding import generate_embedding
+
 
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
 es = Elasticsearch('http://host.docker.internal:9200')
@@ -27,11 +29,15 @@ def create_or_update_index():
         "mappings": {
             "properties": {
                 "제목": {"type": "text"},
+                "제목_vector" : {"type":"dense_vector", "dims": 1536},
                 "날짜": {"type": "date"},
                 "URL": {"type": "text"},
                 "내용": {"type": "text"},
+                "내용_vector" : {"type":"dense_vector", "dims": 1536},
                 "개정이유": {"type": "text"},
-                "주요내용": {"type": "text"}
+                "개정이유_vector" : {"type":"dense_vector", "dims": 1536},
+                "주요내용": {"type": "text"},
+                "주요내용_vector" : {"type":"dense_vector", "dims": 1536}
             }
         }
     }
@@ -52,15 +58,33 @@ def crawling_extract_df():
 
     return df
 
+
 def upload_data():
     df = crawling_extract_df()
+    
+    # 벡터 임베딩 생성
+    df['제목_vector'] = df['제목'].apply(get_embedding)
+    df['내용_vector'] = df['내용'].apply(get_embedding)
+    df['개정이유_vector'] = df['개정이유'].apply(get_embedding)
+    df['주요내용_vector'] = df['주요내용'].apply(get_embedding)
     
     actions = [
         {
             "_op_type": "index",
             "_index": "raw_data",
             "_id": f"{row['제목']}_{row['날짜']}",
-            "_source": row.to_dict()
+            "_source": {
+                "제목": row['제목'],
+                "제목_vector": row['제목_vector'],
+                "날짜": row['날짜'],
+                "URL": row['URL'],
+                "내용": row['내용'],
+                "내용_vector": row['내용_vector'],
+                "개정이유": row['개정이유'],
+                "개정이유_vector": row['개정이유_vector'],
+                "주요내용": row['주요내용'],
+                "주요내용_vector": row['주요내용_vector'],
+            }
         }
         for _, row in df.iterrows()
     ]
@@ -72,6 +96,7 @@ def upload_data():
         print(f"{len(actions)}개의 데이터를 업로드했습니다.")
     else:
         print("업로드할 데이터가 없습니다.")
+
 
 # Airflow DAG 기본 설정
 default_args = {

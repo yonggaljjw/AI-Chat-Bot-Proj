@@ -11,11 +11,15 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import sys
+import os
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000']
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+FISA_DIR = os.path.join(BASE_DIR, 'FISA')
+sys.path.append(FISA_DIR)
 
 
 # Quick-start development settings - unsuitable for production
@@ -27,7 +31,7 @@ SECRET_KEY = "django-insecure-628hc4k=(5!l7zm&=7&qbb00acs8y=gpkhtj4*fu)b%jot&*or
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
