@@ -17,7 +17,7 @@ import os
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000']
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 FISA_DIR = os.path.join(BASE_DIR, 'FISA')
 sys.path.append(FISA_DIR)
 
@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "chatbot",
+    'django_plotly_dash',
 ]
 
 MIDDLEWARE = [
