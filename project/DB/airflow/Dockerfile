@@ -33,7 +33,8 @@ RUN pip install --no-cache-dir --upgrade \
     dash \
     konlpy \
     wordcloud \
-    gensim
+    gensim \
+    openai
 
 # Airflow 웹 서버 시작
 CMD ["airflow", "webserver"]
