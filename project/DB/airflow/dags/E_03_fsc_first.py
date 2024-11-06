@@ -12,7 +12,6 @@ from package.fsc_crawling import crawling
 from package.fsc_extract import extract_main_content, extract_reason
 from package.vector_embedding import generate_embedding
 
-
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
 es = Elasticsearch('http://host.docker.internal:9200')
 
@@ -63,10 +62,10 @@ def upload_data():
     df = crawling_extract_df()
     
     # 벡터 임베딩 생성
-    df['제목_vector'] = df['제목'].apply(get_embedding)
-    df['내용_vector'] = df['내용'].apply(get_embedding)
-    df['개정이유_vector'] = df['개정이유'].apply(get_embedding)
-    df['주요내용_vector'] = df['주요내용'].apply(get_embedding)
+    df['제목_vector'] = df['제목'].apply(generate_embedding)
+    df['내용_vector'] = df['내용'].apply(generate_embedding)
+    df['개정이유_vector'] = df['개정이유'].apply(generate_embedding)
+    df['주요내용_vector'] = df['주요내용'].apply(generate_embedding)
     
     actions = [
         {
