@@ -10,6 +10,7 @@ import re
 
 from package.fsc_crawling import crawling
 from package.fsc_extract import extract_main_content, extract_reason
+from package.vector_embedding import generate_embedding
 
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
 es = Elasticsearch('http://host.docker.internal:9200')
@@ -64,13 +65,30 @@ def get_existing_entries():
 def upload_new_data():
     df = crawling_extract_df()
     existing_entries = get_existing_entries()
-    
+
+     # 벡터 임베딩 생성
+    df['제목_vector'] = df['제목'].apply(generate_embedding)
+    df['내용_vector'] = df['내용'].apply(generate_embedding)
+    df['개정이유_vector'] = df['개정이유'].apply(generate_embedding)
+    df['주요내용_vector'] = df['주요내용'].apply(generate_embedding)
+
     actions = [
         {
             "_op_type": "index",
             "_index": "raw_data",
             "_id": f"{row['제목']}_{row['날짜']}",
-            "_source": row.to_dict()
+            "_source": {
+                "제목": row['제목'],
+                "제목_vector": row['제목_vector'],
+                "날짜": row['날짜'],
+                "URL": row['URL'],
+                "내용": row['내용'],
+                "내용_vector": row['내용_vector'],
+                "개정이유": row['개정이유'],
+                "개정이유_vector": row['개정이유_vector'],
+                "주요내용": row['주요내용'],
+                "주요내용_vector": row['주요내용_vector'],
+            }
         }
         for _, row in df.iterrows()
         if (row['제목'], row['날짜'], row['URL']) not in existing_entries
