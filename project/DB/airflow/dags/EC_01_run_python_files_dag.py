@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 from airflow.operators.python import PythonOperator
 import subprocess
 import json
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, helpers
 
 # Elasticsearch 설정
-es = Elasticsearch("http://192.168.0.101:9200")
+es = Elasticsearch("http://host.docker.internal:9200")
 
 def run_script(script_name):
     # Docker 환경에 맞게 파일 경로를 수정했습니다.
@@ -15,15 +15,35 @@ def run_script(script_name):
     subprocess.run(["python", script_path])
 
 def upload_to_elasticsearch():
-    # 당일 날짜를 기반으로 인덱스 이름 생성
-    index_name = f"topic_modeling_result-{datetime.now().strftime('%Y%m%d')}"
-    
     # JSON 파일을 읽어서 Elasticsearch에 업로드
-    with open("/opt/airflow/dags/topic_modeling_result.json", "r", encoding="utf-8") as f:
+    with open("/opt/airflow/topic_modeling_results.json", "r", encoding="utf-8") as f:
         data = json.load(f)
-        for item in data:
-            es.index(index=index_name, body=item)
-    print(f"Elasticsearch에 데이터 업로드 완료: {index_name}")
+    
+    # Bulk API를 위한 작업 생성
+    actions = []
+    index_name = f"topic_modeling_results-{datetime.now().strftime('%Y%m%d')}"
+
+    for category, results in data.items():
+        for word_info in results['top_words']:
+            action = {
+                "_op_type": "index",  # 문서 인덱싱 작업
+                "_index": index_name,
+                "_id": f"{category}-{word_info['word']}",  # 카테고리와 단어를 조합하여 ID 생성
+                "_source": {
+                    "word": word_info['word'],
+                    "count": word_info['count'],
+                    "links": word_info['links'],
+                    "category": category  # 카테고리 추가
+                }
+            }
+            actions.append(action)
+
+    # Bulk API 호출
+    if actions:
+        helpers.bulk(es, actions)
+        print(f"{len(actions)}개의 문서가 Elasticsearch에 업로드되었습니다.")
+    else:
+        print("업로드할 문서가 없습니다.")
 
 default_args = {
     'depends_on_past': False,
@@ -44,16 +64,10 @@ with DAG('my_workflow', default_args=default_args, catchup=False, start_date=dat
         op_kwargs={'script_name': 'topic_model3.py'},
     )
 
-    # task3 = PythonOperator(
-    #     task_id='watching_word',
-    #     python_callable=run_script,
-    #     op_kwargs={'script_name': 'watching_word.py'},
-    # )
-
-    task4 = PythonOperator(
+    task3 = PythonOperator(
         task_id='upload_to_elasticsearch',
         python_callable=upload_to_elasticsearch
     )
 
-    # task2 실행 후 Elasticsearch에 업로드
-    task1 >> task2 >> task4
+    # task1 실행 후 task2 실행, 그 후 task3 실행
+    task1 >> task2 >> task3
