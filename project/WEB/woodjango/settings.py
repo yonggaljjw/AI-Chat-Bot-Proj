@@ -104,10 +104,10 @@ WSGI_APPLICATION = "woodjango.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "register", # mysql의 scheme랑 일치해야한다.
-        "USER": "root",
-        "PASSWORD": "0000",
-        "HOST": "localhost",
+        "NAME": "hoseop", # mysql의 scheme랑 일치해야한다.
+        "USER": "fisaai",
+        "PASSWORD": "woorifisa3!W",
+        "HOST": "118.67.131.22",
         "PORT": "3306",
     },
     'OPTIONS': {
