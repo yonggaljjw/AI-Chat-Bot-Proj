@@ -1,3 +1,4 @@
+{% load plotly_dash %} <!-- plotly_dash 템플릿 태그 로드 -->
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
@@ -29,14 +30,17 @@
                 <div class="row">
                     <div class="col-md-6 mb-4">
                         <div class="card">
-                                <div id="chart1" class="bg-light" style="height: 400px;">{{plot_div|safe}}</div>
+                            <div class="card-body">
+                                <h5 class="card-body">뉴스 크롤링</h5>
+                                <div class="bg-light" style="height: 200px;">{% plotly_app name="wordcloud_app" %}</div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-4">
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Chart 2</h5>
-                                <div class="bg-light" style="height: 200px;"></div>
+                                <div class="bg-light" style="height: 200px;">asd</div>
                             </div>
                         </div>
                     </div>
@@ -61,7 +65,7 @@
 
             <!-- Chat Section -->
             <div class="col-md-4 p-4">
-                <div class="card chat-container" style = "height : 120vh;">
+                <div class="card chat-container" style="height: 120vh;">
                     <div class="card-header">
                         <h5 class="mb-0">채팅창</h5>
                     </div>
@@ -131,6 +135,7 @@
             }
             return cookieValue;
         }
+
         document.addEventListener('DOMContentLoaded', function() {
             var chart1Div = document.getElementById('chart1');
             
@@ -146,14 +151,13 @@
                     });
                 }
                 
-            // 초기 크기 설정
-            resizeChart();
-            
-            // 창 크기가 변경될 때마다 차트 크기 조정
-            window.addEventListener('resize', resizeChart);
+                // 초기 크기 설정
+                resizeChart();
+                
+                // 창 크기가 변경될 때마다 차트 크기 조정
+                window.addEventListener('resize', resizeChart);
             }
-            });
-
+        });
     </script>
 </body>
 </html>
