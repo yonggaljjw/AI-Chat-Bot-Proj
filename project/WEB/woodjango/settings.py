@@ -35,6 +35,11 @@ ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
+PLOTLY_DASH = {
+    'ws_route': 'dpd/ws/channel',
+    'http_route': 'dpd/views',
+    'cache_timeout_initial_arguments': 60,
+}
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -44,7 +49,10 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "chatbot",
+    "eunchai",
     'django_plotly_dash',
+    'channels',  # WebSocket을 지원하기 위해 추가
+    'dpd_static_support',  # plotly_dash 정적 파일 지원을 위해 추가
 ]
 
 MIDDLEWARE = [
@@ -55,7 +63,10 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    'django_plotly_dash.middleware.BaseMiddleware',
 ]
+
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 ROOT_URLCONF = "woodjango.urls"
 
@@ -70,6 +81,7 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
+                # 'django_plotly_dash.context_processors.default',
             ],
         },
     },
