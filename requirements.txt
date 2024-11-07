@@ -81,3 +81,4 @@ openai==0.28
 python-dotenv==1.0.1
 pandas matplotlib seaborn requests
 PublicDataReader --upgrade
+dpd_static_support
