@@ -19,6 +19,11 @@
             height: calc(100% - 60px);
             overflow-y: auto;
         }
+                /* body내 차트 크기 고정: wordcloud_app의 padding-bottom을 80%로 설정 */
+                #chart1 > div {
+            padding-bottom: 60% !important;
+        }
+    </style>
     </style>
 </head>
 <body>
@@ -31,16 +36,16 @@
                     <div class="col-md-6 mb-4">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-body">뉴스 크롤링</h5>
-                                <div class="bg-light" style="height: 200px;">{% plotly_app name="wordcloud_app" %}</div>
+                                <h5 class="card-title">뉴스 크롤링</h5>
+                                <div class="bg-light" id=chart1 style="height: 300px;">{% plotly_app name="wordcloud_app" %}</div>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6 mb-4">
                         <div class="card">
                             <div class="card-body">
-                                <h5 class="card-title">Chart 2</h5>
-                                <div class="bg-light" style="height: 200px;">asd</div>
+                                <h5 class="card-title">거시경제 지표</h5>
+                                <div class="bg-light" style="height: 300px;">asd</div>
                             </div>
                         </div>
                     </div>
@@ -48,7 +53,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Chart 3</h5>
-                                <div class="bg-light" style="height: 200px;"></div>
+                                <div class="bg-light" style="height: 300px;"></div>
                             </div>
                         </div>
                     </div>
@@ -56,7 +61,7 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Chart 4</h5>
-                                <div class="bg-light" style="height: 200px;"></div>
+                                <div class="bg-light" style="height: 300px;"></div>
                             </div>
                         </div>
                     </div>
