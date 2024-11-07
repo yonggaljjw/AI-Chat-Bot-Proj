@@ -52,6 +52,7 @@ def already_indexed(id, index):
 
 
 def search_embedding(index, query_embedding, num_results=10):
+    field_name="제목_vector"                 ################################### 검색 필드 설정
     try:
         # Define Elasticsearch script score query
         body = {
@@ -62,7 +63,7 @@ def search_embedding(index, query_embedding, num_results=10):
                         "match_all": {}
                     },
                     "script": {
-                        "source": "cosineSimilarity(params.query_vector, 'embedding') + 1.0",
+                        "source": f"cosineSimilarity(params.query_vector, '{field_name}') + 1.0", # 특정 임베딩 필드로 수정
                         "params": {
                             "query_vector": query_embedding
                         }
@@ -70,6 +71,50 @@ def search_embedding(index, query_embedding, num_results=10):
                 }
             }
         }
+
+        # Execute the query
+        res = es.search(index=index, body=body)
+        return res
+    except Exception as e:
+        print(f"Error executing search: {e}")
+        return None
+
+def search_embedding_plus_date(index, query_embedding, num_results=10, start_date=None, end_date=None):
+    field_name = "제목_vector"  # 검색 필드 설정
+    try:
+        # Define Elasticsearch script score query with date range filter
+        body = {
+            "size": num_results,
+            "query": {
+                "bool": {
+                    "must": {
+                        "script_score": {
+                            "query": {
+                                "match_all": {}
+                            },
+                            "script": {
+                                "source": f"cosineSimilarity(params.query_vector, '{field_name}') + 1.0",  # 특정 임베딩 필드로 수정
+                                "params": {
+                                    "query_vector": query_embedding
+                                }
+                            }
+                        }
+                    },
+                    "filter": []
+                }
+            }
+        }
+
+        # 날짜 필터 추가
+        if start_date and end_date:
+            body["query"]["bool"]["filter"].append({
+                "range": {
+                    "date": {  # 날짜 필드명은 실제 인덱스의 필드명으로 변경
+                        "gte": start_date,
+                        "lte": end_date
+                    }
+                }
+            })
 
         # Execute the query
         res = es.search(index=index, body=body)
