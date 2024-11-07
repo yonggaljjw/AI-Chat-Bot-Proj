@@ -16,6 +16,8 @@ target/
 ### eunji ###
 /project/FISA/eunji/sum_models/t5-large-korean-text-summary/
 /project/FISA/eunji/OPENAI_RAG/
+/project/FISA/eunji/ES_OPENAI/try1.py
+/project/FISA/eunji/ES_OPENAI/try2.py
 **/venv/
 
 ### STS ###
