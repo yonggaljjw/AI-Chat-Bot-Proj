@@ -2,8 +2,8 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-from django_plotly_dash import DjangoDash
-from eunchai.watching_word import app as dash_app_instance
+from django_plotly_dash import *
+from eunchai.watching_word import app 
 
 import json
 import openai
@@ -21,11 +21,11 @@ openai.api_key = os.getenv('openaikey')
 def index(request):
     return render(request, 'index.html') 
 
-def dash_app(request):
-    # Dash 앱을 HTML로 변환
-    plot_div = pio.to_html(dash_app_instance, full_html=False)
+# def dash_app(request):
+#     # Dash 앱을 HTML로 변환
+#     plot_div = pio.to_html(dash_app_instance, full_html=False)
     
-    return render(request, 'dash_app_template.html', context={'plot_div': plot_div})
+#     return render(request, 'dash_app_template.html', context={'plot_div': plot_div})
 
 @csrf_exempt
 @require_http_methods(["POST"])
