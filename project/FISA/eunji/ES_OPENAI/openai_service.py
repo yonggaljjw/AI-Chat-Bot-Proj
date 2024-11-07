@@ -13,7 +13,7 @@ client = OpenAI()
 #   api_key=os.environ.get("CUSTOM_ENV_NAME"),
 # )
 gpt_model = "gpt-4o-mini"
-embedding_model = "text-embedding-ada-002"
+embedding_model = "text-embedding-3-small"
 
 
 # INDEX_DIMENSION = 1536
