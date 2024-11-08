@@ -5,6 +5,7 @@ import datetime
 
 from fredapi import Fred
 import pandas as pd
+import os
 
 # FRED API 키 설정
 fred = Fred(api_key=FRED_API_KEY) 
