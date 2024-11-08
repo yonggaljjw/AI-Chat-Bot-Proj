@@ -13,9 +13,16 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import sys
 import os
+from dotenv import load_dotenv
 
+
+# .env 파일 로드
+load_dotenv()
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000']
 
+# settings.py에서 환경 변수 사용
+FRED_API_KEY = os.getenv('FRED_API_KEY')
+openaikey =  os.getenv('openaikey')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 FISA_DIR = os.path.join(BASE_DIR, 'FISA')
@@ -41,6 +48,13 @@ PLOTLY_DASH = {
     'cache_timeout_initial_arguments': 60,
 }
 
+PLOTLY_COMPONENTS = [
+    'dash_core_components',
+    'dash_html_components',
+    'dash_renderer',
+    'dpd_components',
+]
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -48,13 +62,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "dash",
     "chatbot",
-    "eunchai",
     'django_plotly_dash',
     'channels',  # WebSocket을 지원하기 위해 추가
     'dpd_static_support',  # plotly_dash 정적 파일 지원을 위해 추가
     'authenticate'
 ]
+
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -104,10 +120,10 @@ WSGI_APPLICATION = "woodjango.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "register", # mysql의 scheme랑 일치해야한다.
-        "USER": "root",
-        "PASSWORD": "0000",
-        "HOST": "localhost",
+        "NAME": "hoseop", # mysql의 scheme랑 일치해야한다.
+        "USER": "fisaai",
+        "PASSWORD": "woorifisa3!W",
+        "HOST": "118.67.131.22",
         "PORT": "3306",
     },
     'OPTIONS': {
@@ -150,10 +166,26 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-STATIC_URL = "static/"
+# STATICFILES_FINDERS = [
+#     'django.contrib.staticfiles.finders.FileSystemFinder',
+#     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+#     'django_plotly_dash.finders.DashAssetFinder',
+#     'django_plotly_dash.finders.DashComponentFinder',
+# ]
+
+# Dash 앱에서 사용하는 static 파일 경로 설정
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# PLOTLY_DASH_APPS_DIR = [
+#     os.path.join(BASE_DIR.parent, 'FISA', 'jiyeon'),
+#     os.path.join(BASE_DIR.parent, 'FISA', 'eunchai'),
+# ]
