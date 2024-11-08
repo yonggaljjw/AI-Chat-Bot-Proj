@@ -1,4 +1,3 @@
-
 from datetime import datetime, timedelta
 import pandas as pd
 from fredapi import Fred
@@ -61,13 +60,50 @@ def make_df():
     
     return df
 
-
 es = Elasticsearch('http://host.docker.internal:9200')
 
+# # 기존 인덱스 삭제 (필요할 경우)
+# if es.indices.exists(index='fred_data'):
+#     es.indices.delete(index='fred_data')
+
+# 인덱스 생성 시 매핑 정보 추가
 try:
-    es.indices.create(index='fred_data')
+    es.indices.create(
+        index='fred_data',
+        body={
+            "mappings": {
+                "properties": {
+                    "date": {"type": "date"},
+                    "FFTR": {"type": "float"},
+                    "GDP": {"type": "float"},
+                    "GDP Growth Rate": {"type": "float"},
+                    "PCE": {"type": "float"},
+                    "Core PCE": {"type": "float"},
+                    "CPI": {"type": "float"},
+                    "Core CPI": {"type": "float"},
+                    "Personal Income": {"type": "float"},
+                    "Unemployment Rate": {"type": "float"},
+                    "ISM Manufacturing": {"type": "float"},
+                    "Durable Goods Orders": {"type": "float"},
+                    "Building Permits": {"type": "float"},
+                    "Retail Sales": {"type": "float"},
+                    "Consumer Sentiment": {"type": "float"},
+                    "Nonfarm Payrolls": {"type": "float"},
+                    "JOLTS Hires": {"type": "float"}
+                }
+            }
+        }
+    )
+    print("Index 'fred_data' created successfully with mappings.")
+except :
+    pass
+    
+# 인덱스 매핑 확인
+try:
+    mapping = es.indices.get_mapping(index='fred_data')
+    print("Current index mapping:", mapping)
 except Exception as e:
-    print(f"Index creation error: {e}")
+    print(f"Error fetching index mapping: {e}")
 
 # 데이터프레임을 Elasticsearch로 전송하는 함수
 def dataframe_to_elasticsearch():
