@@ -30,9 +30,13 @@ services:
       - 9200:9200
     volumes:
       - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      - ./backup:/usr/share/elasticsearch/backup
-      - elasticsearch-data1:/usr/share/elasticsearch/data
+      - ./es/es1/data:/usr/share/elasticsearch/data
     #   - ./es/es1/log:/usr/share/elasticsearch/log
+    command: >
+      bash -c "
+      elasticsearch-plugin install analysis-nori
+      && bin/elasticsearch
+      "
 
   es2:
     image: elasticsearch:${STACK_VERSION}
@@ -63,8 +67,13 @@ services:
       - 9201:9200
     volumes:
       - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      - elasticsearch-data2:/usr/share/elasticsearch/data
+      - ./es/es2/data:/usr/share/elasticsearch/data
     #   - ./es/es2/log:/usr/share/elasticsearch/log
+    command: >
+      bash -c "
+      elasticsearch-plugin install analysis-nori
+      && bin/elasticsearch
+      "
 
   es3:
     image: elasticsearch:${STACK_VERSION}
@@ -95,7 +104,14 @@ services:
       - 9202:9200
     volumes:
       - ./config/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml
-      - elasticsearch-data3:/usr/share/elasticsearch/data
+      - ./es/es3/data:/usr/share/elasticsearch/data
+      # - ./es/es3/log:/usr/share/elasticsearch/log
+
+    command: >
+      bash -c "
+      elasticsearch-plugin install analysis-nori
+      && bin/elasticsearch
+      "
 
   kibana:
     image: kibana:${STACK_VERSION}
@@ -110,8 +126,3 @@ services:
       - es1
       - es2
       - es3
-
-volumes:
-  elasticsearch-data1:
-  elasticsearch-data2:
-  elasticsearch-data3:
