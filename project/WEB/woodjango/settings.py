@@ -13,9 +13,16 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 from pathlib import Path
 import sys
 import os
+from dotenv import load_dotenv
 
+
+# .env 파일 로드
+load_dotenv()
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000']
 
+# settings.py에서 환경 변수 사용
+FRED_API_KEY = os.getenv('FRED_API_KEY')
+openaikey =  os.getenv('openaikey')
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 FISA_DIR = os.path.join(BASE_DIR, 'FISA')
