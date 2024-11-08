@@ -1,8 +1,5 @@
 openai
-flask
-flask-cors
 requests
-spacy
 python-dotenv
 numpy
 elasticsearch
