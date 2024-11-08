@@ -14,7 +14,7 @@
     <td align="center"><a href="https://github.com/SukbeomH"><img src="https://avatars.githubusercontent.com/SukbeomH" width="150px;" alt=""></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://github.com/awesome98"><b>신호섭</b></td>
+    <td align="center"><a href="https://github.com/awesome98"><b>👑 신호섭</b></td>
     <td align="center"><a href="https://github.com/eunchaipark"><b>박은채</b></td>
     <td align="center"><a href="https://github.com/euneun9"><b>이은지</b></td>
     <td align="center"><a href="https://github.com/JiyeonJeong02"><b>정지연</b></td>
@@ -27,16 +27,24 @@
 
 ### Git
 
-[git convention](./Documents/Manual/gitConvention.md)
-
-[git](./Documents/Manual/git.md)
+- [git convention](./Documents/Manual/gitConvention.md)
+- [git](./Documents/Manual/git.md)
 
 ## Project Structure
 
-![project structure](./Documents/diagrams/structure.png)
+![project structure](./Documents/diagrams/systemArchitecture.drawio.png)
 
-기획 시점에서의 프로젝트 구조도는 위와 같다.
+> [draw.io](https://app.diagrams.net/)를 이용하여 작성하였습니다.
 
-![project structure 2](./Documents/diagrams/diagrams/슬라이드3.png)
+- **Airflow**: 주기적으로 데이터를 수집하고, 전처리하는 역할을 합니다.
+- **Elasticsearch**: 수집된 데이터를 저장하고, 백터화된 데이터를 저장, 검색하는 역할을 합니다.
+- **Kibana**: Elasticsearch에 저장된 데이터를 시각화하는 역할을 합니다.
+- **Django**: 사용자에게 데이터를 제공하고, 사용자의 요청에 따라 데이터를 Elasticsearch에서 가져와서 제공하는 역할을 합니다.
+- **MySQL**: 사용자의 정보를 저장하고, Django에서 사용하는 데이터를 저장하는 역할을 합니다.
 
-전체적으로 AWS의 서비스를 사용하여 구성할 계획이며, 변경 가능성 있음.
+## Tech Stack
+
+- Python 3.11
+- Django 5.0
+- MySQL 8.0
+- Elasticsearch 7.15
