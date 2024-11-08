@@ -6,16 +6,8 @@ import re
 # .env 파일에서 환경 변수 로드
 load_dotenv()
 
-# Elasticsearch 설정
-es_host_url = os.environ.get('ES_HOST_URL')
-es_username = os.environ.get('ES_USERNAME')
-es_password = os.environ.get('ES_PASSWORD')
-
 # 인증 정보를 사용하여 Elasticsearch 초기화
-es = Elasticsearch(
-    [es_host_url],
-    http_auth=(es_username, es_password)
-)
+es = Elasticsearch("http://host.docker.internal:9200")
 
 def index(index, id, body, hard_refresh=False):
     """
