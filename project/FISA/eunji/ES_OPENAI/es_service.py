@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from elasticsearch import Elasticsearch
+import re
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
