@@ -41,6 +41,13 @@ PLOTLY_DASH = {
     'cache_timeout_initial_arguments': 60,
 }
 
+PLOTLY_COMPONENTS = [
+    'dash_core_components',
+    'dash_html_components',
+    'dash_renderer',
+    'dpd_components',
+]
+
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -48,13 +55,15 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "dash",
     "chatbot",
-    "eunchai",
     'django_plotly_dash',
     'channels',  # WebSocket을 지원하기 위해 추가
     'dpd_static_support',  # plotly_dash 정적 파일 지원을 위해 추가
     'authenticate'
 ]
+
+
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -150,10 +159,26 @@ USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
-STATIC_URL = "static/"
+# STATICFILES_FINDERS = [
+#     'django.contrib.staticfiles.finders.FileSystemFinder',
+#     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+#     'django_plotly_dash.finders.DashAssetFinder',
+#     'django_plotly_dash.finders.DashComponentFinder',
+# ]
+
+# Dash 앱에서 사용하는 static 파일 경로 설정
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# PLOTLY_DASH_APPS_DIR = [
+#     os.path.join(BASE_DIR.parent, 'FISA', 'jiyeon'),
+#     os.path.join(BASE_DIR.parent, 'FISA', 'eunchai'),
+# ]

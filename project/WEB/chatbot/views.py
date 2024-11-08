@@ -4,12 +4,13 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django_plotly_dash import *
 from eunchai.watching_word import app 
+from jiyeon.D_02_visualization_origin import app
 
 import json
 import openai
 from dotenv import load_dotenv
 import os
-import plotly.io as pio
+
 
 load_dotenv()
 

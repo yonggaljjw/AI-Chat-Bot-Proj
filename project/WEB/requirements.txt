@@ -24,8 +24,11 @@ dash-bootstrap-components==1.6.0
 dash-core-components==2.0.0
 dash-html-components==2.0.0
 dash-table==5.0.0
+dash_renderer==1.9.1
 distro==1.9.0
 Django==5.0.2
+django-bootstrap==0.2.4
+django-bootstrap5==24.3
 django-plotly-dash==2.4.3
 dpd-static-support==0.0.5
 dpd_components==0.1.0
@@ -59,6 +62,7 @@ lxml==5.3.0
 MarkupSafe==3.0.2
 matplotlib==3.9.2
 multidict==6.1.0
+mysqlclient==2.2.4
 nest-asyncio==1.6.0
 numexpr==2.10.1
 numpy==1.26.4
