@@ -2,7 +2,6 @@
 {% load static %}
 {% load plotly_dash %} <!-- plotly_dash 템플릿 태그 로드 -->
 
-
 <html lang="en">
 <head>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
@@ -26,7 +25,6 @@
             padding-bottom: 60% !important;
         }
     </style>
-    
 </head>
 <body>
     <div class="container-fluid">
@@ -77,11 +75,11 @@
                         <h5 class="mb-0">채팅창</h5>
                     </div>
                     <div class="card-body d-flex flex-column p-0">
-                        <div id="chatMessages" class="chat-messages p-3"></div>
+                        <div id="chat-messages" class="chat-messages p-3"></div>
                         <div class="mt-auto p-3">
                             <div class="input-group">
-                                <input type="text" id="chatInput" class="form-control" placeholder="채팅 입력칸">
-                                <button id="sendButton" class="btn btn-primary">대화 보내기</button>
+                                <input type="text" id="user-input" class="form-control" placeholder="메시지를 입력하세요...">
+                                <button onclick="sendMessage()" class="btn btn-primary">전송</button>
                             </div>
                         </div>
                     </div>
@@ -95,42 +93,6 @@
 
     <!-- Chat functionality -->
     <script>
-        const sendButton = document.getElementById('sendButton');
-        const chatInput = document.getElementById('chatInput');
-        const chatMessages = document.getElementById('chatMessages');
-
-        sendButton.addEventListener('click', async () => {
-            const message = chatInput.value.trim();
-            if (message) {
-                appendMessage('You: ' + message);
-                chatInput.value = '';
-
-                try {
-                    const response = await fetch('/chat/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': getCookie('csrftoken'),
-                        },
-                        body: JSON.stringify({ message: message }),
-                    });
-                    const data = await response.json();
-                    appendMessage('우대리: ' + data.message);
-                } catch (error) {
-                    console.error('Error:', error);
-                    appendMessage('Error: Failed to get response from AI');
-                }
-            }
-        });
-
-        function appendMessage(message) {
-            const messageElement = document.createElement('div');
-            messageElement.textContent = message;
-            messageElement.className = 'mb-2';
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
         function getCookie(name) {
             let cookieValue = null;
             if (document.cookie && document.cookie !== '') {
@@ -146,32 +108,34 @@
             return cookieValue;
         }
 
+        const csrftoken = getCookie('csrftoken');
+
+        function sendMessage() {
+            var userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return;
+
+            fetch('/chatbot/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken // CSRF 토큰 추가
+                },
+                body: JSON.stringify({message: userInput})
+            })
+            .then(response => response.json())
+            .then(data => {
+                var chatMessages = document.getElementById('chat-messages');
+                chatMessages.innerHTML += '<p><strong>사용자:</strong> ' + userInput + '</p>';
+                chatMessages.innerHTML += '<p><strong>우대리:</strong> ' + data.message + '</p>'; // 'data.message'로 수정
+                document.getElementById('user-input').value = '';
+            })
+            .catch(error => console.error('Error:', error));
+        }
+
         // Resize Plotly charts
         document.addEventListener('DOMContentLoaded', function() {
-            var chartDivs = document.querySelectorAll('.bg-light');
-
-            chartDivs.forEach(function(chartDiv) {
-                // 각 컨테이너 내부의 Plotly 차트를 찾습니다.
-                var plotlyChart = chartDiv.querySelector('.js-plotly-plot');
-                
-                if (plotlyChart) {
-                    // 차트의 크기를 조정하는 함수
-                    function resizeChart() {
-                        Plotly.relayout(plotlyChart, {
-                            width: chartDiv.offsetWidth,
-                            height: chartDiv.offsetHeight
-                        });
-                    }
-
-                    // 초기 크기 설정
-                    resizeChart();
-
-                    // 창 크기가 변경될 때마다 차트 크기 조정
-                    window.addEventListener('resize', resizeChart);
-                }
-            });
+            // Plotly 차트 리사이징 코드 (필요시 추가)
         });
     </script>
-
 </body>
 </html>
