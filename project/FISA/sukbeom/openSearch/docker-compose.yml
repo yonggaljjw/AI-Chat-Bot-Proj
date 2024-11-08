@@ -20,8 +20,6 @@ services:
         hard: 65536
     volumes:
       - opensearch-data1:/usr/share/opensearch/data # Creates volume called opensearch-data1 and mounts it to the container
-      - ./config/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
-      - ./backup:/mnt/snapshots
     ports:
       - 9300:9200 # REST API
       - 9600:9600 # Performance Analyzer
@@ -48,8 +46,6 @@ services:
         hard: 65536
     volumes:
       - opensearch-data2:/usr/share/opensearch/data
-      - ./config/opensearch.yml:/usr/share/opensearch/config/opensearch.yml
-      - ./backup:/mnt/snapshots
     networks:
       - opensearch-net
 
