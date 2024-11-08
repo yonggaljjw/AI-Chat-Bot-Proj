@@ -61,7 +61,17 @@
                         <div class="card">
                             <div class="card-body">
                                 <h5 class="card-title">Chart 4</h5>
-                                <div class="bg-light" style="height: 200px;"></div>
+                                <div class="bg-light" style="height: 200px;">
+                                    <ul>
+                                        {% if posts %}
+                                            {% for post in posts %}
+                                                <li>{{ post.date }} - {{ post.title }}</li>
+                                            {% endfor %}
+                                        {% else %}
+                                            <li>No posts available</li>
+                                        {% endif %}
+                                    </ul>
+                                </div>
                             </div>
                         </div>
                     </div>

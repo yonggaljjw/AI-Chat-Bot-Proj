@@ -12,7 +12,7 @@ import json
 import openai
 from dotenv import load_dotenv
 import os
-
+from elasticsearch import Elasticsearch
 
 load_dotenv()
 
@@ -63,4 +63,30 @@ def chat(request):
 
 
 
+# chart 4
+def recent_posts(request):
+    # Elasticsearch 클라이언트 설정
+    es = Elasticsearch('http://host.docker.internal:9200')
+
+    # Elasticsearch 쿼리 작성
+    query = {
+        "sort": [
+            {"날짜": {"order": "desc"}}
+        ],
+        "size": 10,
+        "_source": ["날짜", "제목"]
+    }
+
+    # 'raw_data' 인덱스에서 검색
+    response = es.search(index="raw_data", body=query)
+    posts = [
+        {
+            "date": hit["_source"].get("날짜"),
+            "title": hit["_source"].get("제목")
+        }
+        for hit in response["hits"]["hits"]
+    ]
+
+    # posts 데이터를 템플릿으로 전달
+    return render(request, "index.html", {"posts": posts})
 
