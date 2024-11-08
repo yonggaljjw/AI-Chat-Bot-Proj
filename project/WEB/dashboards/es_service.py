@@ -14,7 +14,7 @@ es_password = os.environ.get('ES_PASSWORD')
 # 인증 정보를 사용하여 Elasticsearch 초기화
 es = Elasticsearch(
     [es_host_url],
-    http_auth=(es_username, es_password), timeout=30
+    http_auth=(es_username, es_password)
 )
 
 def index(index, id, body, hard_refresh=False):
