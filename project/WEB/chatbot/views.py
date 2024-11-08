@@ -3,8 +3,9 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django_plotly_dash import *
-from eunchai.watching_word import app 
-from jiyeon.D_02_visualization_origin import app
+
+from dashboards.watching_word import app 
+from dashboards.D_02_visualization_origin import app
 
 import json
 import openai
@@ -31,24 +32,23 @@ def index(request):
 @csrf_exempt
 @require_http_methods(["POST"])
 def chat(request):
-    try:
-        data = json.loads(request.body)
-        user_message = data.get('message', '')
+    data = json.loads(request.body)
+    user_message = data.get('message', '')
 
-        # GPT 모델을 사용하여 응답 생성
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[
-                {"role": "system", "content": "You are a helpful assistant named 우대리."},
-                {"role": "user", "content": user_message}
-            ]
-        )
+    # OpenAI API를 사용하여 응답 생성
+    response = openai.ChatCompletion.create(
+        model="gpt-4o-mini",
+        messages=[
+            {"role": "system", "content": "Your name is 우대리, You are a helpful assistant."},
+            {"role": "user", "content": user_message}
+        ]
+    )
 
-        bot_response = response.choices[0].message['content']
+    ai_message = response.choices[0].message['content']
+    return JsonResponse({'message': ai_message})
 
-        return JsonResponse({'message': f" {bot_response}"})
-    
-    except json.JSONDecodeError:
-        return JsonResponse({'error': 'Invalid JSON'}, status=400)
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+######
+
+
+
+

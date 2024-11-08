@@ -1,0 +1,539 @@
+{
+    "경제": {
+        "top_words": [
+            {
+                "word": "아시아나",
+                "count": 3,
+                "links": [
+                    "https://mydaily.co.kr/page/view/2024110614252991545"
+                ]
+            },
+            {
+                "word": "고위",
+                "count": 4,
+                "links": [
+                    "https://www.sedaily.com/NewsView/2DGQODR5JS",
+                    "https://daily.hankooki.com/news/articleView.html?idxno=1144798",
+                    "https://www.etnews.com/20241106000308"
+                ]
+            },
+            {
+                "word": "위축",
+                "count": 4,
+                "links": [
+                    "https://www.mk.co.kr/article/11161375",
+                    "https://www.mk.co.kr/article/11161313",
+                    "https://www.ekn.kr/web/view.php?key=20241106029527514"
+                ]
+            },
+            {
+                "word": "금품",
+                "count": 4,
+                "links": [
+                    "http://www.m-i.kr/news/articleView.html?idxno=1176094",
+                    "https://www.polinews.co.kr/news/articleView.html?idxno=669726",
+                    "https://www.seoul.co.kr/news/society/2024/11/06/20241106500198?wlog_tag3=naver"
+                ]
+            },
+            {
+                "word": "국립",
+                "count": 4,
+                "links": [
+                    "https://www.mk.co.kr/article/11161365",
+                    "http://www.dtnews24.com/news/articleView.html?idxno=781297",
+                    "https://www.akomnews.com/bbs/board.php?bo_table=news&wr_id=60348"
+                ]
+            },
+            {
+                "word": "위협",
+                "count": 4,
+                "links": [
+                    "https://www.ajunews.com/view/20241106173407616",
+                    "https://vop.co.kr/A00001663379.html",
+                    "https://www.iusm.co.kr/news/articleView.html?idxno=1046822"
+                ]
+            },
+            {
+                "word": "법인",
+                "count": 4,
+                "links": [
+                    "https://www.sisaweek.com/news/articleView.html?idxno=219503",
+                    "https://zdnet.co.kr/view/?no=20241106172612",
+                    "http://www.weeklytoday.com/news/articleView.html?idxno=660796"
+                ]
+            },
+            {
+                "word": "의심",
+                "count": 4,
+                "links": [
+                    "https://www.sisaweek.com/news/articleView.html?idxno=219503",
+                    "http://www.yonhapmidas.com/article/241106131004_772141",
+                    "https://science.ytn.co.kr/program/view.php?mcd=0082&hcd=0023&key=202411061630275120"
+                ]
+            },
+            {
+                "word": "퇴직",
+                "count": 4,
+                "links": [
+                    "https://www.ajunews.com/view/20241106174208625",
+                    "http://www.metroseoul.co.kr/article/20241106500628"
+                ]
+            },
+            {
+                "word": "능력",
+                "count": 4,
+                "links": [
+                    "https://www.mk.co.kr/article/11161361",
+                    "http://www.ikld.kr/news/articleView.html?idxno=303097",
+                    "https://www.news1.kr/society/general-society/5592159"
+                ]
+            },
+            {
+                "word": "게임",
+                "count": 4,
+                "links": [
+                    "https://www.mk.co.kr/article/11161361",
+                    "https://dealsite.co.kr/articles/131014",
+                    "https://www.econovill.com/news/articleView.html?idxno=672448"
+                ]
+            },
+            {
+                "word": "캄보디아",
+                "count": 4,
+                "links": [
+                    "http://www.veritas-a.com/news/articleView.html?idxno=527970",
+                    "https://www.sedaily.com/NewsView/2DGQNI63C8",
+                    "http://www.fnnews.com/news/202411061722531698"
+                ]
+            },
+            {
+                "word": "별세",
+                "count": 4,
+                "links": [
+                    "https://www.mk.co.kr/article/11161358",
+                    "http://www.readersnews.com/news/articleView.html?idxno=113399",
+                    "https://www.safetimes.co.kr/news/articleView.html?idxno=221132"
+                ]
+            },
+            {
+                "word": "클러스터",
+                "count": 4,
+                "links": [
+                    "https://www.ohmynews.com/NWS_Web/View/at_pg.aspx?CNTN_CD=A0003077689&CMPT_CD=P0010&utm_source=naver&utm_medium=newsearch&utm_campaign=naver_news",
+                    "https://www.nspna.com/news/?mode=view&newsid=725522",
+                    "https://www.ccreview.co.kr/news/articleView.html?idxno=322175"
+                ]
+            },
+            {
+                "word": "재생에너지",
+                "count": 4,
+                "links": [
+                    "http://www.ikld.kr/news/articleView.html?idxno=303099",
+                    "https://daily.hankooki.com/news/articleView.html?idxno=1144818",
+                    "https://www.smarttoday.co.kr/news/articleView.html?idxno=63792"
+                ]
+            }
+        ]
+    },
+    "스포츠": {
+        "top_words": [
+            {
+                "word": "주니엘",
+                "count": 4,
+                "links": [
+                    "http://www.stoo.com/article.php?aid=97184758386",
+                    "https://isplus.com/article/view/isp202411060166"
+                ]
+            },
+            {
+                "word": "이사",
+                "count": 4,
+                "links": [
+                    "http://www.stoo.com/article.php?aid=97184758386",
+                    "https://www.busan.com/view/busan/view.php?code=2024110616152525159",
+                    "https://isplus.com/article/view/isp202411060166"
+                ]
+            },
+            {
+                "word": "송린초",
+                "count": 4,
+                "links": [
+                    "https://www.munhwa.com/news/view.html?no=2024110601039921043002",
+                    "https://sports.chosun.com/sports-news/2024-11-06/202411060100040370005634"
+                ]
+            },
+            {
+                "word": "오상",
+                "count": 4,
+                "links": [
+                    "http://www.osen.co.kr/article/G1112451932",
+                    "https://www.news1.kr/entertain/movie/5592101",
+                    "https://www.sportsworldi.com/newsView/20241106516478"
+                ]
+            },
+            {
+                "word": "구본길",
+                "count": 4,
+                "links": [
+                    "http://www.osen.co.kr/article/G1112451932",
+                    "https://www.news1.kr/entertain/movie/5592101",
+                    "https://www.sportsworldi.com/newsView/20241106516478"
+                ]
+            },
+            {
+                "word": "윤현",
+                "count": 4,
+                "links": [
+                    "http://www.osen.co.kr/article/G1112451932",
+                    "https://www.news1.kr/entertain/movie/5592101",
+                    "https://www.sportsworldi.com/newsView/20241106516478"
+                ]
+            },
+            {
+                "word": "가드",
+                "count": 4,
+                "links": [
+                    "http://www.osen.co.kr/article/G1112451932",
+                    "https://www.news1.kr/entertain/movie/5592101",
+                    "https://www.sportsworldi.com/newsView/20241106516478"
+                ]
+            },
+            {
+                "word": "수호",
+                "count": 4,
+                "links": [
+                    "http://www.osen.co.kr/article/G1112451932",
+                    "https://www.news1.kr/entertain/movie/5592101",
+                    "https://www.sportsworldi.com/newsView/20241106516478"
+                ]
+            },
+            {
+                "word": "한승연",
+                "count": 4,
+                "links": [
+                    "http://www.osen.co.kr/article/G1112451932",
+                    "https://www.news1.kr/entertain/movie/5592101",
+                    "https://www.sportsworldi.com/newsView/20241106516478"
+                ]
+            },
+            {
+                "word": "은하",
+                "count": 4,
+                "links": [
+                    "http://www.osen.co.kr/article/G1112451932",
+                    "https://www.news1.kr/entertain/movie/5592101",
+                    "https://www.sportsworldi.com/newsView/20241106516478"
+                ]
+            },
+            {
+                "word": "신비",
+                "count": 4,
+                "links": [
+                    "http://www.osen.co.kr/article/G1112451932",
+                    "https://www.news1.kr/entertain/movie/5592101",
+                    "https://www.sportsworldi.com/newsView/20241106516478"
+                ]
+            },
+            {
+                "word": "엄지",
+                "count": 4,
+                "links": [
+                    "http://www.osen.co.kr/article/G1112451932",
+                    "https://www.news1.kr/entertain/movie/5592101",
+                    "https://www.sportsworldi.com/newsView/20241106516478"
+                ]
+            },
+            {
+                "word": "다샤",
+                "count": 4,
+                "links": [
+                    "http://www.osen.co.kr/article/G1112451932",
+                    "https://www.news1.kr/entertain/movie/5592101",
+                    "https://www.sportsworldi.com/newsView/20241106516478"
+                ]
+            },
+            {
+                "word": "전자",
+                "count": 4,
+                "links": [
+                    "https://www.mk.co.kr/article/11161101",
+                    "https://www.seoul.co.kr/news/plan/world-read-numbers/2024/11/06/20241106500004?wlog_tag3=naver",
+                    "https://www.news1.kr/photos/6970594"
+                ]
+            },
+            {
+                "word": "음료",
+                "count": 4,
+                "links": [
+                    "https://www.mk.co.kr/article/11161101",
+                    "https://www.bloter.net/news/articleView.html?idxno=625926",
+                    "https://www.venturesquare.net/945645"
+                ]
+            }
+        ]
+    },
+    "사회": {
+        "top_words": [
+            {
+                "word": "미정",
+                "count": 3,
+                "links": [
+                    "http://www.sisafocus.co.kr/news/articleView.html?idxno=327454",
+                    "http://www.jnilbo.com/75326984766"
+                ]
+            },
+            {
+                "word": "개막식",
+                "count": 3,
+                "links": [
+                    "https://www.joongdo.co.kr/web/view.php?key=20241106010001619",
+                    "http://www.newstnt.com/news/articleView.html?idxno=428232"
+                ]
+            },
+            {
+                "word": "행정부",
+                "count": 3,
+                "links": [
+                    "http://www.bzeronews.com/news/articleView.html?idxno=684828",
+                    "https://www.siminilbo.co.kr/news/newsview.php?ncode=1160276241894372",
+                    "http://www.chungnamilbo.co.kr/news/articleView.html?idxno=798384"
+                ]
+            },
+            {
+                "word": "소셜미디어",
+                "count": 3,
+                "links": [
+                    "https://www.chosun.com/economy/money/2024/11/06/55AT42UFNJGJ7P6NIYTXARK7JQ/?utm_source=naver&utm_medium=referral&utm_campaign=naver-news",
+                    "http://www.g-enews.com/ko-kr/news/article/news_all/202411061609266963a6e8311f64_1/article.html",
+                    "http://www.g-enews.com/ko-kr/news/article/news_all/202411061609266963a6e8311f64_1/article.html"
+                ]
+            },
+            {
+                "word": "유기",
+                "count": 3,
+                "links": [
+                    "https://www.asiatoday.co.kr/view.php?key=20241106010002972",
+                    "https://www.startuptoday.co.kr/news/articleView.html?idxno=364373",
+                    "https://www.ebn.co.kr/news/articleView.html?idxno=1642450"
+                ]
+            },
+            {
+                "word": "유한킴벌리",
+                "count": 3,
+                "links": [
+                    "https://www.thepublic.kr/news/articleView.html?idxno=240357",
+                    "http://www.thefirstmedia.net/news/articleView.html?idxno=157565",
+                    "http://www.kdfnews.com/news/articleView.html?idxno=142941"
+                ]
+            },
+            {
+                "word": "리드",
+                "count": 3,
+                "links": [
+                    "https://www.thepublic.kr/news/articleView.html?idxno=240357",
+                    "http://www.thefirstmedia.net/news/articleView.html?idxno=157565",
+                    "http://www.kdfnews.com/news/articleView.html?idxno=142941"
+                ]
+            },
+            {
+                "word": "천안시청",
+                "count": 3,
+                "links": [
+                    "https://www.ccdailynews.com/news/articleView.html?idxno=2306446",
+                    "https://www.newscj.com/news/articleView.html?idxno=3196947",
+                    "https://www.newscj.com/news/articleView.html?idxno=3196947"
+                ]
+            },
+            {
+                "word": "석유화학",
+                "count": 3,
+                "links": [
+                    "https://www.getnews.co.kr/news/articleView.html?idxno=700365",
+                    "https://www.siminilbo.co.kr/news/newsview.php?ncode=1160281683861159"
+                ]
+            },
+            {
+                "word": "노상구",
+                "count": 3,
+                "links": [
+                    "https://www.getnews.co.kr/news/articleView.html?idxno=700365",
+                    "https://www.siminilbo.co.kr/news/newsview.php?ncode=1160281683861159"
+                ]
+            },
+            {
+                "word": "바이든",
+                "count": 3,
+                "links": [
+                    "https://www.newsis.com/view/NISX20241106_0002948995",
+                    "https://www.dailian.co.kr/news/view/1426069/?sc=Naver"
+                ]
+            },
+            {
+                "word": "인기",
+                "count": 3,
+                "links": [
+                    "https://www.newsis.com/view/NISX20241106_0002948995",
+                    "https://www.kmib.co.kr/article/view.asp?arcid=0020701791&code=61181611&cp=nv",
+                    "https://www.mk.co.kr/article/11161252"
+                ]
+            },
+            {
+                "word": "여의도",
+                "count": 3,
+                "links": [
+                    "http://www.popcornnews.net/news/articleView.html?idxno=67881",
+                    "https://news.einfomax.co.kr/news/articleView.html?idxno=4331258",
+                    "https://www.etoday.co.kr/news/view/2416946"
+                ]
+            },
+            {
+                "word": "특강",
+                "count": 3,
+                "links": [
+                    "https://www.lecturernews.com/news/articleView.html?idxno=165592",
+                    "http://www.metroseoul.co.kr/article/20241106500597"
+                ]
+            },
+            {
+                "word": "각자",
+                "count": 3,
+                "links": [
+                    "https://www.lecturernews.com/news/articleView.html?idxno=165592",
+                    "http://www.koreareport.co.kr/news/articleView.html?idxno=29034",
+                    "https://www.mediapen.com/news/view/966027"
+                ]
+            }
+        ]
+    },
+    "정치": {
+        "top_words": [
+            {
+                "word": "분수령",
+                "count": 3,
+                "links": [
+                    "https://www.thepublic.kr/news/articleView.html?idxno=240301",
+                    "https://www.etnews.com/20241106000312",
+                    "https://news.kbs.co.kr/news/pc/view/view.do?ncd=8099667&ref=A"
+                ]
+            },
+            {
+                "word": "안규백",
+                "count": 3,
+                "links": [
+                    "https://www.thepublic.kr/news/articleView.html?idxno=240331",
+                    "http://www.inews24.com/view/1780181",
+                    "https://www.siminilbo.co.kr/news/newsview.php?ncode=1160283933431967"
+                ]
+            },
+            {
+                "word": "민낯",
+                "count": 3,
+                "links": [
+                    "https://www.hankyung.com/article/2024110641547",
+                    "https://www.sisamagazine.co.kr/news/articleView.html?idxno=508387",
+                    "https://www.yna.co.kr/view/AKR20241106115000054?input=1195m"
+                ]
+            },
+            {
+                "word": "노래",
+                "count": 3,
+                "links": [
+                    "https://vop.co.kr/A00001663372.html"
+                ]
+            },
+            {
+                "word": "과학기술",
+                "count": 3,
+                "links": [
+                    "https://www.sisamagazine.co.kr/news/articleView.html?idxno=508387",
+                    "http://www.ilyoseoul.co.kr/news/articleView.html?idxno=494824"
+                ]
+            },
+            {
+                "word": "흐름",
+                "count": 3,
+                "links": [
+                    "https://www.tokenpost.kr/article-204137",
+                    "https://www.aitimes.com/news/articleView.html?idxno=165008",
+                    "https://www.jjan.kr/article/20241106580118"
+                ]
+            },
+            {
+                "word": "강원도",
+                "count": 3,
+                "links": [
+                    "https://www.nocutnews.co.kr/news/6239867?utm_source=naver&utm_medium=article&utm_campaign=20241106031753"
+                ]
+            },
+            {
+                "word": "진보당",
+                "count": 3,
+                "links": [
+                    "https://www.nocutnews.co.kr/news/6239867?utm_source=naver&utm_medium=article&utm_campaign=20241106031753",
+                    "https://www.news1.kr/local/daegu-gyeongbuk/5591893",
+                    "https://newscham.net/articles/110766"
+                ]
+            },
+            {
+                "word": "불리",
+                "count": 3,
+                "links": [
+                    "http://www.m-i.kr/news/articleView.html?idxno=1175958",
+                    "http://www.hansbiz.co.kr/news/articleView.html?idxno=719668"
+                ]
+            },
+            {
+                "word": "의대",
+                "count": 3,
+                "links": [
+                    "https://biz.chosun.com/topics/topics_social/2024/11/06/D5GRBPVGAZBLXIQUTJDICQQ4UA/?utm_source=naver&utm_medium=original&utm_campaign=biz",
+                    "http://www.doctorstimes.com/news/articleView.html?idxno=229857"
+                ]
+            },
+            {
+                "word": "김석기",
+                "count": 3,
+                "links": [
+                    "https://www.newsfreezone.co.kr/news/articleView.html?idxno=594726",
+                    "https://www.dailian.co.kr/news/view/1425946/?sc=Naver",
+                    "https://www.imaeil.com/page/view/2024110613525914532"
+                ]
+            },
+            {
+                "word": "이재권",
+                "count": 3,
+                "links": [
+                    "https://news.tvchosun.com/site/data/html_dir/2024/11/06/2024110690227.html",
+                    "https://www.khan.co.kr/national/national-general/article/202411061440001",
+                    "http://www.fnnews.com/news/202411061346411397"
+                ]
+            },
+            {
+                "word": "항소심",
+                "count": 3,
+                "links": [
+                    "https://news.tvchosun.com/site/data/html_dir/2024/11/06/2024110690227.html",
+                    "https://www.khan.co.kr/national/national-general/article/202411061440001",
+                    "http://www.fnnews.com/news/202411061346411397"
+                ]
+            },
+            {
+                "word": "조건",
+                "count": 3,
+                "links": [
+                    "https://www.aitimes.com/news/articleView.html?idxno=165008",
+                    "https://www.redaily.co.kr/news/articleView.html?idxno=10546"
+                ]
+            },
+            {
+                "word": "금융투자",
+                "count": 3,
+                "links": [
+                    "https://www.dailian.co.kr/news/view/1425940/?sc=Naver",
+                    "http://www.inews24.com/view/1780105",
+                    "https://www.mediapen.com/news/view/965951"
+                ]
+            }
+        ]
+    }
+}
