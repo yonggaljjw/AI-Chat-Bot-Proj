@@ -4,6 +4,13 @@ from django_plotly_dash import DjangoDash
 from dash import dcc, html
 from dash.dependencies import Input, Output
 from fredapi import Fred
+import pandas as pd
+import os
+
+fred = Fred(api_key=os.getenv('FRED_API_KEY'))
+# !pip install PublicDataReader --upgrade
+
+# 데이터 조회 함수
 from datetime import datetime
 
 # FRED API 설정
