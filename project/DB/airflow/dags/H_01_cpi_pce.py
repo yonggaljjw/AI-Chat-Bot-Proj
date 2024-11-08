@@ -314,8 +314,8 @@ default_args = {
 with DAG(
     'pce_uploader_elasticsearch',
     default_args=default_args,
-    description="신호섭 커피 언제사냐",
-    schedule_interval=None,
+    description="우리조장 신호섭",
+    schedule_interval='@daily',
     start_date=datetime.now(),
     catchup=False,
     tags=['elasticsearch', 'api', 'forecast'],

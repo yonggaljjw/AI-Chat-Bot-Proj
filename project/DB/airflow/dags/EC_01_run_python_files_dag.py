@@ -51,7 +51,7 @@ default_args = {
     'retry_delay': timedelta(minutes=5)
 }
 
-with DAG('my_workflow', default_args=default_args, catchup=False, start_date=datetime.now(), schedule_interval=None) as dag:
+with DAG('my_workflow', default_args=default_args, catchup=False, start_date=datetime.now(), schedule_interval='@daily') as dag:
     task1 = PythonOperator(
         task_id='run_naver_news',
         python_callable=run_script,
