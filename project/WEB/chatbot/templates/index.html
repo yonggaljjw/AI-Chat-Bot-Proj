@@ -5,6 +5,7 @@
 <html lang="en">
 <head>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>우대리</title>
@@ -24,7 +25,11 @@
         #chart1 > div {
             padding-bottom: 60% !important;
         }
+        #chart1 > div {
+            padding-bottom: 60% !important;
+        }
     </style>
+    
 </head>
 <body>
     <div class="container-fluid">
@@ -44,6 +49,8 @@
                     <div class="col-md-6 mb-4">
                         <div class="card">
                             <div class="card-body">
+                                <h5 class="card-title">GDP 성장률과 연방기금금리, 실업률 비교 차트</h5>
+                                <div class="bg-light" style="height: 200px;">{% plotly_app name="simple_example" ratio=1 %}</div>
                                 <h5 class="card-title">GDP 성장률과 연방기금금리, 실업률 비교 차트</h5>
                                 <div class="bg-light" style="height: 200px;">{% plotly_app name="simple_example" ratio=1 %}</div>
                             </div>
@@ -137,5 +144,6 @@
             // Plotly 차트 리사이징 코드 (필요시 추가)
         });
     </script>
+
 </body>
 </html>
