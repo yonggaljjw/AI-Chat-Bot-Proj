@@ -48,15 +48,15 @@ def create_or_update_index():
         "mappings": {
             "properties": {
                 "제목": {"type": "text"},
-                "제목_vector" : {"type":"dense_vector", "dims": 1536},
+                "제목_vector" : {"type":"knn_vector", "dimension": 1536},
                 "날짜": {"type": "date"},
                 "URL": {"type": "text"},
                 "내용": {"type": "text"},
-                "내용_vector" : {"type":"dense_vector", "dims": 1536},
+                "내용_vector" : {"type":"knn_vector", "dimension": 1536},
                 "개정이유": {"type": "text"},
-                "개정이유_vector" : {"type":"dense_vector", "dims": 1536},
+                "개정이유_vector" : {"type":"knn_vector", "dimension": 1536},
                 "주요내용": {"type": "text"},
-                "주요내용_vector" : {"type":"dense_vector", "dims": 1536}
+                "주요내용_vector" : {"type":"knn_vector", "dimension": 1536}
             }
         }
     }

@@ -5,6 +5,7 @@ from airflow import DAG  # Airflow에서 DAG을 정의하기 위한 모듈
 from airflow.operators.python_operator import PythonOperator  # Python 작업 정의용 Operator
 # from elasticsearch import Elasticsearch  # Elasticsearch 클라이언트
 from opensearchpy import OpenSearch
+import opensearch_py_ml as oml
 from dotenv import load_dotenv
 import os
 
@@ -76,12 +77,12 @@ def dataframe_to_elasticsearch_first():
     #     es_if_exists="append",  # 기존 데이터에 추가
     #     es_refresh=True  # 인덱스 즉시 새로고침
     # )
-    ed.pandas_to_eland(
+    oml.pandas_to_opensearch(
         pd_df=df,
-        es_client=client,
-        es_dest_index="raw_data",
-        es_if_exists="append",  # 기존 데이터에 추가
-        es_refresh=True  # 인덱스 즉시 새로고침
+        os_client=client,
+        os_dest_index="raw_data",
+        os_if_exists="append",  # 기존 데이터에 추가
+        os_refresh=True  # 인덱스 즉시 새로고침
     )
     print("데이터 업로드 완료")
 
