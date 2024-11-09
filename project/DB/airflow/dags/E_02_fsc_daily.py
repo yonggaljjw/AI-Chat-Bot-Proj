@@ -11,6 +11,7 @@ import re
 from package.fsc_crawling import crawling
 from package.fsc_extract import extract_main_content, extract_reason
 from package.vector_embedding import generate_embedding
+import os
 
 from opensearchpy import OpenSearch
 from dotenv import load_dotenv

@@ -8,6 +8,7 @@ from airflow.operators.python_operator import PythonOperator
 from elasticsearch import Elasticsearch, helpers
 import re
 
+import os
 from package.fsc_crawling import crawling
 from package.fsc_extract import extract_main_content, extract_reason
 from package.vector_embedding import generate_embedding
