@@ -5,6 +5,22 @@ import subprocess
 import json
 from elasticsearch import Elasticsearch, helpers
 
+from opensearchpy import OpenSearch
+from dotenv import load_dotenv
+
+load_dotenv()
+
+host = os.getenv("HOST")
+port = os.getenv("PORT")
+auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+
+client = OpenSearch(
+    hosts = [{'host': host, 'port': port}],
+    http_auth = auth,
+    use_ssl = True,
+    verify_certs = False
+)
+
 # Elasticsearch 설정
 es = Elasticsearch("http://host.docker.internal:9200")
 
@@ -41,6 +57,7 @@ def upload_to_elasticsearch():
     # Bulk API 호출
     if actions:
         helpers.bulk(es, actions)
+        helpers.bulk(client, actions)
         print(f"{len(actions)}개의 문서가 Elasticsearch에 업로드되었습니다.")
     else:
         print("업로드할 문서가 없습니다.")

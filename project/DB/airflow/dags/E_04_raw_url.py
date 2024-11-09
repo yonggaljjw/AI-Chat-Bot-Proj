@@ -7,6 +7,22 @@ import pandas as pd
 from elasticsearch import Elasticsearch, helpers
 import os
 
+from opensearchpy import OpenSearch
+from dotenv import load_dotenv
+
+load_dotenv()
+
+host = os.getenv("HOST")
+port = os.getenv("PORT")
+auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+
+client = OpenSearch(
+    hosts = [{'host': host, 'port': port}],
+    http_auth = auth,
+    use_ssl = True,
+    verify_certs = False
+)
+
 # Elasticsearch 연결 설정
 es = Elasticsearch("http://host.docker.internal:9200")
 
@@ -49,6 +65,9 @@ def create_or_update_index():
     if es.indices.exists(index='law_url'):
         es.indices.delete(index='law_url')
         print("기존 인덱스 삭제 완료")
+    if client.indices.exists(index='law_url'):
+        client.indices.delete(index='law_url')
+        print("기존 인덱스 삭제 완료")
 
     index_settings = {
         "mappings": {
@@ -62,6 +81,7 @@ def create_or_update_index():
         }
     }
     es.indices.create(index='law_url', body=index_settings)
+    client.indices.create(index='law_url', body=index_settings)
     print("새로운 인덱스 생성 완료")
 
 def upload_to_elasticsearch(**kwargs):
@@ -82,6 +102,7 @@ def upload_to_elasticsearch(**kwargs):
     
     if actions:
         helpers.bulk(es, actions)
+        helpers.bulk(client, actions)
         print(f"{len(actions)}개의 데이터를 업로드했습니다.")
     else:
         print("업로드할 데이터가 없습니다.")
