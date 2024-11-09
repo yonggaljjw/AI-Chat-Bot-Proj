@@ -204,6 +204,21 @@ from elasticsearch import Elasticsearch
 from datetime import datetime, timedelta
 from prophet import Prophet
 import eland as ed
+from opensearchpy import OpenSearch
+from dotenv import load_dotenv
+
+load_dotenv()
+
+host = os.getenv("HOST")
+port = os.getenv("PORT")
+auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+
+client = OpenSearch(
+    hosts = [{'host': host, 'port': port}],
+    http_auth = auth,
+    use_ssl = True,
+    verify_certs = False
+)
 
 # API 기본 URL과 분류 코드 설정
 BASE_URL = "https://ecos.bok.or.kr/api/StatisticSearch/2IJKJSOY6OFOQZ28900C/json/kr/1/100000/601Y002/M/200001/202409/X/{}/DAV"
@@ -273,11 +288,21 @@ def upload_to_elasticsearch(df, index_name):
     if es.indices.exists(index=index_name):
         es.indices.delete(index=index_name)
         print("기존 인덱스 삭제 완료")
+    if client.indices.exists(index=index_name):
+        client.indices.delete(index=index_name)
+        print("기존 인덱스 삭제 완료")
 
     """데이터를 Elasticsearch에 업로드합니다."""
     ed.pandas_to_eland(
         pd_df=df,
         es_client=es,
+        es_dest_index=index_name,
+        es_if_exists="append",
+        es_refresh=True,
+    )
+    ed.pandas_to_eland(
+        pd_df=df,
+        es_client=client,
         es_dest_index=index_name,
         es_if_exists="append",
         es_refresh=True,

@@ -12,6 +12,22 @@ from package.fsc_crawling import crawling
 from package.fsc_extract import extract_main_content, extract_reason
 from package.vector_embedding import generate_embedding
 
+from opensearchpy import OpenSearch
+from dotenv import load_dotenv
+
+load_dotenv()
+
+host = os.getenv("HOST")
+port = os.getenv("PORT")
+auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+
+client = OpenSearch(
+    hosts = [{'host': host, 'port': port}],
+    http_auth = auth,
+    use_ssl = True,
+    verify_certs = False
+)
+
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
 es = Elasticsearch('http://host.docker.internal:9200')
 
@@ -21,6 +37,9 @@ def create_or_update_index():
     # 인덱스가 이미 존재하면 삭제
     if es.indices.exists(index='raw_data'):
         es.indices.delete(index='raw_data')
+        print("기존 인덱스 삭제 완료")
+    if client.indices.exists(index='raw_data'):
+        client.indices.delete(index='raw_data')
         print("기존 인덱스 삭제 완료")
 
     # 새로운 인덱스 생성 (날짜 필드를 date 타입으로 설정)
@@ -41,6 +60,7 @@ def create_or_update_index():
         }
     }
     es.indices.create(index='raw_data', body=index_settings)
+    client.indices.create(index='raw_data', body=index_settings)
     print("새로운 인덱스 생성 완료")
 
 def crawling_extract_df():
@@ -92,6 +112,7 @@ def upload_data():
     
     if actions:
         helpers.bulk(es, actions)
+        helpers.bulk(client, actions)
         print(f"{len(actions)}개의 데이터를 업로드했습니다.")
     else:
         print("업로드할 데이터가 없습니다.")
