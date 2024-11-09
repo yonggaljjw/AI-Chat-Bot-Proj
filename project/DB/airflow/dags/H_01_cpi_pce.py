@@ -205,6 +205,7 @@ from datetime import datetime, timedelta
 from prophet import Prophet
 import eland as ed
 from opensearchpy import OpenSearch
+import opensearch_py_ml as oml
 from dotenv import load_dotenv
 import os
 
@@ -301,12 +302,12 @@ def upload_to_elasticsearch(df, index_name):
     #     es_if_exists="append",
     #     es_refresh=True,
     # )
-    ed.pandas_to_eland(
+    oml.pandas_to_opensearch(
         pd_df=df,
-        es_client=client,
-        es_dest_index=index_name,
-        es_if_exists="append",
-        es_refresh=True,
+        os_client=client,
+        os_dest_index=index_name,
+        os_if_exists="append",
+        os_refresh=True,
     )
 
 # def create_indices():

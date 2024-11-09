@@ -8,6 +8,7 @@ from airflow.operators.python_operator import PythonOperator
 from dotenv import load_dotenv
 import os
 from opensearchpy import OpenSearch
+import opensearch_py_ml as oml
 
 load_dotenv()
 
@@ -154,12 +155,12 @@ def dataframe_to_elasticsearch():
     #     es_if_exists="append",
     #     es_refresh=True
     # )
-    ed.pandas_to_eland(
+    oml.pandas_to_opensearch(
         pd_df=df,
-        es_client=client,
-        es_dest_index="fred_data",
-        es_if_exists="append",
-        es_refresh=True
+        os_client=client,
+        os_dest_index="fred_data",
+        os_if_exists="append",
+        os_refresh=True
     )
 
 # Airflow 기본 설정
