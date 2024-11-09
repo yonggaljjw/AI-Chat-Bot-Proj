@@ -7,8 +7,20 @@ from airflow.operators.python_operator import PythonOperator
 from elasticsearch import Elasticsearch
 from dotenv import load_dotenv
 import os
+from opensearchpy import OpenSearch
 
 load_dotenv()
+
+host = os.getenv("HOST")
+port = os.getenv("PORT")
+auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+
+client = OpenSearch(
+    hosts = [{'host': host, 'port': port}],
+    http_auth = auth,
+    use_ssl = True,
+    verify_certs = False
+)
 
 fred = Fred(api_key=os.getenv('FRED_API_KEY'))
 
@@ -94,6 +106,32 @@ try:
             }
         }
     )
+    client.indices.create(
+        index='fred_data',
+        body={
+            "mappings": {
+                "properties": {
+                    "date": {"type": "date"},
+                    "FFTR": {"type": "float"},
+                    "GDP": {"type": "float"},
+                    "GDP Growth Rate": {"type": "float"},
+                    "PCE": {"type": "float"},
+                    "Core PCE": {"type": "float"},
+                    "CPI": {"type": "float"},
+                    "Core CPI": {"type": "float"},
+                    "Personal Income": {"type": "float"},
+                    "Unemployment Rate": {"type": "float"},
+                    "ISM Manufacturing": {"type": "float"},
+                    "Durable Goods Orders": {"type": "float"},
+                    "Building Permits": {"type": "float"},
+                    "Retail Sales": {"type": "float"},
+                    "Consumer Sentiment": {"type": "float"},
+                    "Nonfarm Payrolls": {"type": "float"},
+                    "JOLTS Hires": {"type": "float"}
+                }
+            }
+        }
+    )
     print("Index 'fred_data' created successfully with mappings.")
 except :
     pass
@@ -101,6 +139,7 @@ except :
 # 인덱스 매핑 확인
 try:
     mapping = es.indices.get_mapping(index='fred_data')
+    mapping = client.indices.get_mapping(index='fred_data')
     print("Current index mapping:", mapping)
 except Exception as e:
     print(f"Error fetching index mapping: {e}")
@@ -111,6 +150,13 @@ def dataframe_to_elasticsearch():
     ed.pandas_to_eland(
         pd_df=df,
         es_client=es,
+        es_dest_index="fred_data",
+        es_if_exists="append",
+        es_refresh=True
+    )
+    ed.pandas_to_eland(
+        pd_df=df,
+        es_client=client,
         es_dest_index="fred_data",
         es_if_exists="append",
         es_refresh=True

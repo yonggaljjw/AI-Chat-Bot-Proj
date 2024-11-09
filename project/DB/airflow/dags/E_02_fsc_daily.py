@@ -12,12 +12,29 @@ from package.fsc_crawling import crawling
 from package.fsc_extract import extract_main_content, extract_reason
 from package.vector_embedding import generate_embedding
 
+from opensearchpy import OpenSearch
+from dotenv import load_dotenv
+
+load_dotenv()
+
+host = os.getenv("HOST")
+port = os.getenv("PORT")
+auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+
+client = OpenSearch(
+    hosts = [{'host': host, 'port': port}],
+    http_auth = auth,
+    use_ssl = True,
+    verify_certs = False
+)
+
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
 es = Elasticsearch('http://host.docker.internal:9200')
 
 # Elasticsearch 인덱스 생성 (이미 존재하면 무시)
 try:
     es.indices.create(index='raw_data')
+    client.indices.create(index='raw_data')
 except Exception as e:
     print(f"인덱스 생성 오류 또는 이미 존재: {e}")
 
@@ -56,6 +73,7 @@ def get_existing_entries():
     
     # Elasticsearch에서 검색
     response = es.search(index="raw_data", body=query, size=10000)
+    response = client.search(index="raw_data", body=query, size=10000)
     existing_entries = {(hit['_source']['제목'], hit['_source']['날짜'], hit['_source']['URL']) for hit in response['hits']['hits']}
     
     print(f"검색된 데이터 개수: {response['hits']['total']['value']}")
@@ -98,6 +116,7 @@ def upload_new_data():
     
     if actions:
         helpers.bulk(es, actions)
+        helpers.bulk(client, actions)
         print(f"{len(actions)}개의 새로운 데이터를 업로드했습니다.")
     else:
         print("새로운 데이터가 없습니다.")
