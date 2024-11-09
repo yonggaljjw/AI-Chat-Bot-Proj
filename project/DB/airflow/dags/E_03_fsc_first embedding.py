@@ -12,6 +12,21 @@ from package.fsc_crawling import crawling
 from package.fsc_extract import extract_main_content, extract_reason
 from package.vector_embedding import generate_embedding
 
+from opensearchpy import OpenSearch
+from dotenv import load_dotenv
+
+load_dotenv()
+
+host = os.getenv("HOST")
+port = os.getenv("PORT")
+auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+
+client = OpenSearch(
+    hosts = [{'host': host, 'port': port}],
+    http_auth = auth,
+    use_ssl = True,
+    verify_certs = False
+)
 
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
 es = Elasticsearch('http://host.docker.internal:9200')
@@ -22,6 +37,9 @@ def create_or_delete_index():
     # 인덱스가 이미 존재하면 삭제
     if es.indices.exists(index='test_docs'):
         es.indices.delete(index='test_docs')
+        print("기존 인덱스 삭제 완료")
+    if client.indices.exists(index='test_docs'):
+        client.indices.delete(index='test_docs')
         print("기존 인덱스 삭제 완료")
     
     # 파이프라인 설정
@@ -38,6 +56,7 @@ def create_or_delete_index():
     }
     # 파이프라인 생성
     es.ingest.put_pipeline(id="copy_text_to_content_pipeline", body=pipeline_body)
+    client.ingest.put_pipeline(id="copy_text_to_content_pipeline", body=pipeline_body)
     
     # 새로운 인덱스 생성 (default_pipeline 제거)
     index_body = {
@@ -105,6 +124,9 @@ def create_or_delete_index():
     if not es.indices.exists(index=index_name):
         es.indices.create(index=index_name, body=index_body)
         print(f"Index '{index_name}' created successfully.")
+    elif not client.indices.exists(index=index_name):
+        client.indices.create(index=index_name, body=index_body)
+        print(f"Index '{index_name}' created successfully.")
     else:
         print(f"Index '{index_name}' already exists.")
 
@@ -156,6 +178,7 @@ def upload_data():
     
     if actions:
         helpers.bulk(es, actions)
+        helpers.bulk(client, actions)
         print(f"{len(actions)}개의 데이터를 업로드했습니다.")
     else:
         print("업로드할 데이터가 없습니다.")
