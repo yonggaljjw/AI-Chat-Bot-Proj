@@ -3,7 +3,7 @@ import pandas as pd
 import eland as ed  # Pandas와 Elasticsearch 연동 라이브러리
 from airflow import DAG  # Airflow에서 DAG을 정의하기 위한 모듈
 from airflow.operators.python_operator import PythonOperator  # Python 작업 정의용 Operator
-from elasticsearch import Elasticsearch  # Elasticsearch 클라이언트
+# from elasticsearch import Elasticsearch  # Elasticsearch 클라이언트
 from opensearchpy import OpenSearch
 from dotenv import load_dotenv
 import os
@@ -22,15 +22,15 @@ client = OpenSearch(
 )
 
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
-es = Elasticsearch('http://host.docker.internal:9200')
+# es = Elasticsearch('http://host.docker.internal:9200')
 
 # Elasticsearch 인덱스 생성 또는 재설정 함수
 def create_or_update_index():
     """Elasticsearch 인덱스를 생성 또는 갱신하여 '날짜' 필드를 date 타입으로 설정"""
     # 인덱스가 이미 존재하면 삭제
-    if es.indices.exists(index='raw_data'):
-        es.indices.delete(index='raw_data')
-        print("기존 인덱스 삭제 완료")
+    # if es.indices.exists(index='raw_data'):
+    #     es.indices.delete(index='raw_data')
+    #     print("기존 인덱스 삭제 완료")
     if client.indices.exists(index='raw_data'):
         client.indices.delete(index='raw_data')
         print("기존 인덱스 삭제 완료")
@@ -48,7 +48,7 @@ def create_or_update_index():
             }
         }
     }
-    es.indices.create(index='raw_data', body=index_settings)
+    # es.indices.create(index='raw_data', body=index_settings)
     client.indices.create(index='raw_data', body=index_settings)
     print("새로운 인덱스 생성 완료")
 
@@ -69,13 +69,13 @@ def dataframe_to_elasticsearch_first():
     df['날짜'] = pd.to_datetime(df['날짜'], format='%Y-%m-%d')  # 날짜 형식에 맞게 수정
 
     # DataFrame 데이터를 Elasticsearch로 전송
-    ed.pandas_to_eland(
-        pd_df=df,
-        es_client=es,
-        es_dest_index="raw_data",
-        es_if_exists="append",  # 기존 데이터에 추가
-        es_refresh=True  # 인덱스 즉시 새로고침
-    )
+    # ed.pandas_to_eland(
+    #     pd_df=df,
+    #     es_client=es,
+    #     es_dest_index="raw_data",
+    #     es_if_exists="append",  # 기존 데이터에 추가
+    #     es_refresh=True  # 인덱스 즉시 새로고침
+    # )
     ed.pandas_to_eland(
         pd_df=df,
         es_client=client,

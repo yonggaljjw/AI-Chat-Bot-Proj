@@ -4,10 +4,10 @@ from datetime import datetime, timedelta
 import requests
 import xml.etree.ElementTree as ET
 import pandas as pd
-from elasticsearch import Elasticsearch, helpers
+# from elasticsearch import Elasticsearch, helpers
 import os
 
-from opensearchpy import OpenSearch
+from opensearchpy import OpenSearch, helpers
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -24,7 +24,7 @@ client = OpenSearch(
 )
 
 # Elasticsearch 연결 설정
-es = Elasticsearch("http://host.docker.internal:9200")
+# es = Elasticsearch("http://host.docker.internal:9200")
 
 OC = os.getenv("OC_key")
 
@@ -62,9 +62,9 @@ def fetch_law_data(**kwargs):
 
 def create_or_update_index():
     """ElasticSearch 인덱스를 생성 또는 갱신"""
-    if es.indices.exists(index='law_url'):
-        es.indices.delete(index='law_url')
-        print("기존 인덱스 삭제 완료")
+    # if es.indices.exists(index='law_url'):
+    #     es.indices.delete(index='law_url')
+    #     print("기존 인덱스 삭제 완료")
     if client.indices.exists(index='law_url'):
         client.indices.delete(index='law_url')
         print("기존 인덱스 삭제 완료")
@@ -80,7 +80,7 @@ def create_or_update_index():
             }
         }
     }
-    es.indices.create(index='law_url', body=index_settings)
+    # es.indices.create(index='law_url', body=index_settings)
     client.indices.create(index='law_url', body=index_settings)
     print("새로운 인덱스 생성 완료")
 
@@ -101,7 +101,7 @@ def upload_to_elasticsearch(**kwargs):
     print(f"삽입할 데이터 수: {len(actions)}")
     
     if actions:
-        helpers.bulk(es, actions)
+        # helpers.bulk(es, actions)
         helpers.bulk(client, actions)
         print(f"{len(actions)}개의 데이터를 업로드했습니다.")
     else:
