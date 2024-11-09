@@ -6,6 +6,7 @@ node_modules/
 latest
 *.csv
 backup/
+es/
 
 HELP.md
 target/
@@ -55,4 +56,3 @@ build/
 
 .gradlenode_modules/
 latest
-
