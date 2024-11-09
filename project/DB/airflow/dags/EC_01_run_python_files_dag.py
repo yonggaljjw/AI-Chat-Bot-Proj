@@ -3,10 +3,10 @@ from datetime import datetime, timedelta
 from airflow.operators.python import PythonOperator
 import subprocess
 import json
-from elasticsearch import Elasticsearch, helpers
+# from elasticsearch import Elasticsearch, helpers
 
 import os
-from opensearchpy import OpenSearch
+from opensearchpy import OpenSearch, helpers
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -23,7 +23,7 @@ client = OpenSearch(
 )
 
 # Elasticsearch 설정
-es = Elasticsearch("http://host.docker.internal:9200")
+# es = Elasticsearch("http://host.docker.internal:9200")
 
 def run_script(script_name):
     # Docker 환경에 맞게 파일 경로를 수정했습니다.
@@ -57,7 +57,7 @@ def upload_to_elasticsearch():
 
     # Bulk API 호출
     if actions:
-        helpers.bulk(es, actions)
+        # helpers.bulk(es, actions)
         helpers.bulk(client, actions)
         print(f"{len(actions)}개의 문서가 Elasticsearch에 업로드되었습니다.")
     else:

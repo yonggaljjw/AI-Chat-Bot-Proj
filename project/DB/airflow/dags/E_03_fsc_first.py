@@ -5,7 +5,7 @@ import pandas as pd
 
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
-from elasticsearch import Elasticsearch, helpers
+# from elasticsearch import Elasticsearch, helpers
 import re
 
 import os
@@ -13,7 +13,7 @@ from package.fsc_crawling import crawling
 from package.fsc_extract import extract_main_content, extract_reason
 from package.vector_embedding import generate_embedding
 
-from opensearchpy import OpenSearch
+from opensearchpy import OpenSearch, helpers
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -30,15 +30,15 @@ client = OpenSearch(
 )
 
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
-es = Elasticsearch('http://host.docker.internal:9200')
+# es = Elasticsearch('http://host.docker.internal:9200')
 
 # Elasticsearch 인덱스 생성 또는 재설정 함수
 def create_or_update_index():
     """Elasticsearch 인덱스를 생성 또는 갱신하여 '날짜' 필드를 date 타입으로 설정"""
     # 인덱스가 이미 존재하면 삭제
-    if es.indices.exists(index='raw_data'):
-        es.indices.delete(index='raw_data')
-        print("기존 인덱스 삭제 완료")
+    # if es.indices.exists(index='raw_data'):
+    #     es.indices.delete(index='raw_data')
+    #     print("기존 인덱스 삭제 완료")
     if client.indices.exists(index='raw_data'):
         client.indices.delete(index='raw_data')
         print("기존 인덱스 삭제 완료")
@@ -60,7 +60,7 @@ def create_or_update_index():
             }
         }
     }
-    es.indices.create(index='raw_data', body=index_settings)
+    # es.indices.create(index='raw_data', body=index_settings)
     client.indices.create(index='raw_data', body=index_settings)
     print("새로운 인덱스 생성 완료")
 
@@ -112,7 +112,7 @@ def upload_data():
     print(f"삽입할 데이터 수: {len(actions)}")
     
     if actions:
-        helpers.bulk(es, actions)
+        # helpers.bulk(es, actions)
         helpers.bulk(client, actions)
         print(f"{len(actions)}개의 데이터를 업로드했습니다.")
     else:

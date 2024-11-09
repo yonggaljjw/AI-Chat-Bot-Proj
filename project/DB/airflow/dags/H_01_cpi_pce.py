@@ -200,7 +200,7 @@ import pandas as pd
 from functools import reduce
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
-from elasticsearch import Elasticsearch
+# from elasticsearch import Elasticsearch
 from datetime import datetime, timedelta
 from prophet import Prophet
 import eland as ed
@@ -226,7 +226,7 @@ BASE_URL = "https://ecos.bok.or.kr/api/StatisticSearch/2IJKJSOY6OFOQZ28900C/json
 CODES = 1300
 
 # Elasticsearch 설정
-es = Elasticsearch('http://host.docker.internal:9200')
+# es = Elasticsearch('http://host.docker.internal:9200')
 
 def fetch_data_from_api():
     """API에서 데이터를 수집하고 병합합니다."""
@@ -286,21 +286,21 @@ def forecast_future(df, column_name, periods=3):
 
 def upload_to_elasticsearch(df, index_name):
     """ 인덱스가 이미 존재하면 삭제"""
-    if es.indices.exists(index=index_name):
-        es.indices.delete(index=index_name)
-        print("기존 인덱스 삭제 완료")
+    # if es.indices.exists(index=index_name):
+    #     es.indices.delete(index=index_name)
+    #     print("기존 인덱스 삭제 완료")
     if client.indices.exists(index=index_name):
         client.indices.delete(index=index_name)
         print("기존 인덱스 삭제 완료")
 
     """데이터를 Elasticsearch에 업로드합니다."""
-    ed.pandas_to_eland(
-        pd_df=df,
-        es_client=es,
-        es_dest_index=index_name,
-        es_if_exists="append",
-        es_refresh=True,
-    )
+    # ed.pandas_to_eland(
+    #     pd_df=df,
+    #     es_client=es,
+    #     es_dest_index=index_name,
+    #     es_if_exists="append",
+    #     es_refresh=True,
+    # )
     ed.pandas_to_eland(
         pd_df=df,
         es_client=client,
