@@ -1,11 +1,11 @@
 from datetime import datetime, timedelta
-import requests
-from bs4 import BeautifulSoup
+# import requests
+# from bs4 import BeautifulSoup
 import pandas as pd
 
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
-from elasticsearch import Elasticsearch, helpers
+# from elasticsearch import Elasticsearch, helpers
 import re
 
 from package.fsc_crawling import crawling
@@ -13,7 +13,7 @@ from package.fsc_extract import extract_main_content, extract_reason
 from package.vector_embedding import generate_embedding
 import os
 
-from opensearchpy import OpenSearch
+from opensearchpy import OpenSearch, helpers
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -30,11 +30,11 @@ client = OpenSearch(
 )
 
 # Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
-es = Elasticsearch('http://host.docker.internal:9200')
+# es = Elasticsearch('http://host.docker.internal:9200')
 
 # Elasticsearch 인덱스 생성 (이미 존재하면 무시)
 try:
-    es.indices.create(index='raw_data')
+    # es.indices.create(index='raw_data')
     client.indices.create(index='raw_data')
 except Exception as e:
     print(f"인덱스 생성 오류 또는 이미 존재: {e}")
@@ -73,7 +73,7 @@ def get_existing_entries():
     }
     
     # Elasticsearch에서 검색
-    response = es.search(index="raw_data", body=query, size=10000)
+    # response = es.search(index="raw_data", body=query, size=10000)
     response = client.search(index="raw_data", body=query, size=10000)
     existing_entries = {(hit['_source']['제목'], hit['_source']['날짜'], hit['_source']['URL']) for hit in response['hits']['hits']}
     
@@ -116,7 +116,7 @@ def upload_new_data():
     print(f"중복 제거 후 삽입할 데이터 수: {len(actions)}")
     
     if actions:
-        helpers.bulk(es, actions)
+        # helpers.bulk(es, actions)
         helpers.bulk(client, actions)
         print(f"{len(actions)}개의 새로운 데이터를 업로드했습니다.")
     else:
