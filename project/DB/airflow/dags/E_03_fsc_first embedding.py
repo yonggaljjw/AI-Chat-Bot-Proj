@@ -83,32 +83,32 @@ def create_or_delete_index():
                     "analyzer": "nori"
                 },
                 "제목_vector": {
-                    "type": "dense_vector",
-                    "dims": 1536
+                    "type": "knn_vector",
+                    "dimension": 1536
                 },
                 "내용": {
                     "type": "text",
                     "analyzer": "nori"
                 },
                 "내용_vector": {
-                    "type": "dense_vector",
-                    "dims": 3000
+                    "type": "knn_vector",
+                    "dimension": 3000
                 },
                 "개정이유": {
                     "type": "text",
                     "analyzer": "nori"
                 },
                 "개정이유_vector": {
-                    "type": "dense_vector",
-                    "dims": 1536
+                    "type": "knn_vector",
+                    "dimension": 1536
                 },
                 "주요내용": {
                     "type": "text",
                     "analyzer": "nori"
                 },
                 "주요내용_vector": {
-                    "type": "dense_vector",
-                    "dims": 1536
+                    "type": "knn_vector",
+                    "dimension": 1536
                 },
                 "날짜": {
                     "type": "date"
