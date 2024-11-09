@@ -6,6 +6,7 @@ from airflow.operators.python_operator import PythonOperator  # Python 작업 �
 from elasticsearch import Elasticsearch  # Elasticsearch 클라이언트
 from opensearchpy import OpenSearch
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 

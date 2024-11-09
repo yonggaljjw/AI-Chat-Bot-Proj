@@ -206,6 +206,7 @@ from prophet import Prophet
 import eland as ed
 from opensearchpy import OpenSearch
 from dotenv import load_dotenv
+import os
 
 load_dotenv()
 

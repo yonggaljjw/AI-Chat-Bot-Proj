@@ -5,6 +5,7 @@ import subprocess
 import json
 from elasticsearch import Elasticsearch, helpers
 
+import os
 from opensearchpy import OpenSearch
 from dotenv import load_dotenv
 
