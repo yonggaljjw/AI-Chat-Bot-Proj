@@ -7,8 +7,8 @@ import re
 load_dotenv()
 
 # 인증 정보를 사용하여 OpenSearch 클라이언트 생성
-host = os.getenv("HOST")
-port = os.getenv("PORT")
+host = os.getenv("OPENSEARCH_HOST")
+port = os.getenv("OPENSEARCH_PORT")
 auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
 
 client = OpenSearch(
