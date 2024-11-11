@@ -328,8 +328,8 @@ def run_data_pipeline():
     cpi_forecast = forecast_future(cpi_df, '농축수산물')
 
     # Elasticsearch 업로드
-    upload_to_elasticsearch(pce_forecast, '항목별_개인신용카드_소비현황')
-    upload_to_elasticsearch(cpi_forecast, '소비자물가지수')
+    upload_to_elasticsearch(pce_forecast, 'Credit_card_usage')
+    upload_to_elasticsearch(cpi_forecast, 'Consumer_Index')
 
 # 기본 DAG 설정
 default_args = {
@@ -339,9 +339,9 @@ default_args = {
 }
 
 with DAG(
-    'pce_uploader_elasticsearch',
+    '06_PCE_data',
     default_args=default_args,
-    description="우리조장 신호섭",
+    description="소비자물가, 개인신용카드 소비현황 예측 데이터를 업로드합니다.",
     schedule_interval='@daily',
     start_date=datetime.now(),
     catchup=False,
