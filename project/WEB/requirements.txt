@@ -116,3 +116,5 @@ zstandard==0.23.0
 mysqlclient==2.2.4
 django_plotly_dash
 opensearch-py
+langchain 
+langchain-community 
