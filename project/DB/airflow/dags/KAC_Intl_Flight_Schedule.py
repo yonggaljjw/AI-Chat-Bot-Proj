@@ -25,9 +25,9 @@ client = OpenSearch(
 
 # Elasticsearch index creation and update function
 def create_or_reset():
-    """Creates or resets the 'Flight_Schedule' index with defined mappings."""
-    if client.indices.exists(index='Flight_Schedule'):
-        client.indices.delete(index='Flight_Schedule')
+    """Creates or resets the 'flight_schedule' index with defined mappings."""
+    if client.indices.exists(index='flight_schedule'):
+        client.indices.delete(index='flight_schedule')
         print("Existing index deleted.")
 
     index_settings = {
@@ -47,12 +47,12 @@ def create_or_reset():
         }
     }
 
-    client.indices.create(index='Flight_Schedule', body=index_settings)
+    client.indices.create(index='flight_schedule', body=index_settings)
     print("New index created.")
 
 # Function to upload CSV data to Elasticsearch
 def upload_csv():
-    """Loads CSV data and uploads it to the 'Flight_Schedule' index in Elasticsearch."""
+    """Loads CSV data and uploads it to the 'flight_schedule' index in Elasticsearch."""
     df = pd.read_csv("./dags/한국공항공사_국제선 항공기스케줄_20240809.csv")
     column_mapping = {
         "항공사": "airline",
@@ -72,7 +72,7 @@ def upload_csv():
     oml.pandas_to_opensearch(
         pd_df=df,
         os_client=client,
-        os_dest_index="Flight_Schedule",
+        os_dest_index="flight_schedule",
         os_if_exists="append",
         os_refresh=True
     )
@@ -87,7 +87,7 @@ default_args = {
 
 # Define DAG
 with DAG(
-    'Flight_Schedule',
+    'flight_schedule',
     default_args=default_args,
     description="한국공항공사_국제선 항공기스케줄",
     schedule_interval=None,
