@@ -172,9 +172,9 @@ default_args = {
 
 # DAG 정의
 with DAG(
-    'fred_uploader_elasticsearch_v2',
+    '01.Fred_Data',
     default_args=default_args,
-    description="연준 데이터를 Elasticsearch에 업로드합니다.",
+    description="연준 데이터를 Opensearch에 업로드합니다.",
     schedule_interval='@daily',
     start_date=datetime(2015, 1, 1),
     catchup=False,
