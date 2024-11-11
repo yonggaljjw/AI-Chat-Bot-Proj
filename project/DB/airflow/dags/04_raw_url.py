@@ -114,9 +114,9 @@ default_args = {
 }
 
 with DAG(
-    'fsc_real_raw_url',
+    '04.Law_URL_data',
     default_args=default_args,
-    description='매일 법률 데이터를 수집하여 ElasticSearch에 업로드',
+    description='매일 법률 데이터의 원본의 URL을 업로드 합니다.',
     schedule_interval='@daily',
     start_date=datetime(2024, 11, 6),
     catchup=False,
@@ -141,6 +141,7 @@ with DAG(
         task_id='upload_data',
         python_callable=upload_to_elasticsearch,
         provide_context=True
+        
     )
 
     # 순서 정의
