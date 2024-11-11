@@ -1,13 +1,22 @@
 import os
 from dotenv import load_dotenv
-from elasticsearch import Elasticsearch
+from opensearchpy import OpenSearch
 import re
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
 
-# 인증 정보를 사용하여 Elasticsearch 초기화
-es = Elasticsearch("http://host.docker.internal:9200")
+# 인증 정보를 사용하여 OpenSearch 클라이언트 생성
+host = os.getenv("HOST")
+port = os.getenv("PORT")
+auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+
+client = OpenSearch(
+    hosts = [{'host': host, 'port': port}],
+    http_auth = auth,
+    use_ssl = True,
+    verify_certs = False
+)
 
 def index(index, id, body, hard_refresh=False):
     """
@@ -15,11 +24,11 @@ def index(index, id, body, hard_refresh=False):
     """
     if hard_refresh:
         # 문서 인덱싱
-        es.index(index=index, id=id, body=body)
+        client.indices(index=index, id=id, body=body)
         print("hard indexed - ", id)
     else:
         if not already_indexed(id, index):
-            es.index(index=index, id=id, body=body)
+            client.indices(index=index, id=id, body=body)
             print("indexed - ", id)
         else:
             print("already indexed - ", id)
@@ -38,7 +47,7 @@ def already_indexed(id, index):
     }
 
     # 검색 실행
-    res = es.search(index=index, body=body)
+    res = client.search(index=index, body=body)
     return res['hits']['total']['value'] > 0
 
 def search_embedding(index, query_embedding, num_results=10):
@@ -65,7 +74,7 @@ def search_embedding(index, query_embedding, num_results=10):
         }
 
         # 검색 실행
-        res = es.search(index=index, body=body)
+        res = client.search(index=index, body=body)
         return res
     except Exception as e:
         print(f"Error executing search: {e}")
@@ -111,7 +120,7 @@ def search_embedding_plus_date(index, query_embedding, num_results=10, start_dat
             })
 
         # 검색 실행
-        res = es.search(index=index, body=body)
+        res = client.search(index=index, body=body)
         return res
     except Exception as e:
         print(f"Error executing search: {e}")
