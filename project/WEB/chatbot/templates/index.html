@@ -3,6 +3,7 @@
 {% load plotly_dash %} <!-- plotly_dash 템플릿 태그 로드 -->
 
 <html lang="en">
+
 <head>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <meta charset="UTF-8">
@@ -14,84 +15,110 @@
         body {
             font-family: 'Roboto', sans-serif;
         }
+
         .chat-container {
             height: calc(100vh - 56px);
         }
+
         .chat-messages {
             height: calc(100% - 60px);
             overflow-y: auto;
         }
-        #chart1 > div {
+
+        #chart1>div {
             padding-bottom: 60% !important;
         }
     </style>
 </head>
+
 <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <ul class="nav">
+                <li class="navbar-brand text-center">
+                    안녕하세요 우대리입니다. 무엇을 도와드릴까요?
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Section 1</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#">Section 2</a>
+                </li>
+            </ul>
+            <button class="btn btn-primary float-end" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasRight" aria-controls="offcanvasRight">
+                Toggle Chat
+            </button>
+        </div>
+    </nav>
     <div class="container-fluid">
-        <div class="row vh-100">
-            <!-- Dashboard Section -->
-            <div class="col-md-8 border-end p-4">
-                <h1 class="h2 mb-4">안녕하세요 우대리입니다.</h1>
-                <div class="row">
-                    <div class="col-md-6 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-body">뉴스 크롤링</h5>
-                                <div class="bg-light" id="chart1" style="height: 300px;">{% plotly_app name="wordcloud_app" %}</div>
-                            </div>
-                        </div>
+        <!-- Dashboard Section -->
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-body">뉴스 크롤링</h5>
+                        <div class="bg-light" id="chart1" style="height: 300px;">{% plotly_app
+                            name="wordcloud_app" %}</div>
                     </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">GDP 성장률과 연방기금금리, 실업률 비교 차트</h5>
-                                <div class="bg-light" style="height: 200px;">{% plotly_app name="simple_example" ratio=1 %}</div>
-                            </div>
-                        </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">GDP 성장률과 연방기금금리, 실업률 비교 차트</h5>
+                        <div class="bg-light" style="height: 200px;">{% plotly_app name="simple_example" ratio=1
+                            %}</div>
                     </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Chart 3</h5>
-                                <div class="bg-light" style="height: 200px;"></div>
-                            </div>
-                        </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Chart 3</h5>
+                        <div class="bg-light" style="height: 200px;"></div>
                     </div>
-                    <div class="col-md-6 mb-4">
-                        <div class="card">
-                            <div class="card-body">
-                                <h5 class="card-title">Chart 4</h5>
-                                <div class="bg-light" style="height: 200px;">
-                                    <ul>
-                                        {% if posts %}
-                                            {% for post in posts %}
-                                                <li>{{ post.date }} - {{ post.title }}</li>
-                                            {% endfor %}
-                                        {% else %}
-                                            <li>No posts available</li>
-                                        {% endif %}
-                                    </ul>
-                                </div>
-                            </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Chart 4</h5>
+                        <div class="bg-light" style="height: 200px;">
+                            <ul>
+                                {% if posts %}
+                                {% for post in posts %}
+                                <li>{{ post.date }} - {{ post.title }}</li>
+                                {% endfor %}
+                                {% else %}
+                                <li>No posts available</li>
+                                {% endif %}
+                            </ul>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
 
-            <!-- Chat Section -->
-            <div class="col-md-4 p-4">
-                <div class="card chat-container" style="height: 120vh;">
-                    <div class="card-header">
-                        <h5 class="mb-0">채팅창</h5>
-                    </div>
-                    <div class="card-body d-flex flex-column p-0">
-                        <div id="chat-messages" class="chat-messages p-3"></div>
-                        <div class="mt-auto p-3">
-                            <div class="input-group">
-                                <input type="text" id="user-input" class="form-control" placeholder="메시지를 입력하세요...">
-                                <button onclick="sendMessage()" class="btn btn-primary">전송</button>
-                            </div>
-                        </div>
+    <!-- Chat Section -->
+    <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasRight" aria-labelledby="offcanvasRightLabel">
+        <div class="offcanvas-header">
+            <h5 id="offcanvasRightLabel">Offcanvas right</h5>
+            <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body">
+            <div class="card-header">
+                <h5 class="mb-0">채팅창</h5>
+            </div>
+            <div class="card-body d-flex flex-column p-0">
+                <div id="chat-messages" class="chat-messages p-3"></div>
+                <div class="mt-auto p-3">
+                    <div class="input-group">
+                        <input type="text" id="user-input" class="form-control" placeholder="메시지를 입력하세요..."
+                            onsubmit="sendMessage()">
+                        <button onclick="sendMessage()" class="btn btn-primary">전송</button>
                     </div>
                 </div>
             </div>
@@ -130,20 +157,20 @@
                     'Content-Type': 'application/json',
                     'X-CSRFToken': csrftoken // CSRF 토큰 추가
                 },
-                body: JSON.stringify({message: userInput})
+                body: JSON.stringify({ message: userInput })
             })
-            .then(response => response.json())
-            .then(data => {
-                var chatMessages = document.getElementById('chat-messages');
-                chatMessages.innerHTML += '<p><strong>사용자:</strong> ' + userInput + '</p>';
-                chatMessages.innerHTML += '<p><strong>우대리:</strong> ' + data.message + '</p>'; // 'data.message'로 수정
-                document.getElementById('user-input').value = '';
-            })
-            .catch(error => console.error('Error:', error));
+                .then(response => response.json())
+                .then(data => {
+                    var chatMessages = document.getElementById('chat-messages');
+                    chatMessages.innerHTML += '<p><strong>사용자:</strong> ' + userInput + '</p>';
+                    chatMessages.innerHTML += '<p><strong>우대리:</strong> ' + data.message + '</p>'; // 'data.message'로 수정
+                    document.getElementById('user-input').value = '';
+                })
+                .catch(error => console.error('Error:', error));
         }
 
         // Enter key event listener for sending messages
-        document.getElementById('user-input').addEventListener('keypress', function(event) {
+        document.getElementById('user-input').addEventListener('keypress', function (event) {
             if (event.key === 'Enter') {
                 event.preventDefault(); // Prevent default behavior of Enter key
                 sendMessage(); // Call sendMessage function
@@ -151,9 +178,10 @@
         });
 
         // Resize Plotly charts
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Plotly 차트 리사이징 코드 (필요시 추가)
         });
     </script>
 </body>
+
 </html>
