@@ -8,17 +8,13 @@ from dashboards.watching_word import app
 from dashboards.D_02_visualization_origin import app
 from dashboards.answering_service import generate_answer_plus_date, if_date
 
+from opensearchpy import OpenSearch
 import json
 import openai
 from dotenv import load_dotenv
 import os
-from elasticsearch import Elasticsearch
 
 load_dotenv()
-
-### 채팅창 ###
-
-# OpenAI API 키 설정
 
 
 def index(request):
@@ -65,9 +61,17 @@ def chat(request):
 
 # chart 4
 def recent_posts(request):
-    # Elasticsearch 클라이언트 설정
-    es = Elasticsearch('http://host.docker.internal:9200')
+    # 인증 정보를 사용하여 OpenSearch 클라이언트 생성
+    host = os.getenv("OPENSEARCH_HOST")
+    port = os.getenv("OPENSEARCH_PORT")
+    auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
 
+    client = OpenSearch(
+        hosts = [{'host': host, 'port': port}],
+        http_auth = auth,
+        use_ssl = True,
+        verify_certs = False
+    )
     # Elasticsearch 쿼리 작성
     query = {
         "sort": [
@@ -78,7 +82,7 @@ def recent_posts(request):
     }
 
     # 'raw_data' 인덱스에서 검색
-    response = es.search(index="raw_data", body=query)
+    response = client.search(index="raw_data", body=query)
     posts = [
         {
             "date": hit["_source"].get("날짜"),
@@ -90,3 +94,68 @@ def recent_posts(request):
     # posts 데이터를 템플릿으로 전달
     return render(request, "index.html", {"posts": posts})
 
+
+# importing render and redirect
+from django.shortcuts import render, redirect
+# importing the openai API
+import openai
+# loading the API key from the secret_key file
+openai.api_key = os.getenv('OPENAI_API_KEY')
+
+# this is the home view for handling home page logic
+def home(request):
+    try:
+        # if the session does not have a messages key, create one
+        if 'messages' not in request.session:
+            request.session['messages'] = [
+                {"role": "system", "content": "You are now chatting with a user, provide them with comprehensive, short and concise answers."},
+            ]
+        if request.method == 'POST':
+            # get the prompt from the form
+            prompt = request.POST.get('prompt')
+            # get the temperature from the form
+            temperature = float(request.POST.get('temperature', 0.1))
+            # append the prompt to the messages list
+            request.session['messages'].append({"role": "user", "content": prompt})
+            # set the session as modified
+            request.session.modified = True
+            # call the openai API
+            response = openai.ChatCompletion.create(
+                model="gpt-4o-mini",
+                messages=request.session['messages'],
+                temperature=temperature,
+                max_tokens=1000,
+            )
+            # format the response
+            formatted_response = response['choices'][0]['message']['content']
+            # append the response to the messages list
+            request.session['messages'].append({"role": "assistant", "content": formatted_response})
+            request.session.modified = True
+            # redirect to the home page
+            context = {
+                'messages': request.session['messages'],
+                'prompt': '',
+                'temperature': temperature,
+            }
+            return render(request, 'assistant/home.html', context)
+        else:
+            # if the request is not a POST request, render the home page
+            context = {
+                'messages': request.session['messages'],
+                'prompt': '',
+                'temperature': 0.1,
+            }
+            return render(request, 'assistant/home.html', context)
+    except Exception as e:
+        print(e)
+        # if there is an error, redirect to the error handler
+        return redirect('error_handler')
+
+def new_chat(request):
+    # clear the messages list
+    request.session.pop('messages', None)
+    return redirect('home')
+
+# this is the view for handling errors
+def error_handler(request):
+    return render(request, 'assistant/404.html')
