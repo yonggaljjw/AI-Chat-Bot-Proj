@@ -66,7 +66,7 @@ with DAG(
     default_args=default_args,
     description="환율데이터를 수집하여 적재합니다.",
     schedule_interval='@daily',
-    # start_date=datetime(2010, 1, 1),
+    start_date=datetime(2010, 1, 1),
     catchup=False,
     tags=['Opensearch', 'currency', 'data']
 ) as dag:
