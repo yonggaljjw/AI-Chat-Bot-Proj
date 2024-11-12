@@ -134,13 +134,32 @@
         <div class="offcanvas-body">
             <div class="card-body flex-column p-0">
                 <div id="chat-messages" class="chat-messages p-3">
-                    {% for message in messages %}
-                    <div class="card mb-2 {% if message.role == 'assistant' %}bg-success text-white{% endif %}">
-                        <div class="card-body p-2">
-                            <strong>{{ message.role|title }}:</strong> {{ message.content|linebreaksbr }}
-                        </div>
-                    </div>
-                    {% endfor %}
+                    <ul class="list-unstyled messages-list">
+                        {% for chat in chats %}
+                        {% if chat.user == request.user %}
+                        <li class="message sent">
+                            <div class="message-text">
+                                <div class="message-sender">
+                                    <b>You</b>
+                                </div>
+                                <div class="message-content">
+                                    {{chat.message}}
+                                </div>
+                            </div>
+                        </li>
+                        <li class="message received">
+                            <div class="message-text">
+                                <div class="message-sender">
+                                    <b>AI Chatbot</b>
+                                </div>
+                                <div class="message-content">
+                                    {{chat.response}}
+                                </div>
+                            </div>
+                        </li>
+                        {% endif %}
+                        {% endfor %}
+                    </ul>
                 </div>
                 <div class="input-group">
                     {% csrf_token %}
