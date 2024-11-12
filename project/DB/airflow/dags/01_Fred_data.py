@@ -1,20 +1,22 @@
+import os
+from dotenv import load_dotenv
+from opensearchpy import OpenSearch, helpers
+import opensearch_py_ml as oml
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
+from datetime import datetime
+import openai
 from datetime import datetime, timedelta
 import pandas as pd
 from fredapi import Fred
-import eland as ed
-from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
-# from elasticsearch import Elasticsearch
-from dotenv import load_dotenv
-import os
-from opensearchpy import OpenSearch
-import opensearch_py_ml as oml
+from package.vector_embedding import generate_embedding
 
 load_dotenv()
 
 host = os.getenv("HOST")
 port = os.getenv("PORT")
 auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+FRED_API_KEY = os.getenv('FRED_API_KEY')
 
 client = OpenSearch(
     hosts = [{'host': host, 'port': port}],
@@ -23,13 +25,14 @@ client = OpenSearch(
     verify_certs = False
 )
 
-fred = Fred(api_key=os.getenv('FRED_API_KEY'))
+
+fred = Fred(api_key=FRED_API_KEY)
 
 # 현재 날짜를 end_date로 사용
 end_date = datetime.today().strftime('%Y-%m-%d')
 
 # 데이터 가져오기 함수
-def fetch_data(series_id, start_date='2015-01-01', end_date=end_date):
+def fetch_data(series_id, start_date=end_date, end_date=end_date):
     try:
         data = fred.get_series(series_id, observation_start=start_date, observation_end=end_date)
         return data
@@ -70,121 +73,119 @@ def make_df():
     
     df.sort_values(by='date', inplace=True)
     df.fillna(method='ffill', inplace=True)
-    
+
+    df['embedding_vector'] = df.apply(lambda row: 
+    f"""
+    Date: {row['date']}, FFTR: {row['FFTR']}, GDP: {row['GDP']}, 
+    GDP Growth Rate: {row['GDP Growth Rate']}, PCE: {row['PCE']}, 
+    Core PCE: {row['Core PCE']}, CPI: {row['CPI']}, Core CPI: {row['Core CPI']}, 
+    Personal Income: {row['Personal Income']}, Unemployment Rate: {row['Unemployment Rate']}, 
+    ISM Manufacturing: {row['ISM Manufacturing']}, Durable Goods Orders: {row['Durable Goods Orders']}, 
+    Building Permits: {row['Building Permits']}, Retail Sales: {row['Retail Sales']}, 
+    Consumer Sentiment: {row['Consumer Sentiment']}, Nonfarm Payrolls: {row['Nonfarm Payrolls']}, 
+    JOLTS Hires: {row['JOLTS Hires']}
+    """, axis=1)
+
+    df['embedding_vector'] = df['embedding_vector'].apply(generate_embedding)
     return df
 
-# es = Elasticsearch('http://host.docker.internal:9200')
-
-# # 기존 인덱스 삭제 (필요할 경우)
-# if es.indices.exists(index='fred_data'):
-#     es.indices.delete(index='fred_data')
-
-# 인덱스 생성 시 매핑 정보 추가
-try:
-    # es.indices.create(
-    #     index='fred_data',
-    #     body={
-    #         "mappings": {
-    #             "properties": {
-    #                 "date": {"type": "date"},
-    #                 "FFTR": {"type": "float"},
-    #                 "GDP": {"type": "float"},
-    #                 "GDP Growth Rate": {"type": "float"},
-    #                 "PCE": {"type": "float"},
-    #                 "Core PCE": {"type": "float"},
-    #                 "CPI": {"type": "float"},
-    #                 "Core CPI": {"type": "float"},
-    #                 "Personal Income": {"type": "float"},
-    #                 "Unemployment Rate": {"type": "float"},
-    #                 "ISM Manufacturing": {"type": "float"},
-    #                 "Durable Goods Orders": {"type": "float"},
-    #                 "Building Permits": {"type": "float"},
-    #                 "Retail Sales": {"type": "float"},
-    #                 "Consumer Sentiment": {"type": "float"},
-    #                 "Nonfarm Payrolls": {"type": "float"},
-    #                 "JOLTS Hires": {"type": "float"}
-    #             }
-    #         }
-    #     }
-    # )
-    client.indices.create(
-        index='fred_data',
-        body={
-            "mappings": {
-                "properties": {
-                    "date": {"type": "date"},
-                    "FFTR": {"type": "float"},
-                    "GDP": {"type": "float"},
-                    "GDP Growth Rate": {"type": "float"},
-                    "PCE": {"type": "float"},
-                    "Core PCE": {"type": "float"},
-                    "CPI": {"type": "float"},
-                    "Core CPI": {"type": "float"},
-                    "Personal Income": {"type": "float"},
-                    "Unemployment Rate": {"type": "float"},
-                    "ISM Manufacturing": {"type": "float"},
-                    "Durable Goods Orders": {"type": "float"},
-                    "Building Permits": {"type": "float"},
-                    "Retail Sales": {"type": "float"},
-                    "Consumer Sentiment": {"type": "float"},
-                    "Nonfarm Payrolls": {"type": "float"},
-                    "JOLTS Hires": {"type": "float"}
-                }
+# 인덱싱 하기
+def create_index_and_mapping():
+    index_body = {
+        "settings": {
+            "index": {
+                "knn": True
+            }
+        },
+        "mappings": {
+            "properties": {
+                'date': {'type': 'date'},
+                'embedding_vector': {
+                    'type': 'knn_vector',
+                    'dimension': 1536,
+                },
+                'FFTR': {'type': 'float'},
+                'GDP': {'type': 'float'},
+                'GDP Growth Rate': {'type': 'float'},
+                'PCE': {'type': 'float'},
+                'Core PCE': {'type': 'float'},
+                'CPI': {'type': 'float'},
+                'Core CPI': {'type': 'float'},
+                'Personal Income': {'type': 'float'},
+                'Unemployment Rate': {'type': 'float'},
+                'ISM Manufacturing': {'type': 'float'},
+                'Durable Goods Orders': {'type': 'float'},
+                'Building Permits': {'type': 'float'},
+                'Retail Sales': {'type': 'float'},
+                'Consumer Sentiment': {'type': 'float'},
+                'Nonfarm Payrolls': {'type': 'float'},
+                'JOLTS Hires': {'type': 'float'}
             }
         }
-    )
-    print("Index 'fred_data' created successfully with mappings.")
-except :
-    pass
-    
-# 인덱스 매핑 확인
-try:
-    # mapping = es.indices.get_mapping(index='fred_data')
-    mapping = client.indices.get_mapping(index='fred_data')
-    print("Current index mapping:", mapping)
-except Exception as e:
-    print(f"Error fetching index mapping: {e}")
+    }
 
-# 데이터프레임을 Elasticsearch로 전송하는 함수
-def dataframe_to_elasticsearch():
-    df = make_df()
-    # ed.pandas_to_eland(
-    #     pd_df=df,
-    #     es_client=es,
-    #     es_dest_index="fred_data",
-    #     es_if_exists="append",
-    #     es_refresh=True
-    # )
-    oml.pandas_to_opensearch(
-        pd_df=df,
-        os_client=client,
-        os_dest_index="fred_data",
-        os_if_exists="append",
-        os_refresh=True
-    )
+    if not client.indices.exists(index='fred_data'):
+        client.indices.create(index='fred_data', body=index_body)
+        print("새로운 인덱스 생성 완료")
+    else :
+        print("기존 인덱스가 존재합니다.")
 
-# Airflow 기본 설정
+
+
+## 데이터 적재를 위한 bulk_action 함수 생성
+def create_bulk_actions(df, index_name):
+    actions = []
+    for num, (index, row) in enumerate(df.iterrows()):
+        # Index action
+        action = {
+            "_index": index_name,
+            "_source": row.to_dict()
+        }
+        actions.append(action)
+    return actions
+
+
+# Bulk API를 위한 작업 생성
+def bulk_insert() :
+    actions = create_bulk_actions(make_df(), 'fred_data')
+    # Bulk API 호출
+    if actions:
+        # helpers.bulk(es, actions)
+        helpers.bulk(client, actions)
+        print(f"{len(actions)}개의 문서가 OpenSearch에 업로드되었습니다.")
+    else:
+        print("업로드할 문서가 없습니다.")
+
+
+
+# Airflow DAG 정의
 default_args = {
+    'owner': 'airflow',
     'depends_on_past': False,
-    'retires': 1,
-    'retry_delay': timedelta(minutes=1)
+    'start_date': datetime(2023, 1, 1),
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
 }
 
-# DAG 정의
 with DAG(
-    '01.Fred_Data',
+    '01. Fred_Data',
     default_args=default_args,
-    description="연준 데이터를 Opensearch에 업로드합니다.",
+    description="미 연준 데이터를 업로드 합니다.",
     schedule_interval='@daily',
     start_date=datetime(2015, 1, 1),
     catchup=False,
-    tags=['elasticsearch', 'fred', 'data']
-) as dag:
-    
-    # PythonOperator 설정
+    tags=['Opensearch', 'fred', 'data']
+) as dag :
     t1 = PythonOperator(
-        task_id="upload_fred_data_to_elasticsearch",
-        python_callable=dataframe_to_elasticsearch,
+        task_id='create_index_and_mapping',
+        python_callable=create_index_and_mapping
     )
 
-    t1
+    t2 = PythonOperator(
+        task_id='bulk_insert',
+        python_callable=bulk_insert,
+    )
+    
+    t1 >> t2
