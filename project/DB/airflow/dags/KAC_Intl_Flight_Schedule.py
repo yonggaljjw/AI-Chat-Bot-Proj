@@ -53,7 +53,14 @@ def create_or_reset():
 # Function to upload CSV data to Elasticsearch
 def upload_csv():
     """Loads CSV data and uploads it to the 'flight_schedule' index in Elasticsearch."""
-    df = pd.read_csv("./dags/package/한국공항공사_국제선 항공기스케줄_20240809.csv")
+    df = pd.read_csv("./dags/package/한국공항공사_국제선 항공기스케줄_20240809.csv", encoding="EUC-KR")
+    df['출발시간'] = pd.to_datetime(df['departure_time'], format='%H:%M').dt.time
+    df['도착시간'] = pd.to_datetime(df['arrival_time'], format='%H:%M').dt.time
+
+    # 날짜 형식 (yyyy-MM-dd)으로 변환
+    df['시작일자'] = pd.to_datetime(df['start_date'], format='%Y-%m-%d')
+    df['종료일자'] = pd.to_datetime(df['end_date'], format='%Y-%m-%d')
+    
     column_mapping = {
         "항공사": "airline",
         "운항편명": "flight_number",
