@@ -170,7 +170,7 @@ default_args = {
 }
 
 with DAG(
-    '01. Fred_Data',
+    '01_Fred_Data',
     default_args=default_args,
     description="미 연준 데이터를 업로드 합니다.",
     schedule_interval='@daily',
