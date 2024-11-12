@@ -89,31 +89,7 @@ def make_df():
     df['embedding_vector'] = df['embedding_vector'].apply(generate_embedding)
     return df
 
-def create_bulk_actions(df, index_name):
-    actions = []
-    for num, (index, row) in enumerate(df.iterrows()):
-        # Index action
-        action = {
-            "_index": index_name,
-            "_source": row.to_dict()
-        }
-        actions.append(action)
-    return actions
-
-
-    # Bulk API를 위한 작업 생성
-def bulk_insert() :
-    actions = create_bulk_actions(make_df(), 'test')
-
-    # Bulk API 호출
-    if actions:
-        # helpers.bulk(es, actions)
-        helpers.bulk(client, actions)
-        print(f"{len(actions)}개의 문서가 OpenSearch에 업로드되었습니다.")
-    else:
-        print("업로드할 문서가 없습니다.")
-
-
+# 인덱싱 하기
 def create_index_and_mapping():
     index_body = {
         "settings": {
@@ -147,8 +123,38 @@ def create_index_and_mapping():
             }
         }
     }
-    client.indices.create(index='test', body=index_body)
-    print("새로운 인덱스 생성 완료")
+
+    if not client.indices.exists(index='fred_data'):
+        client.indices.create(index='fred_data', body=index_body)
+        print("새로운 인덱스 생성 완료")
+    else :
+        print("기존 인덱스가 존재합니다.")
+
+
+
+## 데이터 적재를 위한 bulk_action 함수 생성
+def create_bulk_actions(df, index_name):
+    actions = []
+    for num, (index, row) in enumerate(df.iterrows()):
+        # Index action
+        action = {
+            "_index": index_name,
+            "_source": row.to_dict()
+        }
+        actions.append(action)
+    return actions
+
+
+# Bulk API를 위한 작업 생성
+def bulk_insert() :
+    actions = create_bulk_actions(make_df(), 'fred_data')
+    # Bulk API 호출
+    if actions:
+        # helpers.bulk(es, actions)
+        helpers.bulk(client, actions)
+        print(f"{len(actions)}개의 문서가 OpenSearch에 업로드되었습니다.")
+    else:
+        print("업로드할 문서가 없습니다.")
 
 
 
@@ -164,13 +170,13 @@ default_args = {
 }
 
 with DAG(
-    'test',
+    '01. Fred_Data',
     default_args=default_args,
-    description="테스트입니다.",
+    description="미 연준 데이터를 업로드 합니다.",
     schedule_interval='@daily',
     start_date=datetime(2015, 1, 1),
     catchup=False,
-    tags=['elasticsearch', 'fred', 'data']
+    tags=['Opensearch', 'fred', 'data']
 ) as dag :
     t1 = PythonOperator(
         task_id='create_index_and_mapping',
