@@ -323,7 +323,7 @@ with DAG(
     )
 
     upload_region_consumption_task = PythonOperator(
-        task_id="upload_top_age_data_to_opensearch",
+        task_id="upload_region_consumption_data_to_opensearch",
         python_callable=region_consumption,
     )
 
