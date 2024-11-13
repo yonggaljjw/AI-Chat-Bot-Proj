@@ -32,11 +32,11 @@ def setup_index():
             "mappings": {
                 "properties": {
                     "Country": {"type": "keyword"},
-                    "Travel_Caution": {"type": "keyword"},
-                    "Travel_Restriction": {"type": "keyword"},
-                    "Departure_Advisory": {"type": "keyword"},
-                    "Travel_Ban": {"type": "keyword"},
-                    "Special_Travel_Advisory": {"type": "keyword"}
+                    "Travel_Caution": {"type": "boolean"},
+                    "Travel_Restriction": {"type": "boolean"},
+                    "Departure_Advisory": {"type": "boolean"},
+                    "Travel_Ban": {"type": "boolean"},
+                    "Special_Travel_Advisory": {"type": "boolean"}
                 }
             }
         }
