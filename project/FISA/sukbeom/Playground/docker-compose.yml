@@ -1,0 +1,8 @@
+services:
+  ipynb:
+    image: quay.io/jupyter/pytorch-notebook:cuda12-latest
+    volumes:
+      - ./jupyter:/home/jovyan/work
+    ports:
+      - 8888:8888
+    container_name: jupyter
