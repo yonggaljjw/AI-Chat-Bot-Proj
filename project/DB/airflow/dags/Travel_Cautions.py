@@ -58,7 +58,7 @@ def fetch_data():
         country_name = country.select_one("a").text.strip()
         img_tags = country.select("img")
         travel_advice = [img["alt"].strip() for img in img_tags if img.get("alt")]
-        advice_flags = {level: 1 if level in travel_advice else 0 for level in advice_levels}
+        advice_flags = {level: True if level in travel_advice else False for level in advice_levels}
         advice_flags = {"Country": country_name, **advice_flags}
         data.append(advice_flags)
     return pd.DataFrame(data)
