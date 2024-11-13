@@ -25,7 +25,7 @@ client = OpenSearch(
 )
 
 # API 기본 URL과 분류 코드 설정
-BASE_URL = "https://ecos.bok.or.kr/api/StatisticSearch/2IJKJSOY6OFOQZ28900C/json/kr/1/100000/601Y002/M/200001/202409/X/{}/DAV"
+BASE_URL = "https://ecos.bok.or.kr/api/StatisticSearch/" + os.getenv("CARD_API") + "/json/kr/1/100000/601Y002/M/200001/202409/X/{}/DAV"
 CODES = 1300
 
 def fetch_data_from_api():
@@ -52,7 +52,7 @@ def fetch_kosis_data():
     url = "https://kosis.kr/openapi/Param/statisticsParameterData.do"
     params = {
         "method": "getList",
-        "apiKey": "NGFlNDEwNzU4NTVjN2Y2ZTcyYzJiYmI5NjlhY2ExMzc=",
+        "apiKey": os.getenv("KOSIS_API"),
         "orgId": "101",
         "tblId": "DT_1J22112",
         "itmId": "T+",
