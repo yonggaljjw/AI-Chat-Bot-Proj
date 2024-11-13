@@ -74,8 +74,12 @@ x-airflow-common: &airflow-common
       condition: service_healthy
     postgres:
       condition: service_healthy
-  extra_hosts: 
+  extra_hosts:
     - host.docker.internal:host-gateway
+  command: >
+    bash -c "
+    airflow db upgrade
+    "
 
 services:
   postgres:
@@ -157,7 +161,7 @@ services:
       <<: *airflow-common-depends-on
       airflow-init:
         condition: service_completed_successfully
-    extra_hosts: 
+    extra_hosts:
       - "host.docker.internal:host-gateway"
 
   airflow-triggerer:

@@ -34,7 +34,11 @@ RUN pip install --no-cache-dir --upgrade \
     konlpy \
     wordcloud \
     gensim \
-    openai
+    openai \
+    opensearch-py
+RUN pip install --no-cache-dir --upgrade \
+    opensearch-py-ml \
+    pytrends
 
 # Airflow 웹 서버 시작
 CMD ["airflow", "webserver"]

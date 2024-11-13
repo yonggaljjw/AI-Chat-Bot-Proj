@@ -6,9 +6,8 @@ generate_answer 함수는 질문, 인덱스, 이전 메시지 목록을 입력�
 가까운 유사 항목이 발견되면 일치하는 텍스트와 사용자 질문을 바탕으로 응답 메시지를 생성합니다.
 가까운 유사 항목이 없을 경우, 사용자 질문만을 바탕으로 응답 메시지를 구성합니다.
 """
-
-from es_service import *
-from openai_service import *
+from dashboards.es_service import *
+from dashboards.openai_service import *
 
 BEST_SCORE_THRESHOLD = 1.71  # 일치 항목으로 간주하기 위한 점수 임계값
 
