@@ -230,7 +230,6 @@ with DAG(
         python_callable=upload_age_payment_data,
     )
 
-
     upload_male_task = PythonOperator(
         task_id="upload_male",
         python_callable=upload_male_expense_data,
@@ -257,4 +256,4 @@ with DAG(
     )
 
     # 작업 순서 설정
-    upload_age_payment_task >> upload_male_expense_task >> upload_female_expense_task >> upload_region_consumption_task >> upload_top_age_categories_task >> upload_top10_level_categories_task
+    upload_age_payment_task >> upload_male_task >> upload_female_task >> upload_region_consumption_task >> upload_top_age_task >> upload_top_level_task
