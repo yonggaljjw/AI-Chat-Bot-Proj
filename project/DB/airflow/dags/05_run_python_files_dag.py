@@ -3,10 +3,27 @@ from datetime import datetime, timedelta
 from airflow.operators.python import PythonOperator
 import subprocess
 import json
-from elasticsearch import Elasticsearch, helpers
+# from elasticsearch import Elasticsearch, helpers
+
+import os
+from opensearchpy import OpenSearch, helpers
+from dotenv import load_dotenv
+
+load_dotenv()
+
+host = os.getenv("HOST")
+port = os.getenv("PORT")
+auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+
+client = OpenSearch(
+    hosts = [{'host': host, 'port': port}],
+    http_auth = auth,
+    use_ssl = True,
+    verify_certs = False
+)
 
 # Elasticsearch 설정
-es = Elasticsearch("http://host.docker.internal:9200")
+# es = Elasticsearch("http://host.docker.internal:9200")
 
 def run_script(script_name):
     # Docker 환경에 맞게 파일 경로를 수정했습니다.
@@ -40,7 +57,8 @@ def upload_to_elasticsearch():
 
     # Bulk API 호출
     if actions:
-        helpers.bulk(es, actions)
+        # helpers.bulk(es, actions)
+        helpers.bulk(client, actions)
         print(f"{len(actions)}개의 문서가 Elasticsearch에 업로드되었습니다.")
     else:
         print("업로드할 문서가 없습니다.")
@@ -51,7 +69,7 @@ default_args = {
     'retry_delay': timedelta(minutes=5)
 }
 
-with DAG('my_workflow', default_args=default_args, catchup=False, start_date=datetime.now(), schedule_interval=None) as dag:
+with DAG('05.Naver_News_data', default_args=default_args, catchup=False, start_date=datetime.now(), schedule_interval='@daily') as dag:
     task1 = PythonOperator(
         task_id='run_naver_news',
         python_callable=run_script,

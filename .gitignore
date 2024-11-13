@@ -4,8 +4,10 @@
 __pycache__/
 node_modules/
 latest
-*.csv
+# *.csv
 backup/
+es/
+/jupyter/**/*.ipynb
 
 HELP.md
 target/
@@ -18,6 +20,7 @@ target/
 /project/FISA/eunji/OPENAI_RAG/
 /project/FISA/eunji/ES_OPENAI/try1.py
 /project/FISA/eunji/ES_OPENAI/try2.py
+# /project/FISA/eunji/travel/naver_country
 **/venv/
 
 ### STS ###
@@ -56,3 +59,5 @@ build/
 .gradlenode_modules/
 latest
 
+
+jupyter/
