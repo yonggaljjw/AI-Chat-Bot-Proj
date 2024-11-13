@@ -308,32 +308,32 @@ with DAG(
     # )
     
     upload_age_payment_task = PythonOperator(
-        task_id="upload_age_payment_data_to_opensearch",
+        task_id="upload_age_payment",
         python_callable=upload_age_payment_data,
     )
 
     upload_male_task = PythonOperator(
-        task_id="upload_male_data_to_opensearch",
+        task_id="upload_male",
         python_callable=upload_male_expense_data,
     )
 
     upload_female_task = PythonOperator(
-        task_id="upload_female_data_to_opensearch",
+        task_id="upload_female",
         python_callable=upload_female_expense_data,
     )
 
     upload_region_consumption_task = PythonOperator(
-        task_id="upload_region_consumption_data_to_opensearch",
+        task_id="upload_region_consumption",
         python_callable=region_consumption,
     )
 
     upload_top_age_task = PythonOperator(
-        task_id="upload_top_age_data_to_opensearch",
+        task_id="upload_top_age",
         python_callable=upload_top_age_categories_data,
     )
 
     upload_top_level_task = PythonOperator(
-        task_id="upload_top_level_data_to_opensearch",
+        task_id="upload_top_level",
         python_callable=upload_top10_level_categories_data,
     )
 
