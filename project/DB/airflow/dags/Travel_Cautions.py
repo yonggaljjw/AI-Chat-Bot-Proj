@@ -24,7 +24,7 @@ client = OpenSearch(
 )
 
 # Define index name and setup
-index_name = "Travel_Cautions"
+index_name = "travel_cautions"
 
 def setup_index():
     if not client.indices.exists(index=index_name):
