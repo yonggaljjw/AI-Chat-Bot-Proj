@@ -87,6 +87,9 @@ def fetch_and_upload_franchise_data(year, **context):
             verify=False,
             headers={'accept': '*/*'}
         )
+        print(f"\nAPI Response for page {page_no}:")
+        print(f"Status Code: {response.status_code}")
+        print(f"Response Content: {response.text[:500]}")  # 응답 내용 출력
         return response
     
     try:
@@ -115,18 +118,35 @@ def fetch_and_upload_franchise_data(year, **context):
         first_response = fetch_page(1)
         root = ET.fromstring(first_response.content)
         
-        # 결과 코드 확인
+        # 결과 코드 확인 및 에러 처리
         result_code = root.find('.//resultCode')
-        if result_code is not None and result_code.text != '00':
-            print(f"Error in API response. Result code: {result_code.text}")
-            result_msg = root.find('.//resultMsg')
-            if result_msg is not None:
-                print(f"Result message: {result_msg.text}")
-            return f"Error in API response for year {year}"
+        result_msg = root.find('.//resultMsg')
+        
+        if result_code is None or result_msg is None:
+            error_msg = f"Invalid API response format for year {year}"
+            print(error_msg)
+            print("API Response:", first_response.text)
+            raise ValueError(error_msg)
+            
+        if result_code.text != '00':
+            error_msg = f"API error for year {year}: {result_msg.text}"
+            print(error_msg)
+            raise ValueError(error_msg)
         
         # 전체 데이터 수 확인
-        total_count = int(root.find('.//totalCount').text)
+        total_count_elem = root.find('.//totalCount')
+        if total_count_elem is None or not total_count_elem.text:
+            error_msg = f"Could not find total count in API response for year {year}"
+            print(error_msg)
+            print("API Response:", first_response.text)
+            raise ValueError(error_msg)
+            
+        total_count = int(total_count_elem.text)
         print(f"Total records for year {year}: {total_count}")
+        
+        if total_count == 0:
+            print(f"No data available for year {year}")
+            return f"No data available for year {year}"
         
         # 필요한 총 페이지 수 계산
         page_size = 1000
@@ -135,12 +155,19 @@ def fetch_and_upload_franchise_data(year, **context):
         
         # 모든 페이지의 데이터 수집
         all_data = []
+        
         for page in range(1, total_pages + 1):
             print(f"Fetching page {page} of {total_pages} for year {year}")
             response = fetch_page(page)
-            root = ET.fromstring(response.content)
+            page_root = ET.fromstring(response.content)
             
-            for item in root.findall('.//item'):
+            # 각 페이지의 아이템 처리
+            items = page_root.findall('.//item')
+            if not items:
+                print(f"No items found in page {page}")
+                continue
+                
+            for item in items:
                 data_dict = {}
                 for child in item:
                     if child.tag in ['frcsCnt', 'newFrcsRgsCnt', 'ctrtEndCnt', 'ctrtCncltnCnt', 'nmChgCnt']:
@@ -161,17 +188,16 @@ def fetch_and_upload_franchise_data(year, **context):
             
             print(f"Collected {len(all_data)} records so far...")
         
+        if not all_data:
+            print(f"No data collected for year {year}")
+            return f"No data collected for year {year}"
+        
         # DataFrame 생성
         df = pd.DataFrame(all_data)
-        
-        if df.empty:
-            print(f"No data found for year {year}")
-            return f"No data found for year {year}"
-            
-        print(f"Total records collected for year {year}: {len(df)}")
-        print("\nSample data:")
+        print(f"\nTotal records collected for year {year}: {len(df)}")
+        print("Sample data:")
         print(df.head())
-        print("\nData shape:", df.shape)
+        print("Data shape:", df.shape)
         
         # OpenSearch에 데이터 업로드
         oml.pandas_to_opensearch(
@@ -187,6 +213,7 @@ def fetch_and_upload_franchise_data(year, **context):
     except Exception as e:
         print(f"Error processing data for year {year}: {str(e)}")
         raise
+
 
 # DAG 기본 설정
 default_args = {
