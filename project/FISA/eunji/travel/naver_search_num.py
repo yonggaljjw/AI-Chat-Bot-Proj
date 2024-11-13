@@ -2,6 +2,12 @@ import os
 import urllib.request
 import json
 import pandas as pd
+from dotenv import load_dotenv
+
+# Load environment variables
+load_dotenv()
+naver_client_id = os.getenv("eunji_naver_api")
+naver_client_secret = os.getenv("eunji_naver_api_key")
 
 # travel_info 생성 함수
 def create_travel_info(df):
@@ -85,8 +91,8 @@ def main():
     df_country = pd.read_csv("./국토연구원 세계도시정보 자료(2019년).csv", encoding="EUC-KR")
     
     # 네이버 API 인증 정보 및 요청 URL
-    client_id = "eunji_naver_api"
-    client_secret = "eunji_naver_api_key"
+    client_id = naver_client_id
+    client_secret = naver_client_secret
     url = "https://openapi.naver.com/v1/datalab/search"
     
     # 기본 요청 변수 설정
