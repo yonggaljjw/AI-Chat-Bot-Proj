@@ -37,7 +37,8 @@ RUN pip install --no-cache-dir --upgrade \
     openai \
     opensearch-py
 RUN pip install --no-cache-dir --upgrade \
-    opensearch-py-ml
+    opensearch-py-ml \
+    pytrends
 
 # Airflow 웹 서버 시작
 CMD ["airflow", "webserver"]
