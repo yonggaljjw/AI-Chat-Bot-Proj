@@ -28,6 +28,8 @@ index_name = "travel_cautions"
 
 def setup_index():
     if not client.indices.exists(index=index_name):
+        client.indices.delete(index=index_name)
+        print(f"Existing index '{index_name}' deleted.")
         mapping = {
             "mappings": {
                 "properties": {
