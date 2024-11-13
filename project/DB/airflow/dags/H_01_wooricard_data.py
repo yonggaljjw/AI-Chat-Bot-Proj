@@ -24,7 +24,7 @@ client = OpenSearch(
 
 # 'age_payment' CSV 파일을 OpenSearch에 업로드하는 함수
 def upload_age_payment_data():
-    file_path = '/opt/airflow/dags/data/age_payment.csv'  # 실제 경로로 변경하세요.
+    file_path = '/opt/airflow/data/wooricard_data/age_payment.csv'  # 실제 경로로 변경하세요.
     df = pd.read_csv(file_path)
     
     # 인덱스 생성 및 매핑 설정
@@ -36,7 +36,7 @@ def upload_age_payment_data():
                     "properties": {
                         "연령대" : {"type": "text"},
                         "결제방식" : {"type": "text"},
-                        "이용금액" : {"type": "int"},
+                        "이용금액" : {"type": "integer"},
                     }
                 }
             }
@@ -52,7 +52,7 @@ def upload_age_payment_data():
 
 # 'male_expense' CSV 파일을 OpenSearch에 업로드하는 함수
 def upload_male_expense_data():
-    file_path = '/opt/airflow/dags/data/male_expense.csv'  # 실제 경로로 변경하세요.
+    file_path = '/opt/airflow/data/wooricard_data/male_expense.csv'  # 실제 경로로 변경하세요.
     df = pd.read_csv(file_path)
     
     oml.pandas_to_opensearch(
@@ -65,7 +65,7 @@ def upload_male_expense_data():
 
 # 'female_expense' CSV 파일을 OpenSearch에 업로드하는 함수
 def upload_female_expense_data():
-    file_path = '/opt/airflow/dags/data/female_expense.csv'  # 실제 경로로 변경하세요.
+    file_path = '/opt/airflow/data/wooricard_data/female_expense.csv'  # 실제 경로로 변경하세요.
     df = pd.read_csv(file_path)
     
     oml.pandas_to_opensearch(
@@ -78,7 +78,7 @@ def upload_female_expense_data():
 
 # 'region_consumption' CSV 파일을 OpenSearch에 업로드하는 함수
 def region_consumption():
-    file_path = '/opt/airflow/dags/data/region_consumption.csv'  # 실제 경로로 변경하세요.
+    file_path = '/opt/airflow/data/wooricard_data/region_consumption.csv'  # 실제 경로로 변경하세요.
     df = pd.read_csv(file_path)
     
     # 인덱스 생성 및 매핑 설정
@@ -145,7 +145,7 @@ def region_consumption():
 
 # 'top_age_categories' CSV 파일을 OpenSearch에 업로드하는 함수
 def upload_top_age_categories_data():
-    file_path = '/opt/airflow/dags/data/top_age_categories.csv'  # 실제 경로로 변경하세요.
+    file_path = '/opt/airflow/data/wooricard_data/top_age_categories.csv'  # 실제 경로로 변경하세요.
     df = pd.read_csv(file_path)
     
     # 인덱스 생성 및 매핑 설정
@@ -157,7 +157,7 @@ def upload_top_age_categories_data():
                     "properties": {
                         "연령대" : {"type": "text"},
                         "소비 카테고리" : {"type": "text"},
-                        "이용 금액" : {"type": "int"},
+                        "이용 금액" : {"type": "integer"},
                     }
                 }
             }
@@ -173,7 +173,7 @@ def upload_top_age_categories_data():
 
 # 'top10_level_categories' CSV 파일을 OpenSearch에 업로드하는 함수
 def upload_top10_level_categories_data():
-    file_path = '/opt/airflow/dags/data/top10_level_categories.csv'  # 실제 경로로 변경하세요.
+    file_path = '/opt/airflow/data/wooricard_data/data/top10_level_categories.csv'  # 실제 경로로 변경하세요.
     df = pd.read_csv(file_path)
     
     # 인덱스 생성 및 매핑 설정
@@ -184,16 +184,16 @@ def upload_top10_level_categories_data():
                 "mappings": {
                     "properties": {
                         "회원등급" : {"type": "text"},
-                        "보험/병원": {"type": "int"},
-                        "여행/레져/문화": {"type": "int"},
-                        "요식업": {"type": "int"},
-                        "용역/수리/건축자재": {"type": "int"},
-                        "용역서비스": {"type": "int"},
-                        "유통": {"type": "int"},
-                        "유통업영리": {"type": "int"},
-                        "의료기관": {"type": "int"},
-                        "일반/휴게음식": {"type": "int"},
-                        "자동차/연료/정비": {"type": "int"}
+                        "보험/병원": {"type": "integer"},
+                        "여행/레져/문화": {"type": "integer"},
+                        "요식업": {"type": "integer"},
+                        "용역/수리/건축자재": {"type": "integer"},
+                        "용역서비스": {"type": "integer"},
+                        "유통": {"type": "integer"},
+                        "유통업영리": {"type": "integer"},
+                        "의료기관": {"type": "integer"},
+                        "일반/휴게음식": {"type": "integer"},
+                        "자동차/연료/정비": {"type": "integer"}
                     }
                 }
             }
