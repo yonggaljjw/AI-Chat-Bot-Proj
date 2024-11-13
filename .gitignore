@@ -57,3 +57,6 @@ build/
 
 .gradlenode_modules/
 latest
+
+
+/Playground/**/*.ipynb
