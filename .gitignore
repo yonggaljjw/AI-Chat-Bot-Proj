@@ -59,4 +59,4 @@ build/
 latest
 
 
-/Playground/**/*.ipynb
+jupyter/
