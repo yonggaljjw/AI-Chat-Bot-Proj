@@ -134,7 +134,7 @@ def setup_index():
 def upload_to_opensearch(documents):
     # 문서를 일괄 업로드
     if documents:
-        helpers.bulk(client, documents)
+        helpers.bulk(client, documents, index={index_name})
         print(f"Uploaded {len(documents)} documents to index '{index_name}'.")
     else:
         print("No JSON files found to upload.")
