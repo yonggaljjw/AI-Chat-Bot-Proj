@@ -108,17 +108,45 @@ def setup_index():
         mapping = {
             "mappings": {
                 "properties": {
-                    "startDate": {"type": "date"},
-                    "endDate": {"type": "date"},
-                    "timeUnit": {"type": "keyword"},
-                    "device": {"type": "keyword"},
-                    "ages": {"type": "keyword"},
-                    "gender": {"type": "keyword"},
-                    "keywordGroups": {
-                        "type": "nested",
+                    "group_name": {
+                        "type": "text"
+                    },
+                    "result": {
                         "properties": {
-                            "groupName": {"type": "keyword"},
-                            "keywords": {"type": "keyword"}
+                            "startDate": {
+                                "type": "date",
+                                "format": "yyyy-MM-dd"
+                            },
+                            "endDate": {
+                                "type": "date",
+                                "format": "yyyy-MM-dd"
+                            },
+                            "timeUnit": {
+                                "type": "keyword"
+                            },
+                            "results": {
+                                "type": "nested",
+                                "properties": {
+                                    "title": {
+                                        "type": "text"
+                                    },
+                                    "keywords": {
+                                        "type": "keyword"
+                                    },
+                                    "data": {
+                                        "type": "nested",
+                                        "properties": {
+                                            "period": {
+                                                "type": "date",
+                                                "format": "yyyy-MM-dd"
+                                            },
+                                            "ratio": {
+                                                "type": "float"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
