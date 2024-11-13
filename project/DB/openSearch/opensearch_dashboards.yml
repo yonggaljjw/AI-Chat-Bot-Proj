@@ -1,0 +1,2 @@
+opensearch_security.cookie.isSameSite: "None"
+opensearch_security.cookie.secure: true
