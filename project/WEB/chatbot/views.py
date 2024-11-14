@@ -38,25 +38,36 @@ def query_with_date(question):
 @csrf_exempt
 @require_http_methods(["POST"])
 def chat(request):
-    data = json.loads(request.body)
-    user_message = data.get('message', '')
-    ai_message = query_with_date(user_message)
-    return JsonResponse({'message': ai_message})
-    '''
-    # OpenAI API를 사용하여 응답 생성
-    response = openai.ChatCompletion.create(
-        model="gpt-4o-mini",
-        messages=[
-            {"role": "system", "content": "Your name is 우대리, You are a helpful assistant."},
-            {"role": "user", "content": user_message}
-        ]
-    )
-
-    ai_message = response.choices[0].message['content']
-    return JsonResponse({'message': ai_message})
-    '''
-######
-
+    try:
+        data = json.loads(request.body)
+        user_message = data.get('message', '')
+        
+        # 날짜 관련 질문인지 확인
+        if any(date_keyword in user_message for date_keyword in ['언제', '날짜', '일자', '년', '월', '일']):
+            # 날짜 기반 검색 함수 호출
+            ai_message = query_with_date(user_message)
+        else:
+            # OpenAI API를 사용한 일반 응답
+            response = openai.ChatCompletion.create(
+                model="gpt-4",  # 또는 사용 가능한 모델
+                messages=[
+                    {"role": "system", "content": "당신은 친절한 AI 어시스턴트입니다. 한국어로 응답해주세요."},
+                    {"role": "user", "content": user_message}
+                ],
+                temperature=0.7
+            )
+            ai_message = response.choices[0].message['content']
+        
+        return JsonResponse({
+            'status': 'success',
+            'message': ai_message
+        })
+        
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': f'오류가 발생했습니다: {str(e)}'
+        }, status=500)
 
 
 # chart 4
