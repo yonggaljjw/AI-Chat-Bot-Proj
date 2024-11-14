@@ -148,7 +148,20 @@ def run_prediction_and_upload():
     actions = [
         {
             "_index": index_name,
-            "_source": row.to_dict()
+            "_source": {
+                "date": row['date'],
+                "USD": row['USD'],
+                "EUR": row['EUR'],
+                "JPY": row['JPY'],
+                "GBP": row['GBP'],
+                "AUD": row['AUD'],
+                "CAD": row['CAD'],
+                "NZD": row['NZD'],
+                "THB": row['THB'],
+                "VND": row['VND'],
+                "HKD": row['HKD'],
+                "TWD": row['TWD'],
+            }
         }
         for _, row in predictions_df.iterrows()
     ]
