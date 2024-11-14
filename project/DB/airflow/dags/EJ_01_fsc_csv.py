@@ -65,7 +65,7 @@ def upload_to_opensearch():
     actions = [
         {
             "_op_type": "index",
-            "_index": "raw_data",
+            "_index": "korean_law_data",
             "_source": {
                 "title": row['title'],
                 "start_date": row['start_date'],
