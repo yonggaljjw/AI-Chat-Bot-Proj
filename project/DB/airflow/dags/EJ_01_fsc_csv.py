@@ -30,8 +30,8 @@ client = OpenSearch(
 def create_or_update_index():
     """Elasticsearch 인덱스를 생성 또는 갱신하여 '날짜' 필드를 date 타입으로 설정"""
     # 인덱스가 이미 존재하면 삭제
-    if client.indices.exists(index='Korean_Law_data'):
-        client.indices.delete(index='Korean_Law_data')
+    if client.indices.exists(index='korean_law_data'):
+        client.indices.delete(index='korean_law_data')
         print("기존 인덱스 삭제 완료")
 
     # 새로운 인덱스 생성 (날짜 필드를 date 타입으로 설정)
