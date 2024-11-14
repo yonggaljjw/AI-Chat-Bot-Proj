@@ -25,7 +25,7 @@ from django.conf import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # path('', views.index, name='index'),
+    path('', views.index, name='index'),
     path("chatbot/", views.chat, name="chat"),
     path("recent_posts/", views.recent_posts, name="recent_posts"),
     path("django_plotly_dash/", include("django_plotly_dash.urls")),

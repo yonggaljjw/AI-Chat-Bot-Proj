@@ -42,15 +42,25 @@ except Exception as e:
 
 def crawling_extract_df():
     df = crawling(3)
+    column_mapping = {
+        "제목": "title",
+        "날짜": "date",
+        "내용": "URL",
+        "도착공항": "content",
+        "개정이유": "revision_reason",
+        "주요내용": "main_content"
+    }   
+
+    df.rename(columns=column_mapping, inplace=True)
     
     if df is None or df.empty:
         print("크롤링된 데이터가 없습니다. 빈 DataFrame을 반환합니다.")
-        return pd.DataFrame(columns=['제목', '날짜', 'URL', '내용', '개정이유', '주요내용'])
+        return pd.DataFrame(columns=['title', 'date', 'URL', 'content', 'revision_reason', 'main_content'])
 
-    df['내용'] = df['내용'].fillna('내용없음')
-    df['개정이유'] = df['내용'].apply(extract_reason)
-    df['주요내용'] = df['내용'].apply(extract_main_content)
-    df['날짜'] = pd.to_datetime(df['날짜'], errors='coerce').dt.strftime('%Y-%m-%d')  # 날짜 형식 통일
+    df['title'] = df['title'].fillna('내용없음')
+    df['revision_reason'] = df['content'].apply(extract_reason)
+    df['main_content'] = df['content'].apply(extract_main_content)
+    df['date'] = pd.to_datetime(df['date'], errors='coerce').dt.strftime('%Y-%m-%d')  # 날짜 형식 통일
 
     return df
 
@@ -63,7 +73,7 @@ def get_existing_entries():
     query = {
         "query": {
             "range": {
-                "날짜": {
+                "date": {
                     "gte": one_year_ago.strftime("%Y-%m-%d"),
                     "lte": current_date.strftime("%Y-%m-%d"),
                     "format": "yyyy-MM-dd"
@@ -75,7 +85,7 @@ def get_existing_entries():
     # Elasticsearch에서 검색
     # response = es.search(index="raw_data", body=query, size=10000)
     response = client.search(index="Korean_Law_data", body=query, size=10000)
-    existing_entries = {(hit['_source']['제목'], hit['_source']['날짜'], hit['_source']['URL']) for hit in response['hits']['hits']}
+    existing_entries = {(hit['_source']['title'], hit['_source']['date'], hit['_source']['URL']) for hit in response['hits']['hits']}
     
     print(f"검색된 데이터 개수: {response['hits']['total']['value']}")
     print(f"기존 데이터 수: {len(existing_entries)}")
@@ -86,31 +96,32 @@ def upload_new_data():
     existing_entries = get_existing_entries()
 
      # 벡터 임베딩 생성
-    df['제목_vector'] = df['제목'].apply(generate_embedding)
-    df['내용_vector'] = df['내용'].apply(generate_embedding)
-    df['개정이유_vector'] = df['개정이유'].apply(generate_embedding)
-    df['주요내용_vector'] = df['주요내용'].apply(generate_embedding)
+    # 벡터 임베딩 생성
+    df['title_vector'] = df['title'].apply(generate_embedding)
+    df['content_vector'] = df['content'].apply(generate_embedding)
+    df['revision_reason_vector'] = df['revision_reason'].apply(generate_embedding)
+    df['main_content_vector'] = df['main_content'].apply(generate_embedding)
 
     actions = [
-        {
+        {   
             "_op_type": "index",
             "_index": "raw_data",
-            "_id": f"{row['제목']}_{row['날짜']}",
+            "_id": f"{row['title']}_{row['date']}",
             "_source": {
-                "제목": row['제목'],
-                "제목_vector": row['제목_vector'],
-                "날짜": row['날짜'],
+                "title": row['title'],
+                "title_vector": row['title_vector'],
+                "date": row['date'],
                 "URL": row['URL'],
-                "내용": row['내용'],
-                "내용_vector": row['내용_vector'],
-                "개정이유": row['개정이유'],
-                "개정이유_vector": row['개정이유_vector'],
-                "주요내용": row['주요내용'],
-                "주요내용_vector": row['주요내용_vector'],
+                "content": row['content'],
+                "content_vector": row['content_vector'],
+                "revision_reason": row['revision_reason'],
+                "revision_reason_vector": row['revision_reason_vector'],
+                "main_content": row['main_content'],
+                "main_content_vector": row['main_content_vector'],
             }
         }
         for _, row in df.iterrows()
-        if (row['제목'], row['날짜'], row['URL']) not in existing_entries
+        if (row['title'], row['date'], row['URL']) not in existing_entries
     ]
 
     print(f"중복 제거 후 삽입할 데이터 수: {len(actions)}")

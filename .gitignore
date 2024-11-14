@@ -7,6 +7,7 @@ latest
 # *.csv
 backup/
 es/
+/jupyter/**/*.ipynb
 
 HELP.md
 target/
@@ -16,9 +17,11 @@ target/
 
 ### eunji ###
 /project/FISA/eunji/sum_models/t5-large-korean-text-summary/
+/project/FISA/eunji/data_extract/t5-large-korean-text-summary/
 /project/FISA/eunji/OPENAI_RAG/
 /project/FISA/eunji/ES_OPENAI/try1.py
 /project/FISA/eunji/ES_OPENAI/try2.py
+# /project/FISA/eunji/travel/naver_country
 **/venv/
 
 ### STS ###
@@ -56,3 +59,6 @@ build/
 
 .gradlenode_modules/
 latest
+
+
+jupyter/

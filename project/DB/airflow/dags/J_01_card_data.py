@@ -24,7 +24,7 @@ client = OpenSearch(
 
 # 1. 'combined_card_members' CSV 파일을 OpenSearch에 업로드하는 함수
 def upload_members_data():
-    file_path = '/opt/airflow/dags/data/combined_card_members.csv'  # 실제 경로로 변경하세요.
+    file_path = '/opt/airflow/data/card_data/combined_card_members.csv'  # 실제 경로로 변경하세요.
     df = pd.read_csv(file_path)
     
     # 데이터 형식 변환
@@ -68,7 +68,7 @@ def upload_members_data():
 
 # 'combined_card_sales' CSV 파일을 OpenSearch에 업로드하는 함수
 def upload_sales_data():
-    file_path = '/opt/airflow/dags/data/combined_card_sales.csv'  # 실제 경로로 변경하세요.
+    file_path = '/opt/airflow/data/card_data/combined_card_sales.csv'  # 실제 경로로 변경하세요.
     df = pd.read_csv(file_path)
     
     # 데이터 형식 변환

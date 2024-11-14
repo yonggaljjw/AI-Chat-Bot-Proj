@@ -50,8 +50,22 @@
             margin-top: 20px;
         }
 
-        #chart1>div {
-            padding-bottom: 60% !important;
+        .dashboard-container {
+            position: fixed;
+            top: 56px;
+            /* navbar 높이만큼 여백 */
+            left: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            height: calc(100vh - 56px);
+            /* viewport 높이에서 navbar 높이를 뺌 */
+        }
+
+        .dashboard-container iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
         }
     </style>
 </head>
@@ -77,52 +91,10 @@
             </button>
         </div>
     </nav>
-    <div class="container-fluid">
-        <!-- Dashboard Section -->
-        <div class="row">
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="bg-light" id="chart1" style="height: 40vh;">
-                            {% plotly_app name="wordcloud_app" %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="bg-light" style="height: 40vh;">
-                            {% plotly_app name="simple_example" ratio=1 %}
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="bg-light" style="height: 40vh;"></div>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-6 mb-4">
-                <div class="card">
-                    <div class="card-body">
-                        <div class="bg-light" style="height: 40vh;">
-                            <ul>
-                                {% if posts %}
-                                {% for post in posts %}
-                                <li>{{ post.date }} - {{ post.title }}</li>
-                                {% endfor %}
-                                {% else %}
-                                <li>No posts available</li>
-                                {% endif %}
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="dashboard-container">
+        <iframe title="dashboard"
+            src="http://opensearch.ap.loclx.io/app/dashboards?security_tenant=private#/view/8e15c810-9fd4-11ef-8cc2-c76f84b39ba0?embed=true&_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2Ctime%3A(from%3A'2020-01-01T07%3A12%3A37.097Z'%2Cto%3Anow))&hide-filter-bar=true">
+        </iframe>
     </div>
 
     <!-- Chat Section -->
@@ -132,43 +104,16 @@
             <button type="button" class="btn-close text-reset" data-bs-dismiss="offcanvas" aria-label="Close"></button>
         </div>
         <div class="offcanvas-body">
-            <div class="card-body flex-column p-0">
-                <div id="chat-messages" class="chat-messages p-3">
-                    <ul class="list-unstyled messages-list">
-                        {% for chat in chats %}
-                        {% if chat.user == request.user %}
-                        <li class="message sent">
-                            <div class="message-text">
-                                <div class="message-sender">
-                                    <b>You</b>
-                                </div>
-                                <div class="message-content">
-                                    {{chat.message}}
-                                </div>
-                            </div>
-                        </li>
-                        <li class="message received">
-                            <div class="message-text">
-                                <div class="message-sender">
-                                    <b>AI Chatbot</b>
-                                </div>
-                                <div class="message-content">
-                                    {{chat.response}}
-                                </div>
-                            </div>
-                        </li>
-                        {% endif %}
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="input-group">
-                    {% csrf_token %}
-                    <input type="text" id="user-input" class="form-control" placeholder="메시지를 입력하세요..."
-                        onsubmit="sendMessage()">
-                    <button type="submit" onclick="sendMessage()" class="btn btn-primary">전송</button>
-                </div>
+            <div class="chat-messages" id="chat-messages">
+                <!-- 채팅 메시지가 여기에 표시됩니다 -->
+            </div>
+            <div class="input-group">
+                {% csrf_token %}
+                <input type="text" id="user-input" class="form-control" placeholder="메시지를 입력하세요...">
+                <button type="button" onclick="sendMessage()" class="btn btn-primary">전송</button>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- Bootstrap JS -->
@@ -197,22 +142,33 @@
             var userInput = document.getElementById('user-input').value;
             if (userInput.trim() === '') return;
 
+            // 사용자 메시지 추가
+            addMessage('user', userInput);
+
             fetch('/chatbot/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': csrftoken // CSRF 토큰 추가
+                    'X-CSRFToken': csrftoken
                 },
                 body: JSON.stringify({ message: userInput })
             })
                 .then(response => response.json())
                 .then(data => {
-                    var chatMessages = document.getElementById('chat-messages');
-                    chatMessages.innerHTML += '<p><strong>사용자:</strong> ' + userInput + '</p>';
-                    chatMessages.innerHTML += '<p><strong>우대리:</strong> ' + data.message + '</p>'; // 'data.message'로 수정
+                    // 봇 메시지 추가
+                    addMessage('bot', data.message);
                     document.getElementById('user-input').value = '';
                 })
                 .catch(error => console.error('Error:', error));
+        }
+
+        function addMessage(type, message) {
+            var chatMessages = document.getElementById('chat-messages');
+            var messageDiv = document.createElement('div');
+            messageDiv.className = `chat-message ${type}`;
+            messageDiv.textContent = message;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
         // Enter key event listener for sending messages
