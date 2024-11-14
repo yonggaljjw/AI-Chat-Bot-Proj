@@ -94,7 +94,7 @@ default_args = {
 }
 
 with DAG(
-    "daily_travel_Advice_dag",
+    "EJ_Travel_Advices",
     default_args=default_args,
     description="Fetch and upload travel Advice daily",
     schedule_interval="0 0 * * *",

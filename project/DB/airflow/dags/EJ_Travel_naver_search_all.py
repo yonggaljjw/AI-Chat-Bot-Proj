@@ -211,7 +211,7 @@ default_args = {
 }
 
 with DAG(
-    'travel_naver_search_all',
+    'EJ_Travel_naver_search_all',
     default_args=default_args,
     description='Fetch and upload travel data to OpenSearch',
     schedule_interval=None,  

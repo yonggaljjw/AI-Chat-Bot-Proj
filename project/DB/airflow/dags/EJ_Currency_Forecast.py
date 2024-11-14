@@ -120,7 +120,7 @@ def run_prediction_and_upload():
     predictions_df = pd.DataFrame({'date': future_dates})
     
     # OpenSearch client and index setup
-    opensearch_client = client()
+    opensearch_client = client
     index_name = "currency_forcast"
     setup_index(opensearch_client, index_name)
 
@@ -168,7 +168,7 @@ default_args = {
 }
 
 with DAG(
-    'daily_currency_prediction_upload',
+    'EJ_Currency_Forecast',
     default_args=default_args,
     description='Predicts future currency exchange rates and uploads to OpenSearch daily',
     schedule_interval=timedelta(days=1),
