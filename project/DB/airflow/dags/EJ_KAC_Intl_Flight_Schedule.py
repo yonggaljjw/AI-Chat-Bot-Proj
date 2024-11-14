@@ -92,28 +92,28 @@ default_args = {
     'retry_delay': timedelta(minutes=5)
 }
 
-# Define DAG
-with DAG(
-    'flight_schedule',
-    default_args=default_args,
-    description="한국공항공사_국제선 항공기스케줄",
-    schedule_interval=None,
-    start_date=datetime.now(),
-    catchup=False,
-    tags=['elasticsearch', 'crawl', 'finance']
-) as dag:
+# # Define DAG
+# with DAG(
+#     'EJ_KAC_Intl_Flight_Schedule',
+#     default_args=default_args,
+#     description="한국공항공사_국제선 항공기스케줄",
+#     schedule_interval=None,
+#     start_date=datetime.now(),
+#     catchup=False,
+#     tags=['elasticsearch', 'crawl', 'finance']
+# ) as dag:
 
-    # Task: Clear Elasticsearch data
-    clear_data = PythonOperator(
-        task_id="reset_flight_schedule_index",
-        python_callable=create_or_reset,
-    )
+#     # Task: Clear Elasticsearch data
+#     clear_data = PythonOperator(
+#         task_id="reset_flight_schedule_index",
+#         python_callable=create_or_reset,
+#     )
 
-    # Task: Upload CSV data to Elasticsearch
-    upload_data = PythonOperator(
-        task_id="upload_csv_to_flight_schedule_index",
-        python_callable=upload_csv,
-    )
+#     # Task: Upload CSV data to Elasticsearch
+#     upload_data = PythonOperator(
+#         task_id="upload_csv_to_flight_schedule_index",
+#         python_callable=upload_csv,
+#     )
 
-    # Task sequence
-    clear_data >> upload_data
+#     # Task sequence
+#     clear_data >> upload_data

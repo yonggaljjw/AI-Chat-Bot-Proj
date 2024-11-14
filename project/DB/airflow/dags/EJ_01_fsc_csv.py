@@ -51,7 +51,7 @@ def create_or_update_index():
         }
     }
     # es.indices.create(index='raw_data', body=index_settings)
-    client.indices.create(index='Korean_Law_data', body=index_settings)
+    client.indices.create(index='korean_law_data', body=index_settings)
     print("새로운 인덱스 생성 완료")
 
 def upload_to_opensearch():
@@ -101,7 +101,7 @@ default_args = {
 
 # DAG 정의 (Airflow에서 작업 흐름을 구성하는 단위)
 with DAG(
-    'fsc_csv',  # DAG 이름
+    'EJ_fsc_csv',  # DAG 이름
     default_args=default_args,  # 기본 인자 설정
     description="입법예고/규정변경예고 데이터를 Elasticsearch에 저장합니다.",  # 설명
     schedule_interval=None,  # DAG이 한 번만 실행되도록 설정

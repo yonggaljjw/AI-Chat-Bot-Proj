@@ -73,7 +73,7 @@ def upload_exchange_rates_to_opensearch(**context):
     exchange_df.rename(columns={'Date': 'date'}, inplace=True)
     
     # OpenSearch client and index setup
-    opensearch_client = client()
+    opensearch_client = client
     index_name = "currency_yfinance"
     setup_index(opensearch_client, index_name)
     
@@ -101,7 +101,7 @@ default_args = {
 }
 
 with DAG(
-    'daily_exchange_rate_upload',
+    'EJ_Currency_yfinance',
     default_args=default_args,
     description='Fetches daily exchange rates and uploads to OpenSearch',
     schedule_interval=timedelta(days=1),
