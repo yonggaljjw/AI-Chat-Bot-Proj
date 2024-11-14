@@ -4,17 +4,22 @@ import yfinance as yf
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from opensearchpy import OpenSearch, helpers
+from dotenv import load_dotenv
+import os
 
-# OpenSearch 설정
-def get_opensearch_client():
-    client = OpenSearch(
-        hosts=[{"host": "your-opensearch-host", "port": 9200}],
-        http_auth=("your-username", "your-password"),
-        use_ssl=True,
-        verify_certs=True,
-        ssl_show_warn=False
-    )
-    return client
+load_dotenv()
+
+host = os.getenv("HOST")
+port = os.getenv("PORT")
+auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+
+client = OpenSearch(
+    hosts = [{'host': host, 'port': port}],
+    http_auth = auth,
+    use_ssl = True,
+    verify_certs = False
+)
+
 
 def setup_index(opensearch_client, index_name):
     # If the index exists, delete it
@@ -68,7 +73,7 @@ def upload_exchange_rates_to_opensearch(**context):
     exchange_df.rename(columns={'Date': 'date'}, inplace=True)
     
     # OpenSearch client and index setup
-    opensearch_client = get_opensearch_client()
+    opensearch_client = client()
     index_name = "currency_yfinance"
     setup_index(opensearch_client, index_name)
     

@@ -104,7 +104,7 @@ def predict_future(model, last_data, time_steps, normalize, future_days=100):
 
 # 메인 함수
 def run_prediction_and_upload():
-    MODEL_PATH = './package/model.keras'
+    MODEL_PATH = './dag/package/model.keras'
     TIME_STEPS = 100
     FUTURE_DAYS = 100
     base_currency = 'KRW'
