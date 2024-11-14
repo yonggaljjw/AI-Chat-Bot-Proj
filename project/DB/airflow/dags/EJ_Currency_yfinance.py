@@ -71,6 +71,7 @@ def upload_exchange_rates_to_opensearch(**context):
     exchange_df = get_historical_exchange_rates(base_currency, target_currencies, start_date, end_date)
     exchange_df.reset_index(inplace=True)
     exchange_df.rename(columns={'Date': 'date'}, inplace=True)
+    exchange_df[target_currencies] = exchange_df[target_currencies].astype(float)
     
     # OpenSearch client and index setup
     opensearch_client = client
