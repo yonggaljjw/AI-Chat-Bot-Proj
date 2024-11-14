@@ -191,28 +191,28 @@ default_args = {
     'retry_delay': timedelta(minutes=5),
 }
 
-# Airflow DAG 정의
-with DAG(
-    'fsc_first_embedding',
-    default_args=default_args,
-    description="입법예고/규정변경예고 데이터를 Elasticsearch에 저장합니다.",
-    schedule_interval='@monthly',
-    start_date=datetime.now(),
-    catchup=False,
-    tags=['elasticsearch', 'crawl', 'finance']
-) as dag:
+# # Airflow DAG 정의
+# with DAG(
+#     'fsc_first_embedding',
+#     default_args=default_args,
+#     description="입법예고/규정변경예고 데이터를 Elasticsearch에 저장합니다.",
+#     schedule_interval='@monthly',
+#     start_date=datetime.now(),
+#     catchup=False,
+#     tags=['elasticsearch', 'crawl', 'finance']
+# ) as dag:
 
-    # Elasticsearch 인덱스 초기화 작업
-    initialize_index = PythonOperator(
-        task_id="initialize_elasticsearch_index",
-        python_callable=create_or_delete_index,
-    )
+#     # Elasticsearch 인덱스 초기화 작업
+#     initialize_index = PythonOperator(
+#         task_id="initialize_elasticsearch_index",
+#         python_callable=create_or_delete_index,
+#     )
 
-    # 데이터 업로드 작업 정의
-    upload_task = PythonOperator(
-        task_id="upload_data_to_elasticsearch",
-        python_callable=upload_data,
-    )
+#     # 데이터 업로드 작업 정의
+#     upload_task = PythonOperator(
+#         task_id="upload_data_to_elasticsearch",
+#         python_callable=upload_data,
+#     )
 
-    # DAG 실행 순서 설정
-    initialize_index >> upload_task
+#     # DAG 실행 순서 설정
+#     initialize_index >> upload_task

@@ -95,7 +95,7 @@ default_args = {
 }
 
 with DAG(
-    "daily_travel_cautions_dag",
+    "EJ_Travel_Cautions",
     default_args=default_args,
     description="Fetch and upload travel cautions daily",
     schedule_interval="0 0 * * *",
