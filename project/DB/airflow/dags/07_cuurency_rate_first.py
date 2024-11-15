@@ -21,36 +21,65 @@ url = 'https://www.koreaexim.go.kr/site/program/financial/exchangeJSON'
 authkey = os.getenv("cur_authkey")
 data = 'AP01'
 
-def extract_currency_rate() :
-    df = pd.DataFrame(columns = ['result', 'cur_unit', 'ttb', 'tts', 'deal_bas_r', 'bkpr', 'yy_efee_r',
-                             'ten_dd_efee_r', 'kftc_bkpr', 'kftc_deal_bas_r', 'cur_nm','date'])
-    params = {
-        'authkey': authkey,
-        'searchdate' : datetime.today(),
-        'data' : data}
-    response = pd.DataFrame(requests.get(url, params=params).json())
-    response['date'] = datetime.today()
-    return response
-
-def dataframe_to_elasticsearch():
-
-    df = extract_currency_rate()
-
-    oml.pandas_to_opensearch(
-        pd_df=df,
-        os_client=client,
-        os_dest_index="currency_rate_data",
-        os_if_exists="append",
-        os_refresh=True
-    )
-
-
 client = OpenSearch(
     hosts = [{'host': host, 'port': port}],
     http_auth = auth,
     use_ssl = True,
     verify_certs = False
 )
+
+
+
+def extract_currency_rate() :
+    params = {
+        'authkey': authkey,
+        'searchdate' : datetime.today(),
+        'data' : data}
+    response = pd.DataFrame(requests.get(url, params=params).json())
+    response['date'] = datetime.today()
+    response = response.drop(columns=['result'])
+
+    response['ttb'] = response['ttb'].apply(lambda x : x.replace(",",""))
+    response['tts'] = response['tts'].apply(lambda x : x.replace(",",""))
+    response['deal_bas_r'] = response['deal_bas_r'].apply(lambda x : x.replace(",",""))
+    response['bkpr'] = response['bkpr'].apply(lambda x : x.replace(",",""))
+    response['kftc_bkpr'] = response['kftc_bkpr'].apply(lambda x : x.replace(",",""))
+    response['kftc_deal_bas_r'] = response['kftc_deal_bas_r'].apply(lambda x : x.replace(",",""))
+
+    response['ttb'] = response['ttb'].astype('float')
+    response['tts'] = response['tts'].astype('float')
+    response['deal_bas_r'] = response['deal_bas_r'].astype('float')
+    response['bkpr'] = response['bkpr'].astype('float')
+    response['yy_efee_r'] = response['yy_efee_r'].astype('float')
+    response['ten_dd_efee_r'] = response['ten_dd_efee_r'].astype('float')
+    response['kftc_bkpr'] = response['kftc_bkpr'].astype('float')
+    response['kftc_deal_bas_r'] = response['kftc_deal_bas_r'].astype('float')
+
+    return response
+
+## 데이터 적재를 위한 bulk_action 함수 생성
+def create_bulk_actions(df, index_name):
+    actions = []
+    for index, row in df.iterrows():
+        # Index action
+        action = {
+            "_index": index_name,
+            "_source": row.to_dict()
+        }
+        actions.append(action)
+    return actions
+
+
+# Bulk API를 위한 작업 생성
+def bulk_insert() :
+    actions = create_bulk_actions(extract_currency_rate(), 'currency_rate')
+    # Bulk API 호출
+    if actions:
+        # helpers.bulk(es, actions)
+        helpers.bulk(client, actions)
+        print(f"{len(actions)}개의 문서가 OpenSearch에 업로드되었습니다.")
+    else:
+        print("업로드할 문서가 없습니다.")
 
 
 # Airflow DAG 기본 설정
@@ -73,8 +102,8 @@ with DAG(
     
     # PythonOperator 설정
     t1 = PythonOperator(
-        task_id="currency_rate_upload",
-        python_callable=dataframe_to_elasticsearch,
+    task_id="currency_rate_upload",
+    python_callable=bulk_insert,
     )
 
     t1
