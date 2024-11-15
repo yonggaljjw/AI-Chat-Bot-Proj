@@ -26,7 +26,7 @@ client = OpenSearch(
 def upload_age_payment_data():
     file_path = '/opt/airflow/data/wooricard_data/age_payment.csv'  # 실제 경로로 변경하세요.
     df = pd.read_csv(file_path)
-    
+
     # 인덱스 생성 및 매핑 설정
     if not client.indices.exists(index='age_payment'):
         client.indices.create(
@@ -34,7 +34,7 @@ def upload_age_payment_data():
             body={
                 "mappings": {
                     "properties": {
-                        "연령대" : {"type": "integer"},
+                        "연령대" : {"type": "keyword"},
                         "결제방식" : {"type": "keyword"},
                         "이용금액" : {"type": "integer"},
                     }
@@ -67,8 +67,7 @@ def upload_male_expense_data():
 def upload_female_expense_data():
     file_path = '/opt/airflow/data/wooricard_data/female_expense.csv'  # 실제 경로로 변경하세요.
     df = pd.read_csv(file_path)
-    print(df)
-    print(df.info())
+    
     oml.pandas_to_opensearch(
         pd_df=df,
         os_client=client,
@@ -156,7 +155,7 @@ def upload_top_age_categories_data():
             body={
                 "mappings": {
                     "properties": {
-                        "연령대" : {"type": "integer"},
+                        "연령대" : {"type": "keyword"},
                         "소비 카테고리" : {"type": "keyword"},
                         "이용 금액" : {"type": "integer"},
                     }
