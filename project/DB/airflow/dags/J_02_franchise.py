@@ -1,27 +1,22 @@
-from airflow import DAG
-from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-import requests
 import pandas as pd
-import xml.etree.ElementTree as ET
-import os
+from airflow import DAG
+from airflow.operators.python_operator import PythonOperator
 from dotenv import load_dotenv
-from opensearchpy import OpenSearch
-import opensearch_py_ml as oml
-import urllib3
+import os
+from opensearchpy import OpenSearch, helpers
+import requests
+import xml.etree.ElementTree as ET
+import logging
 
-# SSL 경고 무시
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# .env 파일 로드
+# 환경 변수 로드
 load_dotenv()
 
-# OpenSearch 설정
+# OpenSearch 연결 설정
 host = os.getenv("HOST")
 port = os.getenv("PORT")
 auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD"))
 
-# OpenSearch 클라이언트 설정
 client = OpenSearch(
     hosts=[{'host': host, 'port': port}],
     http_auth=auth,
@@ -30,24 +25,22 @@ client = OpenSearch(
 )
 
 # API 설정
-BASE_URL = "http://apis.data.go.kr/1130000/FftcBrandFrcsStatsService/getBrandFrcsStats"
-API_KEY = os.getenv("FRANCHISE_KEY_DECODED")
+API_CONFIG = {
+    'base_url': 'http://apis.data.go.kr/1130000/FftcBrandFrcsStatsService/getBrandFrcsStats',
+    'api_key': os.getenv("FRANCHISE_KEY_DECODED")
+}
 
-def ensure_index_exists():
-    """인덱스가 없을 경우에만 생성"""
-    if not client.indices.exists(index='franchise_stats'):
+def create_index_if_not_exists():
+    """OpenSearch 인덱스가 없으면 생성"""
+    index_name = 'franchise_data'
+    
+    if not client.indices.exists(index=index_name):
         client.indices.create(
-            index='franchise_stats',
+            index=index_name,
             body={
-                "settings": {
-                    "index": {
-                        "number_of_shards": 1,
-                        "number_of_replicas": 1
-                    }
-                },
                 "mappings": {
                     "properties": {
-                        "yr": {"type": "keyword"},
+                        "yr": {"type": "integer"},
                         "indutyLclasNm": {"type": "keyword"},
                         "indutyMlsfcNm": {"type": "keyword"},
                         "corpNm": {"type": "keyword"},
@@ -64,337 +57,179 @@ def ensure_index_exists():
                 }
             }
         )
-        print("Index 'franchise_stats' created successfully.")
+        logging.info(f"Created new index: {index_name}")
+    return index_name
 
-def fetch_franchise_data(year):
-    """특정 연도의 데이터를 API에서 가져와 DataFrame으로 반환하는 함수"""
-    def fetch_page(page_no):
-        params = {
-            'serviceKey': API_KEY,
-            'pageNo': str(page_no),
-            'numOfRows': '1000',
-            'yr': str(year)
-        }
-        return requests.get(BASE_URL, params=params, verify=False)
-
-    all_data = []
-    first_response = fetch_page(1)
-    root = ET.fromstring(first_response.content)
-
-    # 총 데이터 수 확인
-    total_count = int(root.find('.//totalCount').text)
-    total_pages = (total_count + 999) // 1000  # 페이지 수 계산
-
-    for page in range(1, total_pages + 1):
-        response = fetch_page(page)
-        page_root = ET.fromstring(response.content)
-
-        for item in page_root.findall('.//item'):
-            data_dict = {child.tag: int(child.text) if child.tag in ['frcsCnt', 'newFrcsRgsCnt', 'ctrtEndCnt', 'ctrtCncltnCnt', 'nmChgCnt'] 
-                         else float(child.text) if child.tag in ['avrgSlsAmt', 'arUnitAvrgSlsAmt'] 
-                         else child.text for child in item}
-            data_dict['date'] = f"{year}-01-01"
-            all_data.append(data_dict)
-
-    return pd.DataFrame(all_data)
-
-def concat_and_upload_data(**context):
-    """신규 연도의 데이터를 가져와 기존 데이터와 concat하여 OpenSearch에 업로드하는 함수"""
-    ensure_index_exists()
-
-    # OpenSearch에서 기존 데이터 가져오기
-    existing_data_query = {"query": {"match_all": {}}}
-    existing_data = oml.opensearch_to_pandas(
-        os_client=client,
-        os_index="franchise_stats",
-        os_query=existing_data_query
-    )
-
-    # 새 연도 데이터 가져오기
-    current_year = datetime.now().year - 1  # 전년도 데이터 가져오기
-    new_data = fetch_franchise_data(current_year)
-    if new_data.empty:
-        print(f"No data available for year {current_year}.")
-        return f"No data available for year {current_year}."
-
-    # 데이터 합치기
-    franchise_data_all = pd.concat([existing_data, new_data], ignore_index=True)
-
-    # 날짜 형식 변환 (YYYY-MM-01)
-    franchise_data_all['date'] = pd.to_datetime(franchise_data_all['date']).dt.strftime('%Y-%m-01')
-
-    # 기존 데이터 삭제 후 새로운 데이터 업로드
-    client.indices.delete(index='franchise_stats', ignore=[400, 404])  # 인덱스 삭제 후 다시 생성
-    ensure_index_exists()
+def get_latest_year_in_opensearch():
+    """OpenSearch에서 가장 최근 연도 조회"""
+    index_name = 'franchise_data'
     
-    oml.pandas_to_opensearch(
-        pd_df=franchise_data_all,
-        os_client=client,
-        os_dest_index="franchise_stats",
-        os_if_exists="append",
-        os_refresh=True
-    )
-    print(f"Data for year {current_year} concatenated and uploaded successfully.")
-
-# DAG 기본 설정
-default_args = {
-    'owner': 'airflow',
-    'depends_on_past': False,
-    'start_date': datetime(2023, 1, 1),
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
-}
-
-# DAG 정의
-with DAG(
-    'franchise_stats_etl_concat',
-    default_args=default_args,
-    description='신규 연도 데이터 수집 및 기존 데이터와 합쳐 OpenSearch에 업로드',
-    schedule_interval='@yearly',
-    catchup=False,
-    tags=['opensearch', 'franchise', 'data']
-) as dag:
+    if not client.indices.exists(index=index_name):
+        return 2016  # 데이터가 없는 경우 시작 연도의 이전 해 반환
     
-    # 데이터를 새로 추가하고 기존 데이터와 concat하여 업로드
-    upload_task = PythonOperator(
-        task_id='concat_and_upload_data',
-        python_callable=concat_and_upload_data,
-    )
-=======
-from airflow import DAG
-from airflow.operators.python import PythonOperator
-from datetime import datetime, timedelta
-import requests
-import pandas as pd
-import xml.etree.ElementTree as ET
-import os
-from dotenv import load_dotenv
-from opensearchpy import OpenSearch
-import opensearch_py_ml as oml
-import urllib3
-
-# SSL 경고 무시
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
-# .env 파일 로드
-load_dotenv()
-
-# OpenSearch 설정
-host = os.getenv("HOST")
-port = os.getenv("PORT")
-auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD"))
-
-# OpenSearch 클라이언트 설정
-client = OpenSearch(
-    hosts = [{'host': host, 'port': port}],
-    http_auth = auth,
-    use_ssl = True,
-    verify_certs = False
-)
-
-# API 설정
-BASE_URL = "http://apis.data.go.kr/1130000/FftcBrandFrcsStatsService/getBrandFrcsStats"
-API_KEY = os.getenv("FRANCHISE_KEY_DECODED")  # 디코딩된 키 사용
-
-def ensure_index_exists():
-    """인덱스가 없을 경우에만 생성"""
-    try:
-        if not client.indices.exists(index='franchise_stats'):
-            client.indices.create(
-                index='franchise_stats',
-                body={
-                    "settings": {
-                        "index": {
-                            "number_of_shards": 1,
-                            "number_of_replicas": 1
-                        }
-                    },
-                    "mappings": {
-                        "properties": {
-                            "yr": {"type": "keyword"},                    # 년도
-                            "indutyLclasNm": {"type": "keyword"},        # 업종 대분류명
-                            "indutyMlsfcNm": {"type": "keyword"},        # 업종 중분류명
-                            "corpNm": {"type": "keyword"},               # 법인명
-                            "brandNm": {"type": "keyword"},              # 브랜드명
-                            "frcsCnt": {"type": "integer"},              # 가맹점 수
-                            "newFrcsRgsCnt": {"type": "integer"},        # 신규가맹점 등록 수
-                            "ctrtEndCnt": {"type": "integer"},           # 계약종료 수
-                            "ctrtCncltnCnt": {"type": "integer"},        # 계약취소 수
-                            "nmChgCnt": {"type": "integer"},             # 명칭변경 수
-                            "avrgSlsAmt": {"type": "float"},             # 평균매출액
-                            "arUnitAvrgSlsAmt": {"type": "float"},       # 면적당 평균매출액
-                            "timestamp": {"type": "date"}                # 데이터 수집 시점
-                        }
-                    }
-                }
-            )
-            print("Index 'franchise_stats' created successfully.")
-    except Exception as e:
-        print(f"Error checking/creating index: {e}")
-
-def fetch_and_upload_franchise_data(year, **context):
-    """특정 연도의 가맹점 현황 데이터를 가져와서 OpenSearch에 업로드하는 함수"""
-    
-    def fetch_page(page_no):
-        """특정 페이지의 데이터를 가져오는 함수"""
-        params = {
-            'serviceKey': API_KEY,
-            'pageNo': str(page_no),
-            'numOfRows': '1000',
-            'yr': str(year)
-        }
-        
-        response = requests.get(
-            BASE_URL, 
-            params=params, 
-            verify=False,
-            headers={'accept': '*/*'}
-        )
-        return response
-    
-    try:
-        # 인덱스 존재 확인 및 생성
-        ensure_index_exists()
-        
-        # 해당 연도의 기존 데이터 삭제
-        query = {
-            "query": {
-                "term": {
-                    "yr": str(year)
+    query = {
+        "size": 0,
+        "aggs": {
+            "max_year": {
+                "max": {
+                    "field": "yr"
                 }
             }
         }
-        try:
-            client.delete_by_query(
-                index='franchise_stats',
-                body=query,
-                refresh=True
-            )
-            print(f"Deleted existing data for year {year}")
-        except Exception as e:
-            print(f"No existing data found for year {year} or error occurred: {e}")
-        
-        # # 첫 페이지 호출하여 전체 데이터 수 확인
-        # first_response = fetch_page(1)
-        # root = ET.fromstring(first_response.content)
-        
-        # # 결과 코드 확인
-        # result_code = root.find('.//resultCode')
-        # if result_code is not None and result_code.text != '00':
-        #     print(f"Error in API response. Result code: {result_code.text}")
-        #     result_msg = root.find('.//resultMsg')
-        #     if result_msg is not None:
-        #         print(f"Result message: {result_msg.text}")
-        #     return f"Error in API response for year {year}"
-        
-        # 전체 데이터 수 확인
-        total_count = int(root.find('.//totalCount').text)
-        print(f"Total records for year {year}: {total_count}")
-        
-        # 필요한 총 페이지 수 계산
-        page_size = 1000
-        total_pages = (total_count + page_size - 1) // page_size
-        print(f"Total pages to fetch: {total_pages}")
-        
-        # 모든 페이지의 데이터 수집
-        all_data = []
-        for page in range(1, total_pages + 1):
-            print(f"Fetching page {page} of {total_pages} for year {year}")
-            response = fetch_page(page)
-            root = ET.fromstring(response.content)
-            
-            for item in root.findall('.//item'):
-                data_dict = {}
-                for child in item:
-                    if child.tag in ['frcsCnt', 'newFrcsRgsCnt', 'ctrtEndCnt', 'ctrtCncltnCnt', 'nmChgCnt']:
-                        try:
-                            data_dict[child.tag] = int(child.text) if child.text else None
-                        except (ValueError, TypeError):
-                            data_dict[child.tag] = None
-                    elif child.tag in ['avrgSlsAmt', 'arUnitAvrgSlsAmt']:
-                        try:
-                            data_dict[child.tag] = float(child.text) if child.text else None
-                        except (ValueError, TypeError):
-                            data_dict[child.tag] = None
-                    else:
-                        data_dict[child.tag] = child.text
-                
-                data_dict['timestamp'] = datetime.now().isoformat()
-                all_data.append(data_dict)
-            
-            print(f"Collected {len(all_data)} records so far...")
-        
-        # DataFrame 생성
-        df = pd.DataFrame(all_data)
-        
-        if df.empty:
-            print(f"No data found for year {year}")
-            return f"No data found for year {year}"
-            
-        print(f"Total records collected for year {year}: {len(df)}")
-        print("\nSample data:")
-        print(df.head())
-        print("\nData shape:", df.shape)
-        
-        # OpenSearch에 데이터 업로드
-        oml.pandas_to_opensearch(
-            pd_df=df,
-            os_client=client,
-            os_dest_index="franchise_stats",
-            os_if_exists="append",
-            os_refresh=True
-        )
-        
-        return f"Successfully uploaded {len(df)} records for year {year} to OpenSearch"
+    }
     
+    try:
+        response = client.search(
+            body=query,
+            index=index_name
+        )
+        latest_year = int(response['aggregations']['max_year']['value'])
+        logging.info(f"Latest year in OpenSearch: {latest_year}")
+        return latest_year
     except Exception as e:
-        print(f"Error processing data for year {year}: {str(e)}")
+        logging.error(f"Error fetching latest year: {e}")
+        return 2016
+
+def fetch_new_data(**context):
+    """신규 연도의 데이터만 가져와서 DataFrame으로 변환"""
+    logging.info("Starting to fetch new franchise data")
+    
+    def fetch_year_data(year):
+        logging.info(f"Fetching data for year {year}")
+        
+        def fetch_page(page_no):
+            params = {
+                'serviceKey': API_CONFIG['api_key'],
+                'pageNo': str(page_no),
+                'numOfRows': '1000',
+                'yr': str(year)
+            }
+            
+            response = requests.get(
+                API_CONFIG['base_url'], 
+                params=params, 
+                verify=False, 
+                headers={'accept': '*/*'}
+            )
+            return response
+
+        try:
+            first_response = fetch_page(1)
+            root = ET.fromstring(first_response.content)
+            
+            result_code = root.find('.//resultCode')
+            if result_code is not None and result_code.text != '00':
+                logging.info(f"No data available for year {year}")
+                return None
+
+            total_count = int(root.find('.//totalCount').text)
+            if total_count == 0:
+                logging.info(f"No records found for year {year}")
+                return None
+                
+            page_size = 1000
+            total_pages = (total_count + page_size - 1) // page_size
+            logging.info(f"Found {total_count} records for year {year}")
+
+            year_data = []
+            for page in range(1, total_pages + 1):
+                response = fetch_page(page)
+                root = ET.fromstring(response.content)
+
+                for item in root.findall('.//item'):
+                    data_dict = {}
+                    for child in item:
+                        if child.tag in ['frcsCnt', 'newFrcsRgsCnt', 'ctrtEndCnt', 'ctrtCncltnCnt', 'nmChgCnt']:
+                            data_dict[child.tag] = int(child.text) if child.text else None
+                        elif child.tag in ['avrgSlsAmt', 'arUnitAvrgSlsAmt']:
+                            data_dict[child.tag] = float(child.text) if child.text else None
+                        else:
+                            data_dict[child.tag] = child.text
+
+                    data_dict['date'] = context['execution_date'].strftime('%Y-%m-01')
+                    year_data.append(data_dict)
+
+            return year_data
+
+        except Exception as e:
+            logging.error(f"Error fetching data for year {year}: {str(e)}")
+            raise
+
+    # 최신 연도 확인 및 신규 데이터 수집
+    latest_year = get_latest_year_in_opensearch()
+    current_year = datetime.now().year
+    
+    new_data = []
+    for year in range(latest_year + 1, current_year + 1):
+        year_data = fetch_year_data(year)
+        if year_data:
+            new_data.extend(year_data)
+            logging.info(f"Successfully fetched data for year {year}")
+    
+    if not new_data:
+        logging.info("No new data to append")
+        return None
+    
+    df = pd.DataFrame(new_data)
+    df['date'] = pd.to_datetime(df['date'])
+    logging.info(f"Created DataFrame with {len(df)} new records")
+    
+    return df
+
+def append_to_opensearch(df):
+    """신규 데이터를 OpenSearch에 추가"""
+    if df is None or df.empty:
+        logging.info("No data to append")
+        return 0
+        
+    try:
+        index_name = create_index_if_not_exists()
+        
+        actions = [
+            {
+                "_index": index_name,
+                "_source": doc
+            }
+            for doc in df.to_dict('records')
+        ]
+        
+        success, failed = helpers.bulk(client, actions, stats_only=True)
+        logging.info(f"Successfully appended {success} documents to OpenSearch")
+        
+        if failed > 0:
+            logging.warning(f"Failed to append {failed} documents")
+            
+        return success
+
+    except Exception as e:
+        logging.error(f"Error appending data to OpenSearch: {str(e)}")
         raise
+
+def process_franchise_data(**context):
+    """전체 프로세스를 처리하는 함수"""
+    df = fetch_new_data(**context)
+    return append_to_opensearch(df)
 
 # DAG 기본 설정
 default_args = {
-    'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2015, 1, 1),
-    'email_on_failure': False,
-    'email_on_retry': False,
     'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=1),
 }
 
 # DAG 정의
 with DAG(
-    'franchise_stats_etl',
+    'franchise_data_pipeline',
     default_args=default_args,
-    description='연도별 가맹점 현황 데이터 수집 및 OpenSearch 적재',
-    schedule_interval='@yearly',
+    description='Franchise data collection and OpenSearch upload pipeline',
+    schedule_interval='@monthly',
+    start_date=datetime(2024, 1, 1),
     catchup=False,
-    tags=['opensearch', 'franchise', 'data']
+    tags=['franchise', 'opensearch', 'data']
 ) as dag:
-    
-    # 2015년부터 현재까지의 데이터를 수집하는 태스크 생성
-    tasks = []
-    start_year = 2015
-    current_year = datetime.now().year
-    
-    for year in range(start_year, current_year + 1):
-        task = PythonOperator(
-            task_id=f'fetch_and_upload_data_{year}',
-            python_callable=fetch_and_upload_franchise_data,
-            op_kwargs={'year': year},
-            dag=dag
-        )
-        tasks.append(task)
-    
-    # 태스크 의존성 설정: 순차적으로 실행
-    for i in range(len(tasks)-1):
-        tasks[i] >> tasks[i+1]
 
-# DAG 파일 직접 실행 시 테스트를 위한 코드
-if __name__ == "__main__":
-    # 특정 연도의 데이터를 테스트로 가져오기
-    test_year = 2023
-    print(f"\nTesting API call and OpenSearch upload for year {test_year}")
-    fetch_and_upload_franchise_data(test_year)
+    process_task = PythonOperator(
+        task_id='process_franchise_data',
+        python_callable=process_franchise_data,
+    )
+    
