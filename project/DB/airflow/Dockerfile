@@ -35,10 +35,20 @@ RUN pip install --no-cache-dir --upgrade \
     wordcloud \
     gensim \
     openai \
-    opensearch-py
+    opensearch-py \
+    keras=2.11.0 \
+    protobuf==3.20.* \
+    tensorflow=2.11.0
+    
 RUN pip install --no-cache-dir --upgrade \
     opensearch-py-ml \
     pytrends
+
+RUN pip install --no-cache-dir --upgrade \
+    keras==2.11.0 \
+    protobuf \
+    tensorflow==2.11.0 \
+    transformers
 
 # Airflow 웹 서버 시작
 CMD ["airflow", "webserver"]
