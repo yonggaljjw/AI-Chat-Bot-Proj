@@ -29,10 +29,10 @@ client = OpenSearch(
 fred = Fred(api_key=FRED_API_KEY)
 
 # 현재 날짜를 end_date로 사용
-end_date = datetime.today().strftime('%Y-%m-%d')
+end_date = datetime.today()
 
 # 데이터 가져오기 함수
-def fetch_data(series_id, start_date=end_date, end_date=end_date):
+def fetch_data(series_id, start_date='2015-01-01', end_date=end_date):
     try:
         data = fred.get_series(series_id, observation_start=start_date, observation_end=end_date)
         return data
@@ -74,7 +74,7 @@ def make_df():
     df.sort_values(by='date', inplace=True)
     df.fillna(method='ffill', inplace=True)
 
-    df['embedding_vector'] = df.apply(lambda row: 
+    df['description'] = df.apply(lambda row: 
     f"""
     Date: {row['date']}, FFTR: {row['FFTR']}, GDP: {row['GDP']}, 
     GDP Growth Rate: {row['GDP Growth Rate']}, PCE: {row['PCE']}, 
@@ -86,7 +86,7 @@ def make_df():
     JOLTS Hires: {row['JOLTS Hires']}
     """, axis=1)
 
-    df['embedding_vector'] = df['embedding_vector'].apply(generate_embedding)
+    df['embedding_vector'] = df['description'].apply(generate_embedding)
     return df
 
 # 인덱싱 하기
