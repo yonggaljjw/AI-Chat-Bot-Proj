@@ -108,17 +108,45 @@ def setup_index():
         mapping = {
             "mappings": {
                 "properties": {
-                    "startDate": {"type": "date"},
-                    "endDate": {"type": "date"},
-                    "timeUnit": {"type": "keyword"},
-                    "device": {"type": "keyword"},
-                    "ages": {"type": "keyword"},
-                    "gender": {"type": "keyword"},
-                    "keywordGroups": {
-                        "type": "nested",
+                    "group_name": {
+                        "type": "text"
+                    },
+                    "result": {
                         "properties": {
-                            "groupName": {"type": "keyword"},
-                            "keywords": {"type": "keyword"}
+                            "startDate": {
+                                "type": "date",
+                                "format": "yyyy-MM-dd"
+                            },
+                            "endDate": {
+                                "type": "date",
+                                "format": "yyyy-MM-dd"
+                            },
+                            "timeUnit": {
+                                "type": "keyword"
+                            },
+                            "results": {
+                                "type": "nested",
+                                "properties": {
+                                    "title": {
+                                        "type": "text"
+                                    },
+                                    "keywords": {
+                                        "type": "keyword"
+                                    },
+                                    "data": {
+                                        "type": "nested",
+                                        "properties": {
+                                            "period": {
+                                                "type": "date",
+                                                "format": "yyyy-MM-dd"
+                                            },
+                                            "ratio": {
+                                                "type": "float"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -134,7 +162,7 @@ def setup_index():
 def upload_to_opensearch(documents):
     # 문서를 일괄 업로드
     if documents:
-        helpers.bulk(client, documents)
+        helpers.bulk(client, documents, index={index_name})
         print(f"Uploaded {len(documents)} documents to index '{index_name}'.")
     else:
         print("No JSON files found to upload.")
@@ -183,7 +211,7 @@ default_args = {
 }
 
 with DAG(
-    'travel_naver_search_all',
+    'EJ_Travel_naver_search_all',
     default_args=default_args,
     description='Fetch and upload travel data to OpenSearch',
     schedule_interval=None,  

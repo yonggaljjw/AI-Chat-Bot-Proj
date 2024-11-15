@@ -24,15 +24,21 @@ client = OpenSearch(
 )
 
 # Define index name and setup
-index_name = "travel_advices"
+index_name = "travel_cautions"
 
 def setup_index():
     if not client.indices.exists(index=index_name):
+        client.indices.delete(index=index_name)
+        print(f"Existing index '{index_name}' deleted.")
         mapping = {
             "mappings": {
                 "properties": {
                     "Country": {"type": "keyword"},
-                    "Travel_Advice": {"type": "keyword"}
+                    "Travel_Caution": {"type": "boolean"},
+                    "Travel_Restriction": {"type": "boolean"},
+                    "Departure_Advisory": {"type": "boolean"},
+                    "Travel_Ban": {"type": "boolean"},
+                    "Special_Travel_Advisory": {"type": "boolean"}
                 }
             }
         }
@@ -42,27 +48,20 @@ def setup_index():
         print(f"Index '{index_name}' already exists.")
 
 def fetch_data():
-    # 페이지 URL
     url = "https://www.0404.go.kr/dev/country.mofa?idx=&hash=&chkvalue=no1&stext=&group_idx="
-
-    # 페이지 요청
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
-
-    # 데이터 수집
+    advice_levels = ["Travel_Caution", "Travel_Restriction", "Departure_Advisory", "Travel_Ban", "Special_Travel_Advisory"]
     data = []
     countries = soup.select("ul.country_list > li")
-
     for country in countries:
         country_name = country.select_one("a").text.strip()
         img_tags = country.select("img")
-        travel_advice = [img["alt"].strip() for img in img_tags if img.get("alt")]  # alt 속성이 있는 경우에만 추가
-        travel_advice = ", ".join(travel_advice) if travel_advice else "정보 없음"  # alt 속성이 없으면 "정보 없음"
-        data.append([country_name, travel_advice])
-
-    # 데이터프레임 생성
-    df = pd.DataFrame(data, columns=["Country", "Travel_Advice"])
-    return df
+        travel_advice = [img["alt"].strip() for img in img_tags if img.get("alt")]
+        advice_flags = {level: True if level in travel_advice else False for level in advice_levels}
+        advice_flags = {"Country": country_name, **advice_flags}
+        data.append(advice_flags)
+    return pd.DataFrame(data)
 
 def upload_data():
     df = fetch_data()
@@ -72,7 +71,11 @@ def upload_data():
             "_index": index_name,
             "_source": {
                 "Country": row["Country"],
-                "Travel_Advice": row["Travel_Advice"],
+                "Travel_Caution": row["Travel_Caution"],
+                "Travel_Restriction": row["Travel_Restriction"],
+                "Departure_Advisory": row["Departure_Advisory"],
+                "Travel_Ban": row["Travel_Ban"],
+                "Special_Travel_Advisory": row["Special_Travel_Advisory"]
             }
         }
         for _, row in df.iterrows()
@@ -92,9 +95,9 @@ default_args = {
 }
 
 with DAG(
-    "daily_travel_Advice_dag",
+    "EJ_Travel_Cautions",
     default_args=default_args,
-    description="Fetch and upload travel Advice daily",
+    description="Fetch and upload travel cautions daily",
     schedule_interval="0 0 * * *",
     catchup=False,
 ) as dag:
