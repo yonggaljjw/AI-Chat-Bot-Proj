@@ -28,7 +28,7 @@
         /* 모달 오버레이와 채팅창의 z-index 높게 설정 */
         #chat-window,
         #chat-icon {
-            z-index: 9999 !important;
+            z-index: 1111 !important;
         }
     </style>
 </head>
@@ -80,33 +80,31 @@
                     </svg>
                 </button>
             </div>
-
-            <!-- Chat Window -->
-            <div class="offcanvas offcanvas-end" tabindex="-1">
-                <div id="chat-window" class="fixed bottom-20 left-4 w-80 bg-white rounded-lg shadow-xl hidden z-9999">
-                    <div class="flex justify-between items-center p-4 border-b">
-                        <h3 class="text-lg font-semibold">WOODAERI</h3>
-                        <button id="close-chat" class="text-gray-500 hover:text-gray-700">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20"
-                                fill="currentColor">
-                                <path fill-rule="evenodd"
-                                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                    clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="chat-messages" class="h-96 overflow-y-auto p-4 space-y-4">
-                        <!-- 메시지들이 여기에 추가됨 -->
-                    </div>
-                    <div class="p-4 border-t">
-                        <form id="chat-form" class="flex gap-2">
-                            {% csrf_token %}
-                            <input type="text" id="message-input" class="flex-1 rounded-lg border p-2"
-                                placeholder="메시지를 입력하세요...">
-                            <button type="submit"
-                                class="bg-blue-500 text-white px-4 rounded-lg hover:bg-blue-600">전송</button>
-                        </form>
-                    </div>
+        </div>
+        <!-- Chat Window -->
+        <div class="offcanvas offcanvas-end" tabindex="-1">
+            <div id="chat-window" class="fixed bottom-20 left-4 w-80 bg-white rounded-lg shadow-xl hidden z-9999">
+                <div class="flex justify-between items-center p-4 border-b">
+                    <h3 class="text-lg font-semibold">WOODAERI</h3>
+                    <button id="close-chat" class="text-gray-500 hover:text-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="chat-messages" class="h-96 overflow-y-auto p-4 space-y-4">
+                    <!-- 메시지들이 여기에 추가됨 -->
+                </div>
+                <div class="p-4 border-t">
+                    <form id="chat-form" class="flex gap-2">
+                        {% csrf_token %}
+                        <input type="text" id="message-input" class="flex-1 rounded-lg border p-2"
+                            placeholder="메시지를 입력하세요...">
+                        <button type="submit"
+                            class="bg-blue-500 text-white px-4 rounded-lg hover:bg-blue-600">전송</button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -116,35 +114,35 @@
             <div class="bg-white shadow-md p-6 rounded-lg">
                 <h3 class="text-lg font-semibold">회원 등급별 이용 금액이 높은 항목 Top 10</h3>
                 <!-- Ploty 그래프 삽입 -->
-                <div style="position: relative; z-index: 1;">{{ top10_level_html |safe }}</div>
+                <div>{{ top10_level_html |safe }}</div>
             </div>
             <div class="bg-white shadow-md p-6 rounded-lg">
                 <h3 class="text-lg font-semibold">회원 등급별 라이프 스테이지 분포 현황</h3>
-                <div style="position: relative; z-index: 1;">{{ lifestage_distribution_html | safe }}</div>
+                <div>{{ lifestage_distribution_html | safe }}</div>
             </div>
             <div class="bg-white shadow-md p-6 rounded-lg">
                 <h3 class="text-lg font-semibold">거주 지역별로 연령대 분포</h3>
-                <div style="position: relative; z-index: 1;">{{ age_dist_html | safe }}</div>
+                <div>{{ age_dist_html | safe }}</div>
             </div>
             <div class="bg-white shadow-md p-6 rounded-lg">
                 <h3 class="text-lg font-semibold">거주 지역별로 라이프 스테이지 분포</h3>
-                <div style="position: relative; z-index: 1;">{{ lifestage_dist_html | safe }}</div>
+                <div>{{ lifestage_dist_html | safe }}</div>
             </div>
             <div class="bg-white shadow-md p-6 rounded-lg">
                 <h3 class="text-lg font-semibold">남성 소비 카테고리</h3>
-                <div style="position: relative; z-index: 1;">{{ male_chart_html | safe }}</div>
+                <div>{{ male_chart_html | safe }}</div>
             </div>
             <div class="bg-white shadow-md p-6 rounded-lg">
                 <h3 class="text-lg font-semibold">여성 소비 카테고리</h3>
-                <div style="position: relative; z-index: 1;">{{ female_chart_html | safe }}</div>
+                <div>{{ female_chart_html | safe }}</div>
             </div>
             <div class="bg-white shadow-md p-6 rounded-lg">
                 <h3 class="text-lg font-semibold">연령대별 신용카드 및 체크카드 선호 결제 방식</h3>
-                <div style="position: relative; z-index: 1;">{{ age_payment_html | safe }}</div>
+                <div>{{ age_payment_html | safe }}</div>
             </div>
             <div class="bg-white shadow-md p-6 rounded-lg">
                 <h3 class="text-lg font-semibold">연령대별 상위 5개 주요 소비 카테고리</h3>
-                <div style="position: relative; z-index: 1;">{{ age_category_html | safe }}</div>
+                <div>{{ age_category_html | safe }}</div>
             </div>
         </div>
     </div>
