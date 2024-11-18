@@ -1,25 +1,30 @@
-from django.shortcuts import render
-
 # Create your views here.
 from django.shortcuts import render
 import plotly.graph_objs as go
 from plotly.io import to_html
 import pandas as pd
-import os
 from django.conf import settings  # settings.py의 경로 설정 사용
+import mysql.connector
+from sqlalchemy import create_engine
 
-# CSV 데이터 불러오기 함수
 def load_csv_data():
-    # 프로젝트 내 데이터 경로 설정
-    file_path = os.path.join(settings.BASE_DIR, 'chatbot', 'data', 'edu_data_F_cleaned.csv')
-    
     try:
-        # CSV 파일 읽기
-        data = pd.read_csv(file_path)
+        # MySQL 연결 문자열 생성
+        db_settings = settings.DATABASES['default']
+        connection_string = f"mysql+mysqlconnector://{db_settings['USER']}:{db_settings['PASSWORD']}@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
+        
+        # SQLAlchemy 엔진 생성
+        engine = create_engine(connection_string)
+        
+        # MySQL 테이블을 DataFrame으로 읽어오기
+        query = "SELECT * FROM edu_data_f_cleaned"
+        data = pd.read_sql(query, engine)
+        
         return data
-    except FileNotFoundError:
-        print("CSV 파일을 찾을 수 없습니다.")
-        return pd.DataFrame()  # 빈 DataFrame 반환
+        
+    except Exception as e:
+        print(f"데이터베이스에서 데이터를 불러오는 중 오류 발생: {str(e)}")
+        return pd.DataFrame()  # 오류 발생 시 빈 DataFrame 반환
 
 data = load_csv_data()
 
