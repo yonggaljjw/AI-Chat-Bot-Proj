@@ -112,7 +112,7 @@ WSGI_APPLICATION = "woodjango.wsgi.application"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "hoseop", # mysql의 scheme랑 일치해야한다.
+        "NAME": "jinwon", # mysql의 scheme랑 일치해야한다.
         "USER": "fisaai",
         "PASSWORD": "woorifisa3!W",
         "HOST": "118.67.131.22",
@@ -123,6 +123,7 @@ DATABASES = {
         },                                                       # STRICT_TRANS_TABLES: 트랜잭션을 지원하는 테이블, 
                                                                   # 잘못된 데이터가 삽입되거나 업데이트될 때 경고 대신 오류를 발생
  }
+
 
 
 # Password validation
