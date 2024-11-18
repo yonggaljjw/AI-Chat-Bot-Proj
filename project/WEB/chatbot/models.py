@@ -41,7 +41,7 @@ class card_sales(models.Model) :
     합계 = models.FloatField()
     date = models.DateField()
 
-    class Meata :
+    class Meta :
         managed = False
         db_table = "card_sales"
 
@@ -60,7 +60,7 @@ class card_members(models.Model) :
     KB국민카드 = models.FloatField()
     date = models.DateField()
 
-    class Meata :
+    class Meta :
         managed = False
         db_table = "card_members"
 
