@@ -1,23 +1,20 @@
 import os
 import json
-import time
 import requests
-import datetime
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
 from collections import Counter
 from konlpy.tag import Okt
-from dotenv import load_dotenv
-from opensearchpy import OpenSearch
+from datetime import datetime
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
-from datetime import timedelta
-from transformers import pipeline
+from airflow.operators.python import PythonOperator
+from opensearchpy import OpenSearch
 
-# 환경 변수 로드
+# .env 파일에서 환경 변수 로드
 load_dotenv()
 
-# 네이버 API 설정
-NAVER_CLIENT_ID = os.getenv("NAVER_API_ID")
-NAVER_CLIENT_SECRET = os.getenv("NAVER_API_SECRET")
+NAVER_CLIENT_ID = os.getenv("test_api_id")
+NAVER_CLIENT_SECRET = os.getenv("test_api_secret")
 
 # OpenSearch 설정
 host = os.getenv("HOST")
@@ -31,91 +28,156 @@ client = OpenSearch(
     verify_certs=False
 )
 
-# 텍스트 요약을 위한 Hugging Face 모델 로드
-summarizer = pipeline("summarization", model="facebook/bart-large-cnn")
+def fetch_news_by_category(sid):
+    """주어진 카테고리 ID에 대한 뉴스 기사를 크롤링하여 제목, 날짜, 본문 및 링크를 수집하는 함수."""
+    url = f"https://news.naver.com/section/{sid}"  # 카테고리별 뉴스 섹션 URL
+    html = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+    
+    if html.status_code != 200:
+        print(f"Error fetching news from {url}: {html.status_code}")
+        return []
 
-# 네이버 API 요청 함수
-def fetch_naver_search_volume(query, retries=3, delay=5):
-    url = "https://openapi.naver.com/v1/search/news.json"
+    soup = BeautifulSoup(html.text, "lxml")
+    articles = []
+
+    # 뉴스 기사 선택
+    news_items = soup.select("li.sa_item._LAZY_LOADING_WRAP")  # 뉴스 기사 선택
+    
+    for item in news_items:
+        link = item.select_one("a.sa_text_title")['href']
+        title = item.select_one("strong.sa_text_strong").get_text(strip=True)
+        
+        # 각 기사 세부 정보 크롤링
+        article_details = crawl_article_details(link)
+        articles.append({
+            "title": title,
+            "link": link,
+            **article_details  # 제목, 날짜, 본문 추가
+        })
+    
+    return articles
+
+def crawl_article_details(url):
+    """주어진 URL에서 기사 제목, 날짜, 본문을 크롤링하여 딕셔너리로 반환하는 함수."""
+    article_details = {}
+    
+    html = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
+    
+    if html.status_code != 200:
+        print(f"Error fetching article details from {url}: {html.status_code}")
+        return {"date": "날짜 없음", "main": "본문 없음"}
+
+    soup = BeautifulSoup(html.text, "lxml")
+    
+    # 날짜 수집 (연도-월-일 형식으로 변환)
+    date = soup.select_one("span.media_end_head_info_datestamp_time")
+    if date:
+        article_details["date"] = date['data-date-time'].split(" ")[0]  # "2024-11-17" 형식으로 저장
+    else:
+        article_details["date"] = "날짜 없음"
+    
+    # 본문 수집
+    main_content = soup.select_one("article#dic_area")
+    article_details["main"] = main_content.text.strip() if main_content else "본문 없음"
+    
+    return article_details
+
+def preprocess_text(text):
+    """텍스트를 전처리하여 명사만 추출하는 함수."""
+    okt = Okt()
+    tokens = okt.nouns(text)
+    return [word for word in tokens if len(word) > 1]
+
+def fetch_monthly_trend_data(word):
+    """네이버 Datalab API에서 월별 트렌드 지수를 가져오는 함수."""
+    url = "https://openapi.naver.com/v1/datalab/search"
     headers = {
         "X-Naver-Client-Id": NAVER_CLIENT_ID,
         "X-Naver-Client-Secret": NAVER_CLIENT_SECRET,
-        "User-Agent": "Mozilla/5.0"
+        "Content-Type": "application/json"
     }
-    params = {"query": query, "display": 100}
-    for attempt in range(retries):
-        try:
-            response = requests.get(url, headers=headers, params=params)
-            if response.status_code == 200:
-                return response.json()['total']
-            elif response.status_code == 429:
-                time.sleep(delay)
-            else:
-                break
-        except requests.exceptions.RequestException as e:
-            print(f"Connection error: {e}. Retrying in {delay} seconds...")
-            time.sleep(5)
-    return 0
+    today = datetime.today()
+    start_date = (today.replace(year=today.year - 1)).strftime('%Y-%m-%d')  # 1년 전
+    end_date = today.strftime('%Y-%m-%d')  # 오늘
 
-# 텍스트 전처리 함수
-def preprocess_text(text, stop_words):
-    okt = Okt()
-    tokens = okt.nouns(text)
-    return [word for word in tokens if len(word) > 1 and word not in stop_words]
+    body = json.dumps({
+        "startDate": start_date,
+        "endDate": end_date,
+        "timeUnit": "month",
+        "keywordGroups": [{"groupName": word, "keywords": [word]}]
+    })
 
-# 카테고리 데이터 처리 함수
-def process_category_data(data, category):
-    two_days_ago = datetime.datetime.now() - datetime.timedelta(days=2)
-    stop_words = set(['것', '등', '및', '약', '또', '를', '을', '이', '가', '은', '는', category])
-    filtered_data = []
+    response = requests.post(url, headers=headers, data=body)
+    
+    if response.status_code != 200:
+        print(f"Error fetching trend data for {word}: {response.status_code}")
+        return []
+
+    data = response.json()
+    monthly_data = data.get('results', [])
+    
+    return monthly_data[0]['data'] if monthly_data else []
+
+def calculate_average_growth(trend_data):
+    """트렌드 지수의 평균 증감율을 계산하는 함수."""
+    if not trend_data or len(trend_data) < 2:
+        return 0  # 데이터가 부족하면 0%로 처리
+    
+    growth_rates = []
+    for i in range(1, len(trend_data)):
+        prev_ratio = trend_data[i - 1]['ratio']
+        current_ratio = trend_data[i]['ratio']
+        growth_rate = ((current_ratio - prev_ratio) / prev_ratio) * 100
+        growth_rates.append(growth_rate)
+    
+    average_growth_rate = sum(growth_rates) / len(growth_rates)
+    return average_growth_rate
+
+def analyze_articles_with_trends(articles):
+    """기사 분석 후 네이버 Datalab API를 사용해 트렌드 증가율을 포함한 데이터를 생성."""
     word_counter = Counter()
+    
+    for article in articles:
+        processed_text = preprocess_text(article['main'])
+        word_counter.update(processed_text)
 
-    for item in data:
-        if 'pubDate' in item:
-            pDate = datetime.datetime.strptime(item['pubDate'], '%a, %d %b %Y %H:%M:%S +0900')
-            if pDate > two_days_ago:
-                processed_text = preprocess_text(item['description'], stop_words)
-                word_counter.update(processed_text)
+    filtered_data = []
+    trend_data = {}  # 트렌드 데이터 저장
 
-    for word, count in word_counter.items():
-        current_volume = fetch_naver_search_volume(word)
-        trend_growth = calculate_trend_growth(current_volume, 0)  # 이전 검색량이 0인 경우
-        article_links = [item['link'] for item in data if word in item['description']]
+    for word, count in word_counter.most_common(15):  # 상위 15개 키워드만 처리
+        # 네이버 Datalab API로 현재 검색량과 월별 트렌드 지수 가져오기
+        monthly_trend_data = fetch_monthly_trend_data(word)
+        if not monthly_trend_data:
+            trend_growth = 0  # 트렌드 데이터가 없으면 증가율 0%
+        else:
+            trend_growth = calculate_average_growth(monthly_trend_data)
 
-        # 요약된 기사 내용 추가
-        article_contents = " ".join([item['description'] for item in data if word in item['description']])
-        summary = summarize_text(article_contents)  # 기사 요약
-
+        # 월별 ratio 저장
+        monthly_ratios = {entry['period']: entry['ratio'] for entry in monthly_trend_data}
+        
+        related_articles = [
+            {
+                'title': article['title'],
+                'link': article['link'],
+                'date': article['date']
+            }
+            for article in articles if word in preprocess_text(article['main'])
+        ]
+        
         filtered_data.append({
             'word': word,
             'count': count,
             'trend_growth': trend_growth,
-            'links': article_links,
-            'summary': summary,  # 요약된 내용 추가
-            'category': category
+            'monthly_ratios': monthly_ratios,  # 월별 ratio 추가
+            **{k: v for art in related_articles for k, v in art.items()}  # 관련 기사 정보를 동일한 계층에 추가
         })
+
     return filtered_data
 
-# 트렌드 성장률 계산
-def calculate_trend_growth(current_volume, previous_volume):
-    if previous_volume == 0:
-        return 100.0
-    growth_rate = ((current_volume - previous_volume) / previous_volume) * 100
-    return growth_rate
-
-# 텍스트 요약 함수
-def summarize_text(text, max_length=200):
-    try:
-        # 요약을 생성합니다.
-        summary = summarizer(text, max_length=max_length, min_length=50, do_sample=False)
-        return summary[0]['summary_text']
-    except Exception as e:
-        print(f"Error summarizing text: {e}")
-        return "Summary not available"
-
-# OpenSearch 업로드 함수
 def upload_to_opensearch(data):
-    index_name = "trend_data"
+    """OpenSearch에 데이터를 업로드하는 함수."""
+    index_name = f"{datetime.today().strftime('%m_%d')}_news_data"  # 날짜를 포함한 인덱스 이름
+    
     for category, items in data.items():
         for item in items:
             client.index(
@@ -124,50 +186,55 @@ def upload_to_opensearch(data):
                     'word': item['word'],
                     'count': item['count'],
                     'trend_growth': item['trend_growth'],
-                    'links': item['links'],
-                    'summary': item['summary'],
+                    'monthly_ratios': item['monthly_ratios'],
+                    'related_articles': item.get('related_articles', []),
                     'category': category,
-                    'date': datetime.datetime.now().strftime('%Y-%m-%d')
+                    'date': datetime.now().strftime('%Y-%m-%d')
                 }
             )
 
-# 데이터 저장 및 업로드 파이프라인 실행
-def run_pipeline():
-    categories = ['경제', '스포츠', '사회', '정치']
-    results = {}
-    for category in categories:
-        data = []
-        for i in range(1, 100, 100):
-            url = f"https://openapi.naver.com/v1/search/news.json?query={category}&start={i}&display=100"
-            headers = {
-                "X-Naver-Client-Id": NAVER_CLIENT_ID,
-                "X-Naver-Client-Secret": NAVER_CLIENT_SECRET
-            }
-            response = requests.get(url, headers=headers)
-            if response.status_code == 200:
-                data.extend(response.json()['items'])
-            time.sleep(3)
-        results[category] = process_category_data(data, category)
-    upload_to_opensearch(results)
+    print(f"Data uploaded to OpenSearch index {index_name}.")
+
+def run_pipeline_with_trends_and_upload():
+    """뉴스 크롤링, 트렌드 분석 및 OpenSearch 업로드를 수행하는 파이프라인 실행."""
+    categories = {
+        "정치": 100,
+        "경제": 101,
+        "사회": 102,
+        "생활문화": 103,
+        "세계" : 104,
+        "IT/과학" : 105
+    }
+    
+    all_articles = {}
+    
+    for category_name, sid in categories.items():
+        print(f"Fetching news for category: {category_name} (SID: {sid})")
+        articles_data = fetch_news_by_category(sid)
+        
+        # Analyze articles and get word frequency and trends
+        analysis_results = analyze_articles_with_trends(articles_data)
+        
+        all_articles[category_name] = analysis_results  # 분석 결과만 저장
+    
+    upload_to_opensearch(all_articles)  # OpenSearch에 데이터 업로드
+    
+    print("Pipeline completed successfully.")
 
 # Airflow DAG 정의
-default_args = {
-    'owner': 'airflow',
-    'depends_on_past': False,
-    'start_date': datetime.datetime(2023, 1, 1),
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
-}
+dag = DAG(
+    'news_trend_analysis_and_upload',
+    default_args={
+        'owner': 'airflow',
+        'start_date': datetime(2024, 11, 17),
+    },
+    schedule_interval='@daily',  # 매일 실행
+    catchup=False
+)
 
-with DAG(
-    'trend_analysis',
-    default_args=default_args,
-    schedule_interval='0 7 * * *',  # 매일 아침 7시에 실행
-    catchup=False,
-) as dag:
-    t1 = PythonOperator(
-        task_id='run_pipeline',
-        python_callable=run_pipeline
-    )
-
-    t1
+# DAG에 작업 추가
+run_pipeline_task = PythonOperator(
+    task_id='run_pipeline',
+    python_callable=run_pipeline_with_trends_and_upload,
+    dag=dag
+)
