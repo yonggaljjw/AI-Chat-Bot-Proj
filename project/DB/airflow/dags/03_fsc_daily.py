@@ -9,7 +9,7 @@ from airflow.operators.python_operator import PythonOperator
 import re
 
 from package.fsc_crawling import crawling
-from package.fsc_extract import extract_main_content, extract_reason
+from package.fsc_extract import extract_main_content, extract_reason, generate_summary
 from package.vector_embedding import generate_embedding
 import os
 
@@ -29,45 +29,30 @@ client = OpenSearch(
     verify_certs = False
 )
 
-# Elasticsearch 인스턴스 생성 (Docker 내부에서 실행 중인 호스트에 연결)
-# es = Elasticsearch('http://host.docker.internal:9200')
 
-# Elasticsearch 인덱스 생성 (이미 존재하면 무시)
 try:
-    # es.indices.create(index='raw_data')
-    client.indices.create(index='Korean_Law_data')
+    client.indices.create(index='korean_law_data')
 except Exception as e:
     print(f"인덱스 생성 오류 또는 이미 존재: {e}")
 
 
 def crawling_extract_df():
-    df = crawling(3)
-    column_mapping = {
-        "제목": "title",
-        "날짜": "date",
-        "내용": "URL",
-        "도착공항": "content",
-        "개정이유": "revision_reason",
-        "주요내용": "main_content"
-    }   
-
-    df.rename(columns=column_mapping, inplace=True)
-    
-    if df is None or df.empty:
-        print("크롤링된 데이터가 없습니다. 빈 DataFrame을 반환합니다.")
-        return pd.DataFrame(columns=['title', 'date', 'URL', 'content', 'revision_reason', 'main_content'])
-
+    df = crawling(2)
+    df['start_date'] = pd.to_datetime(df['start_date'], errors='coerce').dt.strftime('%Y-%m-%d')  # 날짜 형식 통일
+    df['end_date'] = pd.to_datetime(df['end_date'], errors='coerce').dt.strftime('%Y-%m-%d')  # 날짜 형식 통일
     df['title'] = df['title'].fillna('내용없음')
     df['revision_reason'] = df['content'].apply(extract_reason)
-    df['main_content'] = df['content'].apply(extract_main_content)
-    df['date'] = pd.to_datetime(df['date'], errors='coerce').dt.strftime('%Y-%m-%d')  # 날짜 형식 통일
-
+    df['main_content'] = df['content'].apply(extract_main_content)   
+    # 요약문 생성
+    df['summary'] = df['summary'].apply(generate_summary) 
+    # 벡터 임베딩 생성
+    df['embedding_vector'] = df['embedding_vector'].apply(generate_embedding)
     return df
 
 def get_existing_entries():
     # 현재 날짜와 1년 전 날짜 계산
     current_date = datetime.now()
-    one_year_ago = current_date - timedelta(days=365)
+    one_year_ago = current_date - timedelta(days=200)
     
     # 1년 전부터 현재까지의 범위 쿼리 생성
     query = {
@@ -83,7 +68,6 @@ def get_existing_entries():
     }
     
     # Elasticsearch에서 검색
-    # response = es.search(index="raw_data", body=query, size=10000)
     response = client.search(index="Korean_Law_data", body=query, size=10000)
     existing_entries = {(hit['_source']['title'], hit['_source']['date'], hit['_source']['URL']) for hit in response['hits']['hits']}
     
@@ -95,29 +79,20 @@ def upload_new_data():
     df = crawling_extract_df()
     existing_entries = get_existing_entries()
 
-     # 벡터 임베딩 생성
-    # 벡터 임베딩 생성
-    df['title_vector'] = df['title'].apply(generate_embedding)
-    df['content_vector'] = df['content'].apply(generate_embedding)
-    df['revision_reason_vector'] = df['revision_reason'].apply(generate_embedding)
-    df['main_content_vector'] = df['main_content'].apply(generate_embedding)
-
     actions = [
-        {   
+        {
             "_op_type": "index",
-            "_index": "raw_data",
-            "_id": f"{row['title']}_{row['date']}",
+            "_index": "korean_law_data",
             "_source": {
                 "title": row['title'],
-                "title_vector": row['title_vector'],
-                "date": row['date'],
+                "start_date": row['start_date'],
+                "end_date": row['end_date'],
                 "URL": row['URL'],
                 "content": row['content'],
-                "content_vector": row['content_vector'],
                 "revision_reason": row['revision_reason'],
-                "revision_reason_vector": row['revision_reason_vector'],
                 "main_content": row['main_content'],
-                "main_content_vector": row['main_content_vector'],
+                "summary": row["summary"],
+                "embedding_vector": row['embedding_vector']
             }
         }
         for _, row in df.iterrows()
