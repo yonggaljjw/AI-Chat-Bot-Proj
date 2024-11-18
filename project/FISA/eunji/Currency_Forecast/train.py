@@ -32,7 +32,7 @@ def attention_model(input_dims, time_steps, lstm_units):
 # 환율 데이터 가져오기
 def get_historical_exchange_rates(base_currency, target_currencies, start_date, end_date):
     exchange_data = {}
-    for currency in target_currencies:
+    for currency in target_currencies: # target_currencies = ['USD', 'EUR', 'JPY', 'CNY', 'GBP']
         symbol = f"{currency}{base_currency}=X"
         try:
             data = yf.Ticker(symbol).history(start=start_date, end=end_date)
