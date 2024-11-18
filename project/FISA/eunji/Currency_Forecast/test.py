@@ -6,7 +6,7 @@ import pandas as pd
 from tensorflow.keras.models import load_model
 from sklearn.metrics import r2_score
 import matplotlib.pyplot as plt
-# from train import normalize_mult, create_dataset, FNormalizeMult, get_historical_exchange_rates, fill_na_with_avg
+from train import normalize_mult, create_dataset, FNormalizeMult, get_historical_exchange_rates, fill_na_with_avg
 
 # 테스트 데이터를 준비하는 함수
 def prepare_test_data(test_data, time_steps, normalize):
