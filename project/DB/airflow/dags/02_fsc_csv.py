@@ -101,7 +101,7 @@ default_args = {
 
 # DAG 정의 (Airflow에서 작업 흐름을 구성하는 단위)
 with DAG(
-    'EJ_fsc_csv',  # DAG 이름
+    '03.Korean_Law_data_csv',  # DAG 이름
     default_args=default_args,  # 기본 인자 설정
     description="입법예고/규정변경예고 데이터를 Elasticsearch에 저장합니다.",  # 설명
     schedule_interval=None,  # DAG이 한 번만 실행되도록 설정
