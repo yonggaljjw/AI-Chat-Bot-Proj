@@ -4,14 +4,14 @@ import plotly.graph_objs as go
 from plotly.io import to_html
 import pandas as pd
 from django.conf import settings  # settings.py의 경로 설정 사용
-import mysql.connector
 from sqlalchemy import create_engine
+import pymysql
 
 def load_csv_data():
     try:
         # MySQL 연결 문자열 생성
         db_settings = settings.DATABASES['default']
-        connection_string = f"mysql+mysqlconnector://{db_settings['USER']}:{db_settings['PASSWORD']}@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
+        connection_string = f"mysql+pymysql://{db_settings['USER']}:{db_settings['PASSWORD']}@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
         
         # SQLAlchemy 엔진 생성
         engine = create_engine(connection_string)
