@@ -24,9 +24,8 @@ from django.conf import settings
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    # /path('', views.index, name='index'),
     path("chatbot/", views.chat, name="chat"),
     path("recent_posts/", views.recent_posts, name="recent_posts"),
+    path('', include('chatbot.urls')),
     path('', include('authenticate.urls')),
-    
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

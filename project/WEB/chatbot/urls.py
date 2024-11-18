@@ -1,5 +1,4 @@
 from django.urls import path
-from . import views_eunji
 from . import views_hoseop
 from . import views_chatbot
 
