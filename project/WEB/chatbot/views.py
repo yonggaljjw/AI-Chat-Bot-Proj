@@ -104,9 +104,3 @@ def recent_posts(request):
 
     # posts 데이터를 템플릿으로 전달
     return render(request, "index.html", {"posts": posts})
-
-
-
-from .models import Fred
-
-fred = pd.DataFred.objects().all().values()
