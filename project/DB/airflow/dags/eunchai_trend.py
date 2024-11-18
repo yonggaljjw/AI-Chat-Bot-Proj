@@ -13,8 +13,8 @@ from opensearchpy import OpenSearch
 # .env 파일에서 환경 변수 로드
 load_dotenv()
 
-NAVER_CLIENT_ID = os.getenv("test_api_id")
-NAVER_CLIENT_SECRET = os.getenv("test_api_secret")
+NAVER_CLIENT_ID = os.getenv("NAVER_API_ID")
+NAVER_CLIENT_SECRET = os.getenv("NAVER_API_SECRET")
 
 # OpenSearch 설정
 host = os.getenv("HOST")
@@ -43,6 +43,8 @@ def fetch_news_by_category(sid):
     # 뉴스 기사 선택
     news_items = soup.select("li.sa_item._LAZY_LOADING_WRAP")  # 뉴스 기사 선택
     
+    print(f"Found {len(news_items)} news items in category SID: {sid}")
+    
     for item in news_items:
         link = item.select_one("a.sa_text_title")['href']
         title = item.select_one("strong.sa_text_strong").get_text(strip=True)
@@ -55,6 +57,7 @@ def fetch_news_by_category(sid):
             **article_details  # 제목, 날짜, 본문 추가
         })
     
+    print(f"Collected {len(articles)} articles from category SID: {sid}")
     return articles
 
 def crawl_article_details(url):
@@ -116,6 +119,11 @@ def fetch_monthly_trend_data(word):
     data = response.json()
     monthly_data = data.get('results', [])
     
+    if monthly_data:
+        print(f"Monthly trend data for {word}: {monthly_data[0]['data']}")
+    else:
+        print(f"No trend data found for {word}")
+    
     return monthly_data[0]['data'] if monthly_data else []
 
 def calculate_average_growth(trend_data):
@@ -145,6 +153,7 @@ def analyze_articles_with_trends(articles):
     trend_data = {}  # 트렌드 데이터 저장
 
     for word, count in word_counter.most_common(15):  # 상위 15개 키워드만 처리
+        print(f"Analyzing trend for word: {word}")
         # 네이버 Datalab API로 현재 검색량과 월별 트렌드 지수 가져오기
         monthly_trend_data = fetch_monthly_trend_data(word)
         if not monthly_trend_data:
@@ -180,6 +189,7 @@ def upload_to_opensearch(data):
     
     for category, items in data.items():
         for item in items:
+            print(f"Uploading {item['word']} to OpenSearch")
             client.index(
                 index=index_name,
                 body={
@@ -224,17 +234,15 @@ def run_pipeline_with_trends_and_upload():
 # Airflow DAG 정의
 dag = DAG(
     'news_trend_analysis_and_upload',
-    default_args={
-        'owner': 'airflow',
-        'start_date': datetime(2024, 11, 17),
-    },
-    schedule_interval='@daily',  # 매일 실행
+    description='News trend analysis and upload to OpenSearch',
+    schedule_interval='0 8 * * *',  # 매일 오전 8시에 실행
+    start_date=datetime(2024, 11, 18),
     catchup=False
 )
 
-# DAG에 작업 추가
+# Airflow 작업 정의
 run_pipeline_task = PythonOperator(
-    task_id='run_pipeline',
+    task_id='run_pipeline_with_trends_and_upload',
     python_callable=run_pipeline_with_trends_and_upload,
     dag=dag
 )
