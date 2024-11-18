@@ -118,3 +118,7 @@ django_plotly_dash
 opensearch-py
 langchain 
 langchain-community 
+SQLAlchemy==2.0.35
+pymysql
+deep-translator
+geopandas
