@@ -58,6 +58,20 @@
                 </button>
             </div>
 
+            <!-- 대시보드 버튼 -->
+            <button class="p-3 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors w-full mb-2">
+                <a href="{% url 'dashboard1' %}">Dashboard 1</a>
+            </button>
+            <button class="p-3 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors w-full mb-2">
+                <a href="{% url 'dashboard2' %}">Dashboard 2</a>
+            </button>
+            <button class="p-3 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors w-full mb-2">
+                <a href="{% url 'dashboard3' %}">Dashboard 3</a>
+            </button>
+            <button class="p-3 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors w-full mb-2">
+                <a href="{% url 'dashboard4' %}">Dashboard 4</a>
+            </button>
+
             <!-- Chat Bot Icon and Window -->
             <div id="chat-icon" class="fixed left-4 bottom-4 cursor-pointer z-9999">
                 <button class="p-3 bg-gray-700 text-gray-300 hover:bg-gray-600 rounded-lg transition-colors">
@@ -191,5 +205,20 @@
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
+        function redirectToDashboard(dashboardName) {
+        // 각 대시보드 URL에 매핑
+        const dashboardUrls = {
+            'dashboard1': '/dashboard1',
+            'dashboard2': '/dashboard2',
+            'dashboard3': '/dashboard3',
+            'dashboard4': '/dashboard4'
+        };
+        
+        // URL로 리디렉션
+        if (dashboardUrls[dashboardName]) {
+            window.location.href = dashboardUrls[dashboardName];
+        }
+    };
+        
     });
 </script>

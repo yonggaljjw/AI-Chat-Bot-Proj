@@ -105,3 +105,16 @@ def recent_posts(request):
     # posts 데이터를 템플릿으로 전달
     return render(request, "index.html", {"posts": posts})
 
+
+def dashboard1(request):
+    return render(request, 'dashboard1.html')
+
+def dashboard2(request):
+    return render(request, 'dashboard2.html')
+
+def dashboard3(request):
+    return render(request, 'dashboard3.html')
+
+def dashboard4(request):
+    return render(request, 'dashboard4.html')
+
