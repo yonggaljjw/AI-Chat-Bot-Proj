@@ -177,7 +177,22 @@ class travel_caution(models.Model) :
 
     class Meta : 
         managed = False
-        db_table = 'trabel_caution'
+        db_table = 'travel_caution'
 
 
+class currency_rate(models.Model) :
+    cur_unit = models.TextField()
+    ttb = models.FloatField()
+    tts = models.FloatField()
+    deal_bas_r = models.FloatField()
+    bkpr = models.FloatField()
+    yy_efee_r = models.FloatField()
+    ten_dd_efee_r = models.FloatField()
+    kftc_bkpr = models.FloatField()
+    kftc_deal_bas_r = models.FloatField()
+    cur_nm = models.TextField()
+    date = models.DateField()
 
+    class Meta : 
+        managed = False
+        db_table = "currency_rate"
