@@ -106,7 +106,15 @@ def recent_posts(request):
     return render(request, "index.html", {"posts": posts})
 
 
+def dashboard1(request):
+    return render(request, 'dashboard1.html')
 
-from .models import Fred
+def dashboard2(request):
+    return render(request, 'dashboard2.html')
 
-fred = pd.DataFred.objects().all().values()
+def dashboard3(request):
+    return render(request, 'dashboard3.html')
+
+def dashboard4(request):
+    return render(request, 'dashboard4.html')
+
