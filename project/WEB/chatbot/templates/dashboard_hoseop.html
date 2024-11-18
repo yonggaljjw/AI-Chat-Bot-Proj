@@ -37,7 +37,7 @@
 
     <div class="flex">
         <!-- Sidebar -->
-        < class="w-1/24 bg-white shadow-md h-screen p-4 fixed top-0 left-0">
+        <div class="w-1/24 bg-white shadow-md h-screen p-4 fixed top-0 left-0">
 
             <!-- Profile Icon -->
             <div class="relative">
@@ -109,44 +109,44 @@
                     </div>
                 </div>
             </div>
-    </div>
+        </div>
 
-    <!-- Main Content -->
-    <div class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4">
-        <div class="bg-white shadow-md p-6 rounded-lg">
-            <h3 class="text-lg font-semibold">회원 등급별 이용 금액이 높은 항목 Top 10</h3>
-            <!-- Ploty 그래프 삽입 -->
-            <div style="position: relative; z-index: 1;">{{ top10_level_html |safe }}</div>
+        <!-- Main Content -->
+        <div class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4">
+            <div class="bg-white shadow-md p-6 rounded-lg">
+                <h3 class="text-lg font-semibold">회원 등급별 이용 금액이 높은 항목 Top 10</h3>
+                <!-- Ploty 그래프 삽입 -->
+                <div style="position: relative; z-index: 1;">{{ top10_level_html |safe }}</div>
+            </div>
+            <div class="bg-white shadow-md p-6 rounded-lg">
+                <h3 class="text-lg font-semibold">회원 등급별 라이프 스테이지 분포 현황</h3>
+                <div style="position: relative; z-index: 1;">{{ lifestage_distribution_html | safe }}</div>
+            </div>
+            <div class="bg-white shadow-md p-6 rounded-lg">
+                <h3 class="text-lg font-semibold">거주 지역별로 연령대 분포</h3>
+                <div style="position: relative; z-index: 1;">{{ age_dist_html | safe }}</div>
+            </div>
+            <div class="bg-white shadow-md p-6 rounded-lg">
+                <h3 class="text-lg font-semibold">거주 지역별로 라이프 스테이지 분포</h3>
+                <div style="position: relative; z-index: 1;">{{ lifestage_dist_html | safe }}</div>
+            </div>
+            <div class="bg-white shadow-md p-6 rounded-lg">
+                <h3 class="text-lg font-semibold">남성 소비 카테고리</h3>
+                <div style="position: relative; z-index: 1;">{{ male_chart_html | safe }}</div>
+            </div>
+            <div class="bg-white shadow-md p-6 rounded-lg">
+                <h3 class="text-lg font-semibold">여성 소비 카테고리</h3>
+                <div style="position: relative; z-index: 1;">{{ female_chart_html | safe }}</div>
+            </div>
+            <div class="bg-white shadow-md p-6 rounded-lg">
+                <h3 class="text-lg font-semibold">연령대별 신용카드 및 체크카드 선호 결제 방식</h3>
+                <div style="position: relative; z-index: 1;">{{ age_payment_html | safe }}</div>
+            </div>
+            <div class="bg-white shadow-md p-6 rounded-lg">
+                <h3 class="text-lg font-semibold">연령대별 상위 5개 주요 소비 카테고리</h3>
+                <div style="position: relative; z-index: 1;">{{ age_category_html | safe }}</div>
+            </div>
         </div>
-        <div class="bg-white shadow-md p-6 rounded-lg">
-            <h3 class="text-lg font-semibold">회원 등급별 라이프 스테이지 분포 현황</h3>
-            <div style="position: relative; z-index: 1;">{{ lifestage_distribution_html | safe }}</div>
-        </div>
-        <div class="bg-white shadow-md p-6 rounded-lg">
-            <h3 class="text-lg font-semibold">거주 지역별로 연령대 분포</h3>
-            <div style="position: relative; z-index: 1;">{{ age_dist_html | safe }}</div>
-        </div>
-        <div class="bg-white shadow-md p-6 rounded-lg">
-            <h3 class="text-lg font-semibold">거주 지역별로 라이프 스테이지 분포</h3>
-            <div style="position: relative; z-index: 1;">{{ lifestage_dist_html | safe }}</div>
-        </div>
-        <div class="bg-white shadow-md p-6 rounded-lg">
-            <h3 class="text-lg font-semibold">남성 소비 카테고리</h3>
-            <div style="position: relative; z-index: 1;">{{ male_chart_html | safe }}</div>
-        </div>
-        <div class="bg-white shadow-md p-6 rounded-lg">
-            <h3 class="text-lg font-semibold">여성 소비 카테고리</h3>
-            <div style="position: relative; z-index: 1;">{{ female_chart_html | safe }}</div>
-        </div>
-        <div class="bg-white shadow-md p-6 rounded-lg">
-            <h3 class="text-lg font-semibold">연령대별 신용카드 및 체크카드 선호 결제 방식</h3>
-            <div style="position: relative; z-index: 1;">{{ age_payment_html | safe }}</div>
-        </div>
-        <div class="bg-white shadow-md p-6 rounded-lg">
-            <h3 class="text-lg font-semibold">연령대별 상위 5개 주요 소비 카테고리</h3>
-            <div style="position: relative; z-index: 1;">{{ age_category_html | safe }}</div>
-        </div>
-    </div>
     </div>
 </body>
 
