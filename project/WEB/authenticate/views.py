@@ -75,4 +75,4 @@ def change_password(request):
 	return render(request, 'authenticate/change_password.html', context)
 
 def index(request):
-    return render(request, 'index.html', {})  # index.html 렌더링
+    return render(request, 'dashboard_hoseop.html', {})  # index.html 렌더링
