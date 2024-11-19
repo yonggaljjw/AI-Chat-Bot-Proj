@@ -16,7 +16,7 @@ import os
 #     hosts = [{'host': host, 'port': port}],
 #     http_auth = auth,
 #     use_ssl = True,
-#     verify_certs = False
+#     
 # )
 
 # # 인덱스 이름

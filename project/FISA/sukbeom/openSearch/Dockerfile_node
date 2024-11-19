@@ -1,0 +1,4 @@
+FROM opensearchproject/opensearch:latest
+RUN bin/opensearch-plugin install analysis-nori
+# COPY --chown=opensearch:opensearch opensearch.yml /usr/share/opensearch/config/opensearch.yml
+
