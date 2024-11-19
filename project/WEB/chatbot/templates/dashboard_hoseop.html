@@ -62,8 +62,8 @@
             </button>
 
             <!-- Icon-2 -->
-            <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors" data-page="dashboard-two">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+            <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors" id="Icon-2" data-page="dashboard-two">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor"
                     class="bi bi-bar-chart-steps" viewBox="0 0 16 16">
                     <path
                         d="M.5 0a.5.5 0 0 1 .5.5v15a.5.5 0 0 1-1 0V.5A.5.5 0 0 1 .5 0M2 1.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5z" />
@@ -142,6 +142,8 @@
             </div>
         </div>
 
+
+        
         <!-- Main Content -->
         <div class="w-[calc(100%-4.166%)] ml-[4.166%]">
             <!-- Dashboard Content One -->
@@ -183,13 +185,48 @@
 
             <!-- Dashboard Content Two -->
             <div id="dashboard-content-two" class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
+                <!-- 주요 경제 지표 현황 테이블 -->
+                <!-- <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">주요 경제 지표 현황</h3>
+                    <div>{{ economic_table_html | safe }}</div>
+                </div> -->
+
+                <!-- GDP와 금리 그래프 -->
                 <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold">두번째 대시보드 샘플</h3>
-                    <!-- Ploty 그래프 삽입 -->
-                    <div>그래프 삽입 지점</div>
+                    <h3 class="text-lg font-semibold mb-4">GDP 성장률과 금리 동향</h3>
+                    <div>{{ gdp_rates_html | safe }}</div>
+                    <p class="mt-4 text-sm text-gray-600">
+                        GDP 성장률, 연방기금금리(FFTR), 실업률의 상관관계를 보여주는 지표입니다.
+                    </p>
+                </div>
+
+                <!-- 물가지표 그래프 -->
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">물가지표 추이</h3>
+                    <div>{{ price_indicators_html | safe }}</div>
+                    <p class="mt-4 text-sm text-gray-600">
+                        CPI, Core PCE, Core CPI 등 주요 물가지표의 변화 추이를 보여줍니다.
+                    </p>
+                </div>
+
+                <!-- 소비자 동향 그래프 -->
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">소비자 심리 및 소매판매 동향</h3>
+                    <div>{{ consumer_trends_html | safe }}</div>
+                    <p class="mt-4 text-sm text-gray-600">
+                        소비자심리지수와 실제 소매판매액의 추이를 비교할 수 있습니다.
+                    </p>
+                </div>
+
+                <!-- 고용 시장 동향 그래프 -->
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold mb-4">고용 시장 동향</h3>
+                    <div>{{ employment_trends_html | safe }}</div>
+                    <p class="mt-4 text-sm text-gray-600">
+                        비농업부문 고용과 신규 채용 현황을 보여주는 지표입니다.
+                    </p>
                 </div>
             </div>
-
             <!-- Dashboard Content Three -->
             <div id="dashboard-content-three"
                 class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
@@ -298,6 +335,9 @@
             'dashboard-five': document.getElementById('dashboard-content-five'),
         };
 
+        
+
+
         // 페이지 전환 이벤트
         sidebarButtons.forEach(button => {
             button.addEventListener('click', function () {
@@ -318,7 +358,34 @@
                     btn.classList.remove('bg-gray-300');
                 });
                 this.classList.add('bg-gray-300');
+
+            
+
+                   // Django view 호출
+                        let url = '';
+                    switch (pageId) {
+                        case 'dashboard-one':
+                            url = '/index/#dashboard-content-one';
+                            break;
+                        case 'dashboard-two':
+                            url = '/fred/#dashboard-content-two';
+                            break;
+                        case 'dashboard-three':
+                            url = '/view_three/';
+                            break;
+                        case 'dashboard-four':
+                            url = '/view_four/';
+                            break;
+                        case 'dashboard-five':
+                            url = '/view_five/';
+                            break;
+                    }
+
+                    if (url) {
+                        
+                        window.location.href = url;
+                    }
+                });
             });
-        });
     });
 </script>
