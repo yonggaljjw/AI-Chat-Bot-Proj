@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views_hoseop
+from . import views_fred
 from . import views_chatbot
 from . import views
 from django.conf import settings
@@ -7,6 +8,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('index/', views_hoseop.dashboard_view, name='index'),
+    path('fred/', views_fred.fred_dashboard_view, name='fred'),
     path('chatbot/send/', views_chatbot.chatbot_response, name='chatbot_send'),
     # path('dashboard1/', views.dashboard1, name='dashboard1'),
     # path('dashboard2/', views.dashboard2, name='dashboard2'),
