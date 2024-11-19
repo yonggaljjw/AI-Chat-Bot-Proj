@@ -52,7 +52,7 @@
         <div class="w-1/24 bg-white shadow-md h-screen p-4 fixed top-0 left-0 flex flex-col gap-4">
 
             <!-- Icon-1 -->
-           <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors bg-gray-300"
+            <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors bg-gray-300"
                 data-page="dashboard-one">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                     class="bi bi-bar-chart-line" viewBox="0 0 16 16">
@@ -62,7 +62,8 @@
             </button>
 
             <!-- Icon-2 -->
-            <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors" id="Icon-2" data-page="dashboard-two">
+            <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors" id="Icon-2"
+                data-page="dashboard-two">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="30" fill="currentColor"
                     class="bi bi-bar-chart-steps" viewBox="0 0 16 16">
                     <path
@@ -182,9 +183,8 @@
             </div>
 
             <!-- Dashboard Content Two -->
-            <div id="dashboard-content-two" 
-                 class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
-                 <!-- GDP와 금리 그래프 -->
+            <div id="dashboard-content-two" class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
+                <!-- GDP와 금리 그래프 -->
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold mb-4">GDP 성장률과 금리 동향</h3>
                     <div>{{ gdp_rates_html | safe }}</div>
@@ -205,7 +205,7 @@
                 <!-- 소비자 동향 그래프 -->
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold mb-4">소비자 심리 및 소매판매 동향</h3>
-                    <div>{{ consumer_trends_html | safe }}</div>
+                    <div class="w-full h-[400px]">{{ consumer_trends_html | safe }}</div>
                     <p class="mt-4 text-sm text-gray-600">
                         소비자심리지수와 실제 소매판매액의 추이를 비교할 수 있습니다.
                     </p>
@@ -214,19 +214,20 @@
                 <!-- 고용 시장 동향 그래프 -->
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold mb-4">고용 시장 동향</h3>
-                    <div>{{ employment_trends_html | safe }}</div>
+                    <div class="w-full h-[400px]">{{ employment_trends_html | safe }}</div>
                     <p class="mt-4 text-sm text-gray-600">
                         비농업부문 고용과 신규 채용 현황을 보여주는 지표입니다.
                     </p>
                 </div>
             </div>
             <!-- Dashboard Content Three -->
-            <div id="dashboard-content-three"
-                class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
-                <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold">세번째 대시보드 샘플</h3>
-                    <!-- Ploty 그래프 삽입 -->
-                    <div>그래프 삽입 지점</div>
+            <div id="dashboard-content-three" class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 hidden">
+                <div class="bg-white shadow-md p-6 rounded-lg w-full h-[calc(100vh-2rem)]">
+                    <h3 class="text-lg font-semibold mb-4 text-center">Word Cloud</h3>
+                    <iframe
+                        src="http://192.168.0.101:5602/app/dashboards#/view/d1b6a690-a644-11ef-95fc-e55468c21457?embed=true&_g=(filters%3A!()%2CrefreshInterval%3A(pause%3A!t%2Cvalue%3A0)%2Ctime%3A(from%3Anow-12M%2Cto%3Anow))&hide-filter-bar=true"
+                        class="w-full h-[calc(100%-3rem)]" frameborder="0">
+                    </iframe>
                 </div>
             </div>
 
@@ -328,7 +329,7 @@
             'dashboard-five': document.getElementById('dashboard-content-five'),
         };
 
-        
+
 
 
         // 페이지 전환 이벤트
@@ -344,6 +345,10 @@
                 // 선택된 콘텐츠만 보이기
                 if (contents[pageId]) {
                     contents[pageId].classList.remove('hidden');
+                    // 그래프 리사이즈 트리거
+                    setTimeout(() => {
+                        window.dispatchEvent(new Event('resize'));
+                    }, 100);
                 }
 
                 // 활성화된 버튼 스타일 변경
@@ -351,31 +356,31 @@
                     btn.classList.remove('bg-gray-300');
                 });
                 this.classList.add('bg-gray-300');
-        
 
-            if (url) {
-                        fetch(url)
-                            .then(response => response.text())
-                            .then(html => {
-                                // 현재 페이지의 콘텐츠를 업데이트
-                                document.querySelector('.w-[calc(100%-4.166%)]').innerHTML = html;
-                                // URL을 변경하여 사용자가 특정 페이지로 이동한 것처럼 보이게 함
-                                history.pushState(null, '', url + '#' + pageId);
-                                // URL에 해시가 있는 경우 해당 요소로 스크롤
-                                const scrollTo = pageId;
-                                if (scrollTo) {
-                                    const element = document.getElementById(scrollTo);
-                                    if (element) {
-                                        element.scrollIntoView();
-                                    }
+
+                if (url) {
+                    fetch(url)
+                        .then(response => response.text())
+                        .then(html => {
+                            // 현재 페이지의 콘텐츠를 업데이트
+                            document.querySelector('.w-[calc(100%-4.166%)]').innerHTML = html;
+                            // URL을 변경하여 사용자가 특정 페이지로 이동한 것처럼 보이게 함
+                            history.pushState(null, '', url + '#' + pageId);
+                            // URL에 해시가 있는 경우 해당 요소로 스크롤
+                            const scrollTo = pageId;
+                            if (scrollTo) {
+                                const element = document.getElementById(scrollTo);
+                                if (element) {
+                                    element.scrollIntoView();
                                 }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                            });
-                    }
-                });
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error:', error);
+                        });
+                }
             });
         });
+    });
 
 </script>
