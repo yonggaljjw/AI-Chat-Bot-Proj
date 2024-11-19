@@ -54,7 +54,7 @@ def get_embedding(text):
 def generate_query(query):
     # 필드 정보 추출
     table_info = result_df.groupby('TABLE_NAME').apply(
-        lambda x: ", ".join(x['COLUMN_NAME'] + " (" + x['DATA_gitTYPE'] + ", 결측값: " + x['IS_NULLABLE'] + ")")
+        lambda x: ", ".join(x['COLUMN_NAME'] + " (" + x['DATA_TYPE'] + ", 결측값: " + x['IS_NULLABLE'] + ")")
     ).to_dict()
 
     # 테이블 정보 포맷팅
