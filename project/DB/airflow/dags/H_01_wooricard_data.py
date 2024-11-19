@@ -17,8 +17,8 @@ auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD"))
 
 client = OpenSearch(
     hosts=[{'host': host, 'port': port}],
-    http_auth=auth,
-    use_ssl=True,
+    # http_auth=auth,
+    use_ssl=False,
     verify_certs=False
 )
 
