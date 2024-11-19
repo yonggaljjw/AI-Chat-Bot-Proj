@@ -13,8 +13,7 @@ docsearch = OpenSearchVectorSearch(
     embedding_function=embeddings,
     opensearch_url="https://" + os.getenv("OPENSEARCH_HOST")+ ":" + os.getenv("OPENSEARCH_PORT"),
     http_auth=(os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")),
-    use_ssl = True,
-    verify_certs = False,
+    ,
     ssl_assert_hostname = False,
     ssl_show_warn = False,
 )

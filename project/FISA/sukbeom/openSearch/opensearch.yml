@@ -1,1 +1,16 @@
-path.repo: ["/mnt/snapshots"]
+plugins.security.disabled: true
+
+cluster.manager: true
+
+cluster.initial_cluster_manager:
+  - cluster-manager-name1
+  - cluster-manager-name2
+  - cluster-manager-name3
+
+discovery.seed_hosts:
+  - opensearch-node1
+  - opensearch-node2
+
+cluster.initial_master_nodes:
+  - opensearch-node1
+  - opensearch-node2
