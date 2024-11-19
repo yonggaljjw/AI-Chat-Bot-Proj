@@ -8,6 +8,7 @@ latest
 backup/
 es/
 /jupyter/**/*.ipynb
+/openSearch/data/
 
 HELP.md
 target/
