@@ -80,8 +80,7 @@ def recent_posts(request):
     client = OpenSearch(
         hosts = [{'host': host, 'port': port}],
         http_auth = auth,
-        use_ssl = True,
-        verify_certs = False
+            
     )
     # Elasticsearch 쿼리 작성
     query = {
