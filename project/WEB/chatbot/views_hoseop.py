@@ -314,7 +314,7 @@ def age_category_top5_view():
 
 def dashboard_view(request):
 
-    # fred_dashboard_view(request)
+    fred_dashboard_view(request)
 
     top10_level_html = top10_level_view()
     lifestage_distribution_html = lifestage_distribution_view()
@@ -330,7 +330,7 @@ def dashboard_view(request):
     price_indicators_html = price_indicators_view()
     consumer_trends_html = consumer_trends_view()
     employment_trends_html = employment_trends_view()
-    # economic_table_html = economic_indicators_table_view()
+    economic_table_html = economic_indicators_table_view()
 
     # 템플릿에 전달
     return render(request, "dashboard_hoseop.html", {
@@ -342,8 +342,9 @@ def dashboard_view(request):
         "female_chart_html" : female_chart_html,
         "age_payment_html" : age_payment_html,
         "age_category_html" : age_category_html,
-            "gdp_rates_html": gdp_rates_html,
+        "gdp_rates_html": gdp_rates_html,
         "price_indicators_html": price_indicators_html,
         "consumer_trends_html": consumer_trends_html,
         "employment_trends_html": employment_trends_html,
+        "economic_table_html": economic_table_html
         })
