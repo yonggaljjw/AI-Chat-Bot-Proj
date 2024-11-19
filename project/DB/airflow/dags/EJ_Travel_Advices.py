@@ -5,43 +5,18 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 import os
-from opensearchpy import OpenSearch, helpers
 from dotenv import load_dotenv
+from sqlalchemy import create_engine
+import pymysql
 
 # Load environment variables
 load_dotenv()
 
-# Set OpenSearch connection details
-host = os.getenv("HOST")
-port = os.getenv("PORT")
-auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD"))  # For testing only. Don't store credentials in code.
-
-client = OpenSearch(
-    hosts=[{'host': host, 'port': port}],
-    http_auth=auth,
-    use_ssl=True,
-    verify_certs=False
-)
-
-# Define index name and setup
-index_name = "travel_advices"
-
-def setup_index():
-    if not client.indices.exists(index=index_name):
-        client.indices.delete(index=index_name)
-        print(f"Existing index '{index_name}' deleted.")
-        mapping = {
-            "mappings": {
-                "properties": {
-                    "Country": {"type": "keyword"},
-                    "Travel_Advice": {"type": "keyword"}
-                }
-            }
-        }
-        client.indices.create(index=index_name, body=mapping)
-        print(f"Index '{index_name}' created with mapping.")
-    else:
-        print(f"Index '{index_name}' already exists.")
+username = os.getenv('sql_username')
+password = os.getenv('sql_password')
+host = os.getenv('sql_host')
+port = os.getenv('sql_port')
+engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/team5")
 
 def fetch_data():
     # 페이지 URL
@@ -68,22 +43,8 @@ def fetch_data():
 
 def upload_data():
     df = fetch_data()
-    actions = [
-        {
-            "_op_type": "index",
-            "_index": index_name,
-            "_source": {
-                "Country": row["Country"],
-                "Travel_Advice": row["Travel_Advice"],
-            }
-        }
-        for _, row in df.iterrows()
-    ]
-    if actions:
-        helpers.bulk(client, actions)
-        print(f"{len(actions)}개의 데이터를 업로드했습니다.")
-    else:
-        print("업로드할 데이터가 없습니다.")
+    df.to_sql('travel_advices', con=engine, if_exists='replace', index=False)
+    print(f"{len(df)}개의 데이터를 MySQL에 업로드했습니다.")
 
 default_args = {
     "owner": "airflow",
@@ -101,14 +62,9 @@ with DAG(
     catchup=False,
 ) as dag:
 
-    setup_index_task = PythonOperator(
-        task_id="setup_index",
-        python_callable=setup_index
-    )
-
     upload_data_task = PythonOperator(
         task_id="upload_data",
         python_callable=upload_data
     )
 
-    setup_index_task >> upload_data_task
+    upload_data_task
