@@ -36,9 +36,7 @@ RUN pip install --no-cache-dir --upgrade \
     gensim \
     openai \
     opensearch-py \
-    keras=2.11.0 \
-    protobuf==3.20.* \
-    tensorflow=2.11.0
+    protobuf==3.20.*
     
 RUN pip install --no-cache-dir --upgrade \
     opensearch-py-ml \
@@ -46,9 +44,11 @@ RUN pip install --no-cache-dir --upgrade \
 
 RUN pip install --no-cache-dir --upgrade \
     keras==2.11.0 \
-    protobuf \
     tensorflow==2.11.0 \
-    transformers
+    transformers \
+    pymysql==1.0.2 \
+    sqlalchemy==1.4.25 \
+    selenium
 
 # Airflow 웹 서버 시작
 CMD ["airflow", "webserver"]
