@@ -21,8 +21,8 @@ naver_client_secret = os.getenv("eunji_naver_api_key")
 
 client = OpenSearch(
     hosts=[{'host': host, 'port': port}],
-    http_auth=auth,
-    use_ssl=True,
+    # http_auth=auth,
+    use_ssl=False,
     verify_certs=False
 )
 
