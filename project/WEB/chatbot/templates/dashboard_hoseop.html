@@ -219,7 +219,25 @@
                         비농업부문 고용과 신규 채용 현황을 보여주는 지표입니다.
                     </p>
                 </div>
-            </div>
+                
+                <!-- 경제 지표 현황 테이블 -->
+                <div class="bg-white shadow-sm rounded-lg border border-[#e6ecf5]">
+                    <div class="px-6 py-4">
+                        <h3 class="text-lg font-semibold text-[#0070C0] mb-4">주요 경제 지표 현황</h3>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <div class="shadow-sm">
+                            {{ economic_table_html | safe }}
+                        </div>
+                    </div>
+                    <div class="px-6 py-4">
+                        <p class="text-sm text-[#4A5568]">
+                            주요 경제 지표의 최신 데이터와 이전 데이터를 비교할 수 있으며, 발표 일정과 중요도를 함께 제공합니다.
+                        </p>
+                    </div>
+                </div>
+                
+                
             <!-- Dashboard Content Three -->
             <div id="dashboard-content-three" class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 hidden">
                 <div class="bg-white shadow-md p-6 rounded-lg w-full h-[calc(100vh-2rem)]">
