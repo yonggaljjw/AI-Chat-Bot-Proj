@@ -52,7 +52,7 @@
         <div class="w-1/24 bg-white shadow-md h-screen p-4 fixed top-0 left-0 flex flex-col gap-4">
 
             <!-- Icon-1 -->
-            <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors bg-gray-300"
+           <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors bg-gray-300"
                 data-page="dashboard-one">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
                     class="bi bi-bar-chart-line" viewBox="0 0 16 16">
@@ -142,8 +142,6 @@
             </div>
         </div>
 
-
-        
         <!-- Main Content -->
         <div class="w-[calc(100%-4.166%)] ml-[4.166%]">
             <!-- Dashboard Content One -->
@@ -186,7 +184,7 @@
             <!-- Dashboard Content Two -->
             <div id="dashboard-content-two" 
                  class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
-                <!-- GDP와 금리 그래프 -->
+                 <!-- GDP와 금리 그래프 -->
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold mb-4">GDP 성장률과 금리 동향</h3>
                     <div>{{ gdp_rates_html | safe }}</div>
@@ -211,13 +209,6 @@
                     <p class="mt-4 text-sm text-gray-600">
                         소비자심리지수와 실제 소매판매액의 추이를 비교할 수 있습니다.
                     </p>
-
-            <div id="dashboard-content-two" class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 hidden">
-                <div class="bg-white shadow-md p-6 rounded-lg w-full h-[calc(100vh-3rem)]">
-                    <iframe id="external-content" name="external-frame" class="w-full h-full border-0"
-                        sandbox="allow-same-origin allow-scripts allow-popups allow-forms allow-storage-access-by-user-activation allow-cookies"
-                        allow="cross-origin-isolated" src="http://192.168.0.101:5602/app/dashboards">
-                    </iframe>
                 </div>
 
                 <!-- 고용 시장 동향 그래프 -->
@@ -229,8 +220,6 @@
                     </p>
                 </div>
             </div>
-                  
-                  
             <!-- Dashboard Content Three -->
             <div id="dashboard-content-three"
                 class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
@@ -362,34 +351,31 @@
                     btn.classList.remove('bg-gray-300');
                 });
                 this.classList.add('bg-gray-300');
+        
 
-            
-
-                   // Django view 호출
-                        let url = '';
-                    switch (pageId) {
-                        case 'dashboard-one':
-                            url = '/index/#dashboard-content-one';
-                            break;
-                        case 'dashboard-two':
-                            url = '/fred/#dashboard-content-two';
-                            break;
-                        case 'dashboard-three':
-                            url = '/view_three/';
-                            break;
-                        case 'dashboard-four':
-                            url = '/view_four/';
-                            break;
-                        case 'dashboard-five':
-                            url = '/view_five/';
-                            break;
-                    }
-
-                    if (url) {
-                        
-                        window.location.href = url;
+            if (url) {
+                        fetch(url)
+                            .then(response => response.text())
+                            .then(html => {
+                                // 현재 페이지의 콘텐츠를 업데이트
+                                document.querySelector('.w-[calc(100%-4.166%)]').innerHTML = html;
+                                // URL을 변경하여 사용자가 특정 페이지로 이동한 것처럼 보이게 함
+                                history.pushState(null, '', url + '#' + pageId);
+                                // URL에 해시가 있는 경우 해당 요소로 스크롤
+                                const scrollTo = pageId;
+                                if (scrollTo) {
+                                    const element = document.getElementById(scrollTo);
+                                    if (element) {
+                                        element.scrollIntoView();
+                                    }
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                            });
                     }
                 });
             });
-    });
+        });
+
 </script>
