@@ -18,10 +18,7 @@ port = os.getenv("PORT")
 auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
 
 client = OpenSearch(
-    hosts = [{'host': host, 'port': port}],
-    http_auth = auth,
-    use_ssl = True,
-    verify_certs = False
+    hosts = [{'host': host, 'port': port}]
 )
 
 # API 기본 URL과 분류 코드 설정
