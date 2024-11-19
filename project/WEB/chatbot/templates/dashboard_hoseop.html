@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -19,74 +21,86 @@
             cursor: pointer;
         }
 
-        /* Plotly 그래프의 z-index 강제 설정 */
-        .js-plotly-plot {
-            z-index: 1 !important;
-            position: relative !important;
+        #chat-window {
+            z-index: 1000;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        /* 모달 오버레이와 채팅창의 z-index 높게 설정 */
-        #chat-window,
-        #chat-icon {
-            z-index: 1111 !important;
+        #chat-messages {
+            scrollbar-width: thin;
+            scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+        }
+
+        #chat-messages::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chat-messages::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #chat-messages::-webkit-scrollbar-thumb {
+            background-color: rgba(156, 163, 175, 0.5);
+            border-radius: 3px;
         }
     </style>
 </head>
 
 <body class="bg-gray-100">
-
     <div class="flex">
         <!-- Sidebar -->
-        <div class="w-1/24 bg-white shadow-md h-screen p-4 fixed top-0 left-0">
+        <div class="w-1/24 bg-white shadow-md h-screen p-4 fixed top-0 left-0 flex flex-col gap-4">
 
-            <!-- Profile Icon -->
-            <div class="relative">
-                <button class="p-3 text-gray-300 hover:bg-gray-600 rounded-lg transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                    </svg>
-                </button>
-            </div>
-
-            <!-- Home Icon -->
-            <button class="p-3 text-gray-300 hover:bg-gray-600 rounded-lg transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            <!-- Icon-1 -->
+            <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors bg-gray-300"
+                data-page="dashboard-one">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                    class="bi bi-bar-chart-line" viewBox="0 0 16 16">
+                    <path
+                        d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z" />
                 </svg>
             </button>
 
-            <!-- Refresh Icon -->
-            <div class="relative">
-                <button class="p-3 text-gray-300 hover:bg-gray-600 rounded-lg transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                    </svg>
-                </button>
-            </div>
+            <!-- Icon-2 -->
+            <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors" data-page="dashboard-two">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                    class="bi bi-bar-chart-steps" viewBox="0 0 16 16">
+                    <path
+                        d="M.5 0a.5.5 0 0 1 .5.5v15a.5.5 0 0 1-1 0V.5A.5.5 0 0 1 .5 0M2 1.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5z" />
+                </svg>
+            </button>
 
-            <!-- 대시보드 버튼 -->
-            <button class="p-3 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors w-full mb-2">
-                <a href="{% url 'dashboard1' %}">Dashboard 1</a>
+            <!-- Icon-3 -->
+            <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors"
+                data-page="dashboard-three">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                    class="bi bi-body-text" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M0 .5A.5.5 0 0 1 .5 0h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 0 .5m0 2A.5.5 0 0 1 .5 2h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m9 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-9 2A.5.5 0 0 1 .5 4h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m5 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-12 2A.5.5 0 0 1 .5 6h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-8 2A.5.5 0 0 1 .5 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-7 2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5" />
+                </svg>
             </button>
-            <button class="p-3 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors w-full mb-2">
-                <a href="{% url 'dashboard2' %}">Dashboard 2</a>
+
+            <!-- Icon-4 -->
+            <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors" data-page="dashboard-four">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                    class="bi bi-graph-up" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd"
+                        d="M0 0h1v15h15v1H0zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07" />
+                </svg>
             </button>
-            <button class="p-3 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors w-full mb-2">
-                <a href="{% url 'dashboard3' %}">Dashboard 3</a>
-            </button>
-            <button class="p-3 text-gray-500 hover:bg-gray-200 rounded-lg transition-colors w-full mb-2">
-                <a href="{% url 'dashboard4' %}">Dashboard 4</a>
+
+            <!-- Icon-5 -->
+            <button class="p-3 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors" data-page="dashboard-five">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor"
+                    class="bi bi-file-ruled" viewBox="0 0 16 16">
+                    <path
+                        d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v4h10V2a1 1 0 0 0-1-1zm9 6H6v2h7zm0 3H6v2h7zm0 3H6v2h6a1 1 0 0 0 1-1zm-8 2v-2H3v1a1 1 0 0 0 1 1zm-2-3h2v-2H3zm0-3h2V7H3z" />
+                </svg>
             </button>
 
             <!-- Chat Bot Icon and Window -->
-            <div id="chat-icon" class="fixed left-4 bottom-4 cursor-pointer z-9999">
-                <button class="p-3 bg-gray-700 text-gray-300 hover:bg-gray-600 rounded-lg transition-colors">
+            <div id="chat-icon" class="mt-auto cursor-pointer">
+                <button class="p-3 bg-gray-700 text-gray-300 hover:bg-gray-900 rounded-lg transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -95,9 +109,12 @@
                 </button>
             </div>
         </div>
+        <!-- End of Sidebar -->
+
         <!-- Chat Window -->
-        <div class="offcanvas offcanvas-end" tabindex="-1">
-            <div id="chat-window" class="fixed bottom-20 left-4 w-80 bg-white rounded-lg shadow-xl hidden z-9999">
+        <div class="offcanvas" tabindex="-1">
+            <div id="chat-window" class="fixed bottom-4 left-24 w-96 h-[600px] bg-white rounded-lg shadow-xl hidden">
+                <!-- 채팅창 헤더 -->
                 <div class="flex justify-between items-center p-4 border-b">
                     <h3 class="text-lg font-semibold">WOODAERI</h3>
                     <button id="close-chat" class="text-gray-500 hover:text-gray-700">
@@ -108,9 +125,11 @@
                         </svg>
                     </button>
                 </div>
-                <div id="chat-messages" class="h-96 overflow-y-auto p-4 space-y-4">
+                <!-- 채팅 메시지 영역 -->
+                <div id="chat-messages" class="h-[460px] overflow-y-auto p-4 space-y-4">
                     <!-- 메시지들이 여기에 추가됨 -->
                 </div>
+                <!-- 입력 영역 -->
                 <div class="p-4 border-t">
                     <form id="chat-form" class="flex gap-2">
                         {% csrf_token %}
@@ -124,40 +143,83 @@
         </div>
 
         <!-- Main Content -->
-        <div class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4">
-            <div class="bg-white shadow-md p-6 rounded-lg">
-                <h3 class="text-lg font-semibold">회원 등급별 이용 금액이 높은 항목 Top 10</h3>
-                <!-- Ploty 그래프 삽입 -->
-                <div>{{ top10_level_html |safe }}</div>
+        <div class="w-[calc(100%-4.166%)] ml-[4.166%]">
+            <!-- Dashboard Content One -->
+            <div id="dashboard-content-one" class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4">
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">회원 등급별 이용 금액이 높은 항목 Top 10</h3>
+                    <!-- Ploty 그래프 삽입 -->
+                    <div>{{ top10_level_html |safe }}</div>
+                </div>
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">회원 등급별 라이프 스테이지 분포 현황</h3>
+                    <div>{{ lifestage_distribution_html | safe }}</div>
+                </div>
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">거주 지역별로 연령대 분포</h3>
+                    <div>{{ age_dist_html | safe }}</div>
+                </div>
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">거주 지역별로 라이프 스테이지 분포</h3>
+                    <div>{{ lifestage_dist_html | safe }}</div>
+                </div>
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">남성 소비 카테고리</h3>
+                    <div>{{ male_chart_html | safe }}</div>
+                </div>
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">여성 소비 카테고리</h3>
+                    <div>{{ female_chart_html | safe }}</div>
+                </div>
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">연령대별 신용카드 및 체크카드 선호 결제 방식</h3>
+                    <div>{{ age_payment_html | safe }}</div>
+                </div>
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">연령대별 상위 5개 주요 소비 카테고리</h3>
+                    <div>{{ age_category_html | safe }}</div>
+                </div>
             </div>
-            <div class="bg-white shadow-md p-6 rounded-lg">
-                <h3 class="text-lg font-semibold">회원 등급별 라이프 스테이지 분포 현황</h3>
-                <div>{{ lifestage_distribution_html | safe }}</div>
+
+            <!-- Dashboard Content Two -->
+            <div id="dashboard-content-two" class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">두번째 대시보드 샘플</h3>
+                    <!-- Ploty 그래프 삽입 -->
+                    <div>그래프 삽입 지점</div>
+                </div>
             </div>
-            <div class="bg-white shadow-md p-6 rounded-lg">
-                <h3 class="text-lg font-semibold">거주 지역별로 연령대 분포</h3>
-                <div>{{ age_dist_html | safe }}</div>
+
+            <!-- Dashboard Content Three -->
+            <div id="dashboard-content-three"
+                class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">세번째 대시보드 샘플</h3>
+                    <!-- Ploty 그래프 삽입 -->
+                    <div>그래프 삽입 지점</div>
+                </div>
             </div>
-            <div class="bg-white shadow-md p-6 rounded-lg">
-                <h3 class="text-lg font-semibold">거주 지역별로 라이프 스테이지 분포</h3>
-                <div>{{ lifestage_dist_html | safe }}</div>
+
+            <!-- Dashboard Content Four -->
+            <div id="dashboard-content-four"
+                class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">네번째 대시보드 샘플</h3>
+                    <!-- Ploty 그래프 삽입 -->
+                    <div>그래프 삽입 지점</div>
+                </div>
             </div>
-            <div class="bg-white shadow-md p-6 rounded-lg">
-                <h3 class="text-lg font-semibold">남성 소비 카테고리</h3>
-                <div>{{ male_chart_html | safe }}</div>
+
+            <!-- Dashboard Content Five -->
+            <div id="dashboard-content-five"
+                class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
+                <div class="bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">다섯번째 대시보드 샘플</h3>
+                    <!-- Ploty 그래프 삽입 -->
+                    <div>그래프 삽입 지점</div>
+                </div>
             </div>
-            <div class="bg-white shadow-md p-6 rounded-lg">
-                <h3 class="text-lg font-semibold">여성 소비 카테고리</h3>
-                <div>{{ female_chart_html | safe }}</div>
-            </div>
-            <div class="bg-white shadow-md p-6 rounded-lg">
-                <h3 class="text-lg font-semibold">연령대별 신용카드 및 체크카드 선호 결제 방식</h3>
-                <div>{{ age_payment_html | safe }}</div>
-            </div>
-            <div class="bg-white shadow-md p-6 rounded-lg">
-                <h3 class="text-lg font-semibold">연령대별 상위 5개 주요 소비 카테고리</h3>
-                <div>{{ age_category_html | safe }}</div>
-            </div>
+
         </div>
     </div>
 </body>
@@ -173,9 +235,9 @@
         const messageInput = document.getElementById('message-input');
         const chatMessages = document.getElementById('chat-messages');
 
-        // 챗봇 아이콘 클릭 이벤트
+        // 챗봇 아이콘 클릭 이벤트 수정
         chatIcon.addEventListener('click', function () {
-            chatWindow.classList.remove('hidden');
+            chatWindow.classList.toggle('hidden');
         });
 
         // 닫기 버튼 클릭 이벤트
@@ -225,20 +287,38 @@
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
-        function redirectToDashboard(dashboardName) {
-        // 각 대시보드 URL에 매핑
-        const dashboardUrls = {
-            'dashboard1': '/dashboard1',
-            'dashboard2': '/dashboard2',
-            'dashboard3': '/dashboard3',
-            'dashboard4': '/dashboard4'
+
+        // 페이지 전환 기능
+        const sidebarButtons = document.querySelectorAll('[data-page]');
+        const contents = {
+            'dashboard-one': document.getElementById('dashboard-content-one'),
+            'dashboard-two': document.getElementById('dashboard-content-two'),
+            'dashboard-three': document.getElementById('dashboard-content-three'),
+            'dashboard-four': document.getElementById('dashboard-content-four'),
+            'dashboard-five': document.getElementById('dashboard-content-five'),
         };
-        
-        // URL로 리디렉션
-        if (dashboardUrls[dashboardName]) {
-            window.location.href = dashboardUrls[dashboardName];
-        }
-    };
-        
+
+        // 페이지 전환 이벤트
+        sidebarButtons.forEach(button => {
+            button.addEventListener('click', function () {
+                const pageId = this.dataset.page;
+
+                // 모든 콘텐츠 숨기기
+                Object.values(contents).forEach(content => {
+                    if (content) content.classList.add('hidden');
+                });
+
+                // 선택된 콘텐츠만 보이기
+                if (contents[pageId]) {
+                    contents[pageId].classList.remove('hidden');
+                }
+
+                // 활성화된 버튼 스타일 변경
+                sidebarButtons.forEach(btn => {
+                    btn.classList.remove('bg-gray-300');
+                });
+                this.classList.add('bg-gray-300');
+            });
+        });
     });
 </script>
