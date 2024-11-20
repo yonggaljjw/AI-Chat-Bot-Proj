@@ -127,8 +127,18 @@
                     </button>
                 </div>
                 <!-- 채팅 메시지 영역 -->
-                <div id="chat-messages" class="h-[460px] overflow-y-auto p-4 space-y-4">
+                <div id="chat-messages" class="h-[430px] overflow-y-auto p-4 space-y-4">
                     <!-- 메시지들이 여기에 추가됨 -->
+                </div>
+                <!-- 토글 스위치 영역 -->
+                <div class="px-4 py-2 border-t flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Wiki 쿼리 모드</span>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="power-mode-toggle" class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500">
+                        </div>
+                    </label>
                 </div>
                 <!-- 입력 영역 -->
                 <div class="p-4 border-t">
@@ -219,7 +229,7 @@
                         비농업부문 고용과 신규 채용 현황을 보여주는 지표입니다.
                     </p>
                 </div>
-                
+
                 <!-- 경제 지표 현황 테이블 -->
                 <div class="bg-white shadow-sm rounded-lg border border-[#e6ecf5]">
                     <div class="px-6 py-4">
@@ -237,7 +247,7 @@
                     </div>
                 </div>
             </div>
-                
+
             <!-- Dashboard Content Three -->
             <div id="dashboard-content-three" class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 hidden">
                 <div class="bg-white shadow-md p-6 rounded-lg w-full h-[calc(100vh-2rem)]">
@@ -283,6 +293,7 @@
         const chatForm = document.getElementById('chat-form');
         const messageInput = document.getElementById('message-input');
         const chatMessages = document.getElementById('chat-messages');
+        const powerModeToggle = document.getElementById('power-mode-toggle');
 
         // 챗봇 아이콘 클릭 이벤트 수정
         chatIcon.addEventListener('click', function () {
@@ -304,13 +315,16 @@
             appendMessage(message, true);
 
             // Django 서버로 메시지 전송
-            fetch('/chatbot/send/', {  // URL은 실제 경로에 맞게 수정
+            fetch('/chatbot/send/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
                 },
-                body: JSON.stringify({ message: message })
+                body: JSON.stringify({
+                    message: message,
+                    isPowerMode: powerModeToggle.checked  // 토글 상태 전송
+                })
             })
                 .then(response => response.json())
                 .then(data => {
@@ -319,6 +333,7 @@
                 })
                 .catch(error => {
                     console.error('Error:', error);
+                    appendMessage('죄송합니다. 오류가 발생했습니다.', false);
                 });
 
             messageInput.value = '';
