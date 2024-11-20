@@ -148,7 +148,7 @@ default_args = {
 
 # DAG 정의
 with DAG(
-    'franchise_data_pipeline',
+    '11_franchise_data_pipeline',
     default_args=default_args,
     description='Franchise data collection and MySQL upload pipeline',
     schedule_interval='@monthly',
