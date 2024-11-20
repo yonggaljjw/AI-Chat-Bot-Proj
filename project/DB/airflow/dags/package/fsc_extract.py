@@ -61,26 +61,26 @@ def preprocess_data(file_path):
     return df
 
 
-# 요약 생성 함수
-def generate_summary(df, tokenizer, model, max_input_length=512):
-    """
-    모델을 사용하여 'main_content'와 'revision_reason'을 결합한 요약을 생성
-    """
-    summaries = []  # 결과를 저장할 리스트 초기화
+# # 요약 생성 함수
+# def generate_summary(df, tokenizer, model, max_input_length=512):
+#     """
+#     모델을 사용하여 'main_content'와 'revision_reason'을 결합한 요약을 생성
+#     """
+#     summaries = []  # 결과를 저장할 리스트 초기화
 
-    # 각 행에 대해 요약 생성
-    for _, row in df.iterrows():
-        combined_input = f"{row['main_content']} {row['revision_reason']}"
-        inputs = tokenizer(combined_input, max_length=max_input_length, truncation=True, return_tensors="pt")
+#     # 각 행에 대해 요약 생성
+#     for _, row in df.iterrows():
+#         combined_input = f"{row['main_content']} {row['revision_reason']}"
+#         inputs = tokenizer(combined_input, max_length=max_input_length, truncation=True, return_tensors="pt")
         
-        # 요약 생성
-        output = model.generate(**inputs, num_beams=8, do_sample=True, min_length=10, max_length=100)
-        decoded_output = tokenizer.batch_decode(output, skip_special_tokens=True)[0]
+#         # 요약 생성
+#         output = model.generate(**inputs, num_beams=8, do_sample=True, min_length=10, max_length=100)
+#         decoded_output = tokenizer.batch_decode(output, skip_special_tokens=True)[0]
         
-        # 첫 문장만 추출하여 요약 제목으로 사용
-        predicted_title = nltk.sent_tokenize(decoded_output.strip())[0]
-        summaries.append(predicted_title)
-        print("성공")
+#         # 첫 문장만 추출하여 요약 제목으로 사용
+#         predicted_title = nltk.sent_tokenize(decoded_output.strip())[0]
+#         summaries.append(predicted_title)
+#         print("성공")
 
-    df['summary'] = summaries  # 요약 결과를 데이터프레임에 추가
-    return df
+#     df['summary'] = summaries  # 요약 결과를 데이터프레임에 추가
+#     return df

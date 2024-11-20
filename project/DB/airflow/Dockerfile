@@ -51,7 +51,8 @@ RUN pip install --no-cache-dir --upgrade \
     selenium
 
 RUN pip install --no-cache-dir --upgrade \
-    nltk
+    nltk \ 
+    torch
 
 # Airflow 웹 서버 시작
 CMD ["airflow", "webserver"]
