@@ -56,7 +56,7 @@ default_args = {
 
 # DAG 정의 (매월 실행)
 with DAG(
-    'upload_card_data_to_mysql',
+    '10_upload_card_data_to_mysql',
     default_args=default_args,
     description="card_data.CSV 데이터를 MySQL에 업로드합니다.",
     schedule_interval='@monthly',
