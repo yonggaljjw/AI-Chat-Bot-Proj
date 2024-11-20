@@ -35,3 +35,6 @@ def dashboard_view(request):
         "employment_trends_html": employment_trends_html,
         "economic_table_html": economic_table_html
         })
+
+def tmp(request):
+    return render(request, 'tmp.html', {})  # index.html 렌더링
