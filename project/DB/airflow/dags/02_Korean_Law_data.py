@@ -8,13 +8,15 @@ from airflow.operators.python_operator import PythonOperator
 # from elasticsearch import Elasticsearch, helpers
 import re
 
+from transformers import AutoTokenizer, AutoModelForSeq2SeqLM
 from package.fsc_crawling import crawling
-from package.fsc_extract import extract_main_content, extract_reason, generate_summary
+from package.fsc_extract import extract_main_content, extract_reason
 from package.vector_embedding import generate_embedding
 import os
 
 from opensearchpy import OpenSearch, helpers
 from dotenv import load_dotenv
+import nltk
 
 load_dotenv()
 
@@ -32,6 +34,29 @@ try:
 except Exception as e:
     print(f"인덱스 생성 오류 또는 이미 존재: {e}")
 
+# 요약 생성 함수
+def generate_summary(df, tokenizer, model, max_input_length=512):
+    """
+    모델을 사용하여 'main_content'와 'revision_reason'을 결합한 요약을 생성
+    """
+    summaries = []  # 결과를 저장할 리스트 초기화
+
+    # 각 행에 대해 요약 생성
+    for _, row in df.iterrows():
+        combined_input = f"{row['main_content']} {row['revision_reason']}"
+        inputs = tokenizer(combined_input, max_length=max_input_length, truncation=True, return_tensors="pt")
+        
+        # 요약 생성
+        output = model.generate(**inputs, num_beams=8, do_sample=True, min_length=10, max_length=100)
+        decoded_output = tokenizer.batch_decode(output, skip_special_tokens=True)[0]
+        
+        # 첫 문장만 추출하여 요약 제목으로 사용
+        predicted_title = nltk.sent_tokenize(decoded_output.strip())[0]
+        summaries.append(predicted_title)
+        print("성공")
+
+    df['summary'] = summaries  # 요약 결과를 데이터프레임에 추가
+    return df
 
 def crawling_extract_df():
     df = crawling(2)
@@ -41,8 +66,13 @@ def crawling_extract_df():
     df['revision_reason'] = df['content'].apply(extract_reason)
     df['main_content'] = df['content'].apply(extract_main_content)  
     df['summary'] = df['revision_reason'] + df['main_content']
+
     # 요약문 생성
-    df['summary'] = df['summary'].apply(generate_summary)
+    input_file = "./fsc_announcements.csv"
+    model_directory = "./dags/package/t5-large-korean-text-summary/"
+    tokenizer = AutoTokenizer.from_pretrained(model_directory)
+    model = AutoModelForSeq2SeqLM.from_pretrained(model_directory)
+    df = generate_summary(df, tokenizer, model)
     # 벡터 임베딩 생성
     df['embedding_vector'] = df['content'].apply(generate_embedding)
     return df
