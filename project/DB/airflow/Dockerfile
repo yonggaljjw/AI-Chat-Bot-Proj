@@ -48,7 +48,10 @@ RUN pip install --no-cache-dir --upgrade \
     transformers \
     pymysql==1.0.2 \
     sqlalchemy==1.4.25 \
-    selenium
+    selenium \
+
+RUN pip install --no-cache-dir --upgrade \
+    nltk
 
 # Airflow 웹 서버 시작
 CMD ["airflow", "webserver"]
