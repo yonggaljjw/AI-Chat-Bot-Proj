@@ -52,7 +52,8 @@ RUN pip install --no-cache-dir --upgrade \
 
 RUN pip install --no-cache-dir --upgrade \
     nltk \ 
-    torch
+    torch \
+    sharpely
 
 # Airflow 웹 서버 시작
 CMD ["airflow", "webserver"]
