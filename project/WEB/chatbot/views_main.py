@@ -43,5 +43,16 @@ def dashboard_view(request):
         "card_total_sales_ladar_html" : card_total_sales_ladar_html
         })
 
-def tmp(request):
-    return render(request, 'tmp.html', {})  # ind ex.html 렌더링
+def dashboard_view_practice(request):
+    # 카드 소비 카테고리 - 호섭
+    gender_html = gender_expense_distribution_view()
+    # 카드사 매출 정보 - 지연
+    card_total_sales_ladar_html = card_total_sales_ladar_view()
+
+    # 템플릿에 전달
+    return render(request, "tmp.html", {
+        # 카드 소비 카테고리 - 호섭
+        "gender_html" : gender_html,
+        # 카드사 매출 정보 - 지연
+        "card_total_sales_ladar_html" : card_total_sales_ladar_html
+        })

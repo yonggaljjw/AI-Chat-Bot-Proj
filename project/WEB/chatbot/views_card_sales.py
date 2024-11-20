@@ -31,12 +31,12 @@ def load_card_sales_data_from_sql():
         print(f"데이터베이스에서 데이터를 불러오는 중 오류 발생: {str(e)}")
         return pd.DataFrame()
 
-def card_total_sales_ladar_view(request):
+def card_total_sales_ladar_view():
     """카드사별 사용금액 비교 레이더 차트 뷰"""
     card_sales = load_card_sales_data_from_sql()
 
-    if card_sales.empty:
-        return render(request, "dashboard_hoseop.html", {"error_message": "데이터를 불러올 수 없습니다."})
+    # if card_sales.empty:
+    #     return render(request, "dashboard_hoseop.html", {"error_message": "데이터를 불러올 수 없습니다."})
 
     card_companies = [
         '롯데카드', '비씨카드(자체)', '삼성카드', '신한카드',
