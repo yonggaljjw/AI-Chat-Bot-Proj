@@ -135,7 +135,8 @@ def calculate_average_growth(trend_data):
     for i in range(1, len(trend_data)):
         prev_ratio = trend_data[i - 1]['ratio']
         current_ratio = trend_data[i]['ratio']
-        growth_rate = ((current_ratio - prev_ratio) / prev_ratio) * 100
+        growth_rate = ((current_ratio - prev_ratio) / prev_ratio) * 100 if prev_ratio != 0 else 0
+
         growth_rates.append(growth_rate)
     
     average_growth_rate = sum(growth_rates) / len(growth_rates)
@@ -184,26 +185,35 @@ def analyze_articles_with_trends(articles):
     return filtered_data
 
 def upload_to_opensearch(data):
-    """OpenSearch에 데이터를 업로드하는 함수."""
-    index_name = f"{datetime.today().strftime('%m_%d')}_news_data"  # 날짜를 포함한 인덱스 이름
-    
+    """OpenSearch에 데이터를 새로운 필드 형태로 날짜별로 쌓아 업로드하는 함수."""
+    index_name = "new_trend"  # 고정 인덱스 이름
+    today = datetime.now().strftime('%Y-%m-%d')  # 오늘 날짜
+
     for category, items in data.items():
         for item in items:
-            print(f"Uploading {item['word']} to OpenSearch")
-            client.index(
-                index=index_name,
-                body={
-                    'word': item['word'],
-                    'count': item['count'],
-                    'trend_growth': item['trend_growth'],
-                    'monthly_ratios': item['monthly_ratios'],
-                    'related_articles': item.get('related_articles', []),
-                    'category': category,
-                    'date': datetime.now().strftime('%Y-%m-%d')
-                }
-            )
+            word = item['word']
+            count = item['count']
+            trend_growth = item['trend_growth']
+            related_articles = item.get('related_articles', [])
+            monthly_ratios = item['monthly_ratios']
 
-    print(f"Data uploaded to OpenSearch index {index_name}.")
+            for period, ratio in monthly_ratios.items():
+                # 문서 데이터 구성
+                document = {
+                    'date_news_trend': f"{today}_news_trend",  # 날짜별 필드
+                    'category': category,
+                    'word': word,
+                    'count': count,
+                    'trend_growth': trend_growth,
+                    'period': period,
+                    'ratio': ratio,
+                    'related_articles': related_articles,
+                    'upload_date': today  # 업로드 날짜
+                }
+                print(f"Uploading {word} for period {period} with ratio {ratio}")
+                client.index(index=index_name, body=document)
+
+    print(f"All data uploaded to OpenSearch index {index_name}.")
 
 def run_pipeline_with_trends_and_upload():
     """뉴스 크롤링, 트렌드 분석 및 OpenSearch 업로드를 수행하는 파이프라인 실행."""
