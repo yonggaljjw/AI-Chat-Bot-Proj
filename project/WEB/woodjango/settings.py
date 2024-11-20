@@ -174,13 +174,7 @@ STATICFILES_DIRS = [
 
 # Dash 앱에서 사용하는 static 파일 경로 설정
 
-
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# PLOTLY_DASH_APPS_DIR = [
-#     os.path.join(BASE_DIR.parent, 'FISA', 'jiyeon'),
-#     os.path.join(BASE_DIR.parent, 'FISA', 'eunchai'),
-# ]
