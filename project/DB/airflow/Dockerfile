@@ -48,7 +48,7 @@ RUN pip install --no-cache-dir --upgrade \
     transformers \
     pymysql==1.0.2 \
     sqlalchemy==1.4.25 \
-    selenium \
+    selenium
 
 RUN pip install --no-cache-dir --upgrade \
     nltk
