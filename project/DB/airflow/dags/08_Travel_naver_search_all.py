@@ -5,26 +5,22 @@ import pandas as pd
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
-from opensearchpy import OpenSearch, helpers
 from dotenv import load_dotenv
+import pymysql
+from sqlalchemy import create_engine
 
-# Load environment variables
+# 환경 변수 로드
 load_dotenv()
 
-# Set OpenSearch connection details
-host = os.getenv("HOST")
-port = os.getenv("PORT")
-auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD"))  # For testing only. Don't store credentials in code.
+# MySQL 연결 정보 설정
+username = os.getenv('sql_username')
+password = os.getenv('sql_password')
+host = os.getenv('sql_host')
+port = os.getenv('sql_port')
+engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/team5")
 
 naver_client_id = os.getenv("eunji_naver_api")
 naver_client_secret = os.getenv("eunji_naver_api_key")
-
-client = OpenSearch(
-    hosts=[{'host': host, 'port': port}],
-    # http_auth=auth,
-    use_ssl=False,
-    verify_certs=False
-)
 
 # travel_info 생성 함수
 def create_travel_info(df):
@@ -83,91 +79,21 @@ def fetch_data_from_naver_api(group_name, keywords, start_date, end_date, time_u
 # 결과 리스트에 데이터를 추가하는 함수
 def append_to_results(group_name, result, all_results):
     if result:
-        all_results.append({
-            "group_name": group_name,
-            "result": result
-        })
+        for data in result['results'][0]['data']:
+            all_results.append({
+                "group_name": group_name,
+                "period": data['period'],
+                "ratio": data['ratio']
+            })
         print(f"Added result for {group_name}")
     else:
         print(f"No result to add for {group_name}")
 
-
-
-# 최종 결과를 하나의 JSON 파일로 저장하는 함수
-# def save_results_to_json(all_results, output_folder, file_name="all_travel_data.json"):
-#     os.makedirs(output_folder, exist_ok=True)  # 폴더가 없으면 생성
-#     final_file_name = os.path.join(output_folder, file_name)
-#     with open(final_file_name, "w", encoding="utf-8") as f:
-#         json.dump(all_results, f, ensure_ascii=False, indent=4)
-#     print(f"Saved all results to {final_file_name}")
-
-# Define index name and setup
-index_name = "travel_naver_search_all"
-def setup_index():
-    if not client.indices.exists(index=index_name):
-        mapping = {
-            "mappings": {
-                "properties": {
-                    "group_name": {
-                        "type": "text"
-                    },
-                    "result": {
-                        "properties": {
-                            "startDate": {
-                                "type": "date",
-                                "format": "yyyy-MM-dd"
-                            },
-                            "endDate": {
-                                "type": "date",
-                                "format": "yyyy-MM-dd"
-                            },
-                            "timeUnit": {
-                                "type": "keyword"
-                            },
-                            "results": {
-                                "type": "nested",
-                                "properties": {
-                                    "title": {
-                                        "type": "text"
-                                    },
-                                    "keywords": {
-                                        "type": "keyword"
-                                    },
-                                    "data": {
-                                        "type": "nested",
-                                        "properties": {
-                                            "period": {
-                                                "type": "date",
-                                                "format": "yyyy-MM-dd"
-                                            },
-                                            "ratio": {
-                                                "type": "float"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        client.indices.create(index=index_name, body=mapping)
-        print(f"Index '{index_name}' created with mapping.")
-    else:
-        print(f"Index '{index_name}' already exists.")
-
-
-
-def upload_to_opensearch(documents):
-    # 문서를 일괄 업로드
-    if documents:
-        helpers.bulk(client, documents, index={index_name})
-        print(f"Uploaded {len(documents)} documents to index '{index_name}'.")
-    else:
-        print("No JSON files found to upload.")
-
-
+# 결과를 MySQL에 저장하는 함수
+def save_results_to_mysql(all_results, table_name="travel_naver_search_all"):
+    df = pd.DataFrame(all_results)
+    df.to_sql(table_name, con=engine, if_exists='replace', index=False)
+    print(f"Saved all results to MySQL table '{table_name}'.")
 
 # 전체 프로세스를 실행하는 함수
 def main():
@@ -197,9 +123,8 @@ def main():
         result = fetch_data_from_naver_api(group_name, keywords, start_date, end_date, time_unit, client_id, client_secret, url)
         append_to_results(group_name, result, all_results)
     
-    # 모든 결과를 하나의 JSON 파일로 저장
-    upload_to_opensearch(all_results)
-
+    # 모든 결과를 MySQL에 저장
+    save_results_to_mysql(all_results)
 
 # Airflow DAG 정의
 default_args = {
@@ -211,17 +136,12 @@ default_args = {
 }
 
 with DAG(
-    'EJ_Travel_naver_search_all',
+    '08_Travel_naver_search_all',
     default_args=default_args,
-    description='Fetch and upload travel data to OpenSearch',
-    schedule_interval=None,  
+    description='Fetch and upload travel data to MySQL',
+    schedule_interval=None,
     catchup=False,
 ) as dag:
-
-    setup_index_task = PythonOperator(
-        task_id="setup_index",
-        python_callable=setup_index
-    )
 
     # Airflow Operator로 함수 실행
     task = PythonOperator(
@@ -229,4 +149,5 @@ with DAG(
         python_callable=main,
         dag=dag,
     )
-    setup_index_task >> task
+
+    task
