@@ -19,7 +19,6 @@ host = os.getenv('sql_host')
 port = os.getenv('sql_port')
 engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/team5")
 
-
 def execute_query_to_dataframe(query):
     try:
         # pandas의 read_sql 함수를 사용하여 쿼리 실행 및 DataFrame 생성
