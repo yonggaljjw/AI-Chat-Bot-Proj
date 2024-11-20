@@ -126,7 +126,7 @@ default_args = {
 }
 
 with DAG(
-    '06_PCE_data',
+    '03_PCE_data',
     default_args=default_args,
     description="소비자물가, 개인신용카드 소비현황 예측 데이터를 업로드합니다.",
     schedule_interval='@daily',
