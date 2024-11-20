@@ -68,7 +68,7 @@ default_args = {
 
 # DAG 정의
 with DAG(
-    '07.currency_rate_data',
+    '04_currency_rate_data',
     default_args=default_args,
     description="환율데이터를 수집하여 적재합니다.",
     schedule_interval='@daily',
