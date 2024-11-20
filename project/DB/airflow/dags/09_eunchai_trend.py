@@ -233,7 +233,7 @@ def run_pipeline_with_trends_and_upload():
 
 # Airflow DAG 정의
 dag = DAG(
-    'news_trend_analysis_and_upload',
+    '09_news_trend_analysis_and_upload',
     description='News trend analysis and upload to OpenSearch',
     schedule_interval='0 8 * * *',  # 매일 오전 8시에 실행
     start_date=datetime(2024, 11, 18),

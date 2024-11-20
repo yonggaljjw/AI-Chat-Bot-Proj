@@ -39,11 +39,12 @@ def crawling_extract_df():
     df['end_date'] = pd.to_datetime(df['end_date'], errors='coerce').dt.strftime('%Y-%m-%d')  # 날짜 형식 통일
     df['title'] = df['title'].fillna('내용없음')
     df['revision_reason'] = df['content'].apply(extract_reason)
-    df['main_content'] = df['content'].apply(extract_main_content)   
+    df['main_content'] = df['content'].apply(extract_main_content)  
+    df['summary'] = df['revision_reason'] + df['main_content']
     # 요약문 생성
-    df['summary'] = df['summary'].apply(generate_summary) 
+    df['summary'] = df['summary'].apply(generate_summary)
     # 벡터 임베딩 생성
-    df['embedding_vector'] = df['embedding_vector'].apply(generate_embedding)
+    df['embedding_vector'] = df['content'].apply(generate_embedding)
     return df
 
 def get_existing_entries():
@@ -114,7 +115,7 @@ default_args = {
 
 # Airflow DAG 정의
 with DAG(
-    '03.Korean_Law_data',  # DAG 이름
+    '02_Korean_Law_data',  # DAG 이름
     default_args=default_args,  # 기본 설정
     description="입법예고 데이터를 중복 없이 매일 저장합니다.",  # 설명
     schedule_interval='@daily',  # 하루마다 실행
