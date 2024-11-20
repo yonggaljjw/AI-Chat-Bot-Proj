@@ -19,6 +19,8 @@ def dashboard_view(request):
     consumer_trends_html = consumer_trends_view()
     employment_trends_html = employment_trends_view()
     economic_table_html = economic_indicators_table_view()
+    # 카드사 매출 정보 - 지연
+    card_total_sales_ladar_html = card_total_sales_ladar_view(request)
 
     # 템플릿에 전달
     return render(request, "main.html", {
@@ -36,8 +38,10 @@ def dashboard_view(request):
         "price_indicators_html": price_indicators_html,
         "consumer_trends_html": consumer_trends_html,
         "employment_trends_html": employment_trends_html,
-        "economic_table_html": economic_table_html
+        "economic_table_html": economic_table_html,
+        # 카드사 매출 정보 - 지연
+        "card_total_sales_ladar_html" : card_total_sales_ladar_html
         })
 
 def tmp(request):
-    return render(request, 'tmp.html', {})  # index.html 렌더링
+    return render(request, 'tmp.html', {})  # ind ex.html 렌더링
