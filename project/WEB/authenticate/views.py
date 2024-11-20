@@ -76,3 +76,7 @@ def change_password(request):
 
 def index(request):
     return render(request, 'main.html', {})  # index.html 렌더링
+
+
+def tmp(request):
+    return render(request, 'tmp.html', {})  # index.html 렌더링
