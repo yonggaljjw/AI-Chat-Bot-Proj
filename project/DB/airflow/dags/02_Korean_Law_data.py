@@ -28,6 +28,7 @@ client = OpenSearch(
     hosts = [{'host': host, 'port': port}]
 )
 
+nltk.download('punkt_tab')
 
 try:
     client.indices.create(index='korean_law_data')
