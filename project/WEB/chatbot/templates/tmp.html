@@ -161,7 +161,7 @@
                 <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
 
                     <h3 class="text-lg font-semibold">카드사별 총 사용금액 </h3>
-                    <div>Razer Chart</div>
+                    <div>{{ card_total_sales_ladar_html | safe }}</div>
                 </div>
                 
                 <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
@@ -171,7 +171,7 @@
                 
                 <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">소비 카테고리 현황</h3>
-                    <div>Pie Chart</div>
+                    <div>{{ gender_html | safe }}</div>
                 </div>
                 
                 <!-- 1칸 차지하는 차트 -->

@@ -6,6 +6,6 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('index/', views_main.dashboard_view, name='index'),
-    path('tmp/', views_main.tmp, name='tmp'),
+    path('tmp/', views_main.dashboard_view_practice, name='tmp'),
     path('chatbot/send/', views_chatbot.chatbot_response, name='chatbot_send'),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
