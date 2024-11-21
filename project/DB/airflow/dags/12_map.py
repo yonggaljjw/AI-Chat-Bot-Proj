@@ -70,24 +70,43 @@ def setup_index():
         client.indices.create(index=index_name, body=mapping)
         print(f"Index '{index_name}' created with mapping.")
 
-def fetch_data():
+# 여행 권고 데이터를 크롤링하는 함수
+def fetch_travel_advice():
     url = "https://www.0404.go.kr/dev/country.mofa?idx=&hash=&chkvalue=no1&stext=&group_idx="
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
-    advice_levels = ["Travel_Caution", "Travel_Restriction", "Departure_Advisory", "Travel_Ban", "Special_Travel_Advisory"]
     data = []
     countries = soup.select("ul.country_list > li")
+    advice_levels = ["Travel_Caution", "Travel_Restriction", "Departure_Advisory", "Travel_Ban", "Special_Travel_Advisory"]
+
     for country in countries:
-        country_name = country.select_one("a").text.strip()
+        country_name = country.select_one("a").text.strip()  # 한국어 국가 이름
         img_tags = country.select("img")
         travel_advice = [img["alt"].strip() for img in img_tags if img.get("alt")]
-        advice_flags = {level: True if level in travel_advice else False for level in advice_levels}
+        
+        # 기본적으로 모든 권고는 False로 설정
+        advice_flags = {level: False for level in advice_levels}
+        
+        # 각 권고를 True로 설정
+        if "여행자제" in travel_advice:
+            advice_flags["Travel_Caution"] = True
+        if "여행유의" in travel_advice:
+            advice_flags["Travel_Restriction"] = True
+        if "출국권고" in travel_advice:
+            advice_flags["Departure_Advisory"] = True
+        if "여행금지" in travel_advice:
+            advice_flags["Travel_Ban"] = True
+        if "특별여행권고" in travel_advice:
+            advice_flags["Special_Travel_Advisory"] = True
+        
         advice_flags = {"Country": country_name, **advice_flags}
         data.append(advice_flags)
+
     return pd.DataFrame(data)
 
+# 데이터를 OpenSearch에 업로드하는 함수
 def upload_data_with_coordinates():
-    df = fetch_data()
+    df = fetch_travel_advice()
     if not centroids_cache:
         print("좌표 데이터를 로드하지 못했습니다.")
         return
@@ -116,6 +135,7 @@ def upload_data_with_coordinates():
     else:
         print("업로드할 데이터가 없습니다.")
 
+# Airflow DAG 설정
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
