@@ -2,7 +2,7 @@ from .views_fred import *
 from .views_card_sales import *
 from .views_hoseop import *
 from .views_law import *
-# from .views_tour_intrst import *
+from .veiws_cautions_map import *
 from .views_tour import *
 # from .views_eunchae import *
 
@@ -54,6 +54,7 @@ def dashboard_view_practice(request):
     korean_law_html = korean_law_view()
     # 여행
     tour_servey_html = tour_servey()
+    visualize_travel_advice_html = visualize_travel_advice(),
 
     # 템플릿에 전달
     return render(request, "tmp.html", {
@@ -61,4 +62,5 @@ def dashboard_view_practice(request):
         "card_total_sales_ladar_html": card_total_sales_ladar_html,
         "korean_law_html": korean_law_html,
         "tour_servey_html":tour_servey_html,
+        "visualize_travel_advice_html" : visualize_travel_advice_html,
     })
