@@ -208,11 +208,7 @@ def gender_expense_distribution_view():
         template="plotly_white"
     )
 
-    # 그래프를 각각 HTML로 변환 후 리턴
-    male_chart_html = to_html(fig_male, full_html=False)
-    female_chart_html = to_html(fig_female, full_html=False)
-
-    return male_chart_html, female_chart_html
+    return to_html(fig_male, full_html=False), to_html(fig_female, full_html=False)
 
 def gender_view():
     # 전체, 남성, 여성의 소비 카테고리 합계를 각각 계산
