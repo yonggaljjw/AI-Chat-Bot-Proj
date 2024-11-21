@@ -165,56 +165,56 @@ def age_and_life_stage_distribution_view():
     # 두 개의 그래프를 HTML로 변환 및 리턴
     return to_html(fig_age, full_html=False), to_html(fig_life_stage, full_html=False)
 
-# def gender_expense_distribution_view():
-    
-#     # if data.empty:  # 데이터가 비었을 경우
-#     #     return render(request, "dashboard_hoseop.html", {"error_message": "CSV 데이터를 불러올 수 없습니다."})
-
-#     # 남성과 여성의 소비 카테고리 합계를 각각 계산
-#     male_expense = data[data['성별'] == '남자'].loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
-#     female_expense = data[data['성별'] == '여자'].loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
-
-#     # Plotly 그래프 생성 (두 개의 파이 차트)
-#     fig_male = go.Figure()
-#     fig_female = go.Figure()
-
-#     # 남성 소비 카테고리 파이 차트 추가
-#     fig_male.add_trace(go.Pie(
-#         labels=male_expense.index,
-#         values=male_expense.values,
-#         name='남성 소비 유형',
-#         hole=0.3,  # 도넛형 파이 차트
-#         hoverinfo='label+value',
-#     ))
-
-#     # 여성 소비 카테고리 파이 차트 추가
-#     fig_female.add_trace(go.Pie(
-#         labels=female_expense.index,
-#         values=female_expense.values,
-#         name='여성 소비 유형',
-#         hole=0.3,
-#         hoverinfo='label+value',
-#     ))
-
-#     # 남성 차트 레이아웃 설정
-#     fig_male.update_layout(
-#         showlegend=True,
-#         template="plotly_white"  # 스타일 설정
-#     )
-
-#     # 여성 차트 레이아웃 설정
-#     fig_female.update_layout(
-#         showlegend=True,
-#         template="plotly_white"
-#     )
-
-#     # 그래프를 각각 HTML로 변환 후 리턴
-#     male_chart_html = to_html(fig_male, full_html=False)
-#     female_chart_html = to_html(fig_female, full_html=False)
-
-#     return male_chart_html, female_chart_html
-
 def gender_expense_distribution_view():
+    
+    # if data.empty:  # 데이터가 비었을 경우
+    #     return render(request, "dashboard_hoseop.html", {"error_message": "CSV 데이터를 불러올 수 없습니다."})
+
+    # 남성과 여성의 소비 카테고리 합계를 각각 계산
+    male_expense = data[data['성별'] == '남자'].loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
+    female_expense = data[data['성별'] == '여자'].loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
+
+    # Plotly 그래프 생성 (두 개의 파이 차트)
+    fig_male = go.Figure()
+    fig_female = go.Figure()
+
+    # 남성 소비 카테고리 파이 차트 추가
+    fig_male.add_trace(go.Pie(
+        labels=male_expense.index,
+        values=male_expense.values,
+        name='남성 소비 유형',
+        hole=0.3,  # 도넛형 파이 차트
+        hoverinfo='label+value',
+    ))
+
+    # 여성 소비 카테고리 파이 차트 추가
+    fig_female.add_trace(go.Pie(
+        labels=female_expense.index,
+        values=female_expense.values,
+        name='여성 소비 유형',
+        hole=0.3,
+        hoverinfo='label+value',
+    ))
+
+    # 남성 차트 레이아웃 설정
+    fig_male.update_layout(
+        showlegend=True,
+        template="plotly_white"  # 스타일 설정
+    )
+
+    # 여성 차트 레이아웃 설정
+    fig_female.update_layout(
+        showlegend=True,
+        template="plotly_white"
+    )
+
+    # 그래프를 각각 HTML로 변환 후 리턴
+    male_chart_html = to_html(fig_male, full_html=False)
+    female_chart_html = to_html(fig_female, full_html=False)
+
+    return male_chart_html, female_chart_html
+
+def gender_view():
     # 전체, 남성, 여성의 소비 카테고리 합계를 각각 계산
     total_expense = data.loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
     male_expense = data[data['성별'] == '남자'].loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
