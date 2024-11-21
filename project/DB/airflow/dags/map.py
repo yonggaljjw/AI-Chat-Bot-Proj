@@ -9,21 +9,19 @@ import os
 from opensearchpy import OpenSearch, helpers
 from dotenv import load_dotenv
 
-# Load environment variables
+# 환경 변수 로드
 load_dotenv()
 
-# Set OpenSearch connection details
+# OpenSearch 연결 정보
 host = os.getenv("HOST")
 port = os.getenv("PORT")
-auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD"))  # For testing only. Don't store credentials in code.
+auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD"))
 
 client = OpenSearch(
     hosts=[{'host': host, 'port': port}],
-    # http_auth=auth,
     use_ssl=False,
     verify_certs=False
 )
-
 
 # GeoJSON 데이터를 로드하고 국가별 중심 좌표를 추출하는 함수
 def load_geojson_and_extract_centroids():
@@ -45,9 +43,7 @@ def load_geojson_and_extract_centroids():
 # 좌표 데이터를 캐싱
 centroids_cache = load_geojson_and_extract_centroids()
 
-
-
-# Define index name and setup
+# 인덱스 설정
 index_name = "travel_cautions"
 
 def setup_index():
@@ -60,6 +56,9 @@ def setup_index():
             "mappings": {
                 "properties": {
                     "Country": {"type": "keyword"},
+                    "Coordinates": {
+                        "type": "geo_point"  # 'geo_point' 타입으로 수정
+                    },
                     "Travel_Caution": {"type": "boolean"},
                     "Travel_Restriction": {"type": "boolean"},
                     "Departure_Advisory": {"type": "boolean"},
@@ -117,7 +116,6 @@ def upload_data_with_coordinates():
     else:
         print("업로드할 데이터가 없습니다.")
 
-
 default_args = {
     "owner": "airflow",
     "depends_on_past": False,
@@ -130,7 +128,7 @@ with DAG(
     "daily_travel_cautions_dag",
     default_args=default_args,
     description="Fetch and upload travel cautions daily with coordinates",
-    schedule_interval="0 0 * * *",
+    schedule_interval="0 0 * * *",  # 매일 자정에 실행
     catchup=False,
 ) as dag:
 
