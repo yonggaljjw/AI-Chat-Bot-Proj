@@ -122,3 +122,4 @@ SQLAlchemy==2.0.35
 pymysql
 deep-translator
 geopandas
+pycountry
