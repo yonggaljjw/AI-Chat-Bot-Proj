@@ -191,11 +191,19 @@
                 </div>
                 <div class="col-span-6 bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">여행 설문조사</h3>
-                    <div>bar</div>
+                    <div>{{ tour_servey_html | safe }}</div>
                 </div>
                 <div class="col-span-2 row-span-2 bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">법</h3>
-                    <div>text</div>
+                    <div class="overflow-y-scroll max-h-[300px]">
+                        {% for law in korean_law_html %}
+                            <div class="mb-4 border-b pb-2">
+                                <p class="font-semibold">{{ law.title }}</p>
+                                <p class="text-sm text-gray-500">({{ law.start_date }} ~ {{ law.end_date }})</p>
+                                <p class="mt-2">{{ law.summary }}</p>
+                            </div>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
         </div>
