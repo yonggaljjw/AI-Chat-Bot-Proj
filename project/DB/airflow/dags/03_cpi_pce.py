@@ -5,6 +5,7 @@ from airflow.operators.python_operator import PythonOperator
 from datetime import datetime, timedelta
 from prophet import Prophet
 from dotenv import load_dotenv
+from functools import reduce
 import os
 import pymysql
 from sqlalchemy import create_engine
@@ -17,7 +18,7 @@ host = os.getenv('sql_host')
 port = os.getenv('sql_port')
 engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/team5")
 
-end_date = datetime.today().strtime('%Y%m')
+end_date = datetime.today().strftime('%Y%m')
 
 def fetch_card_data():
     # API 기본 URL과 분류 코드 설정
