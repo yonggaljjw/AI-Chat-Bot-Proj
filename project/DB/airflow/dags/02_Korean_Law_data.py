@@ -87,7 +87,7 @@ def get_existing_entries():
     query = {
         "query": {
             "range": {
-                "date": {
+                "start_date": {
                     "gte": one_year_ago.strftime("%Y-%m-%d"),
                     "lte": current_date.strftime("%Y-%m-%d"),
                     "format": "yyyy-MM-dd"
@@ -98,7 +98,7 @@ def get_existing_entries():
 
     # Elasticsearch에서 검색
     response = client.search(index="korean_law_data", body=query, size=10000)
-    existing_entries = {(hit['_source']['title'], hit['_source']['date'], hit['_source']['URL']) for hit in response['hits']['hits']}
+    existing_entries = {(hit['_source']['title'], hit['_source']['start_date'], hit['_source']['URL']) for hit in response['hits']['hits']}
     
     print(f"검색된 데이터 개수: {response['hits']['total']['value']}")
     print(f"기존 데이터 수: {len(existing_entries)}")
@@ -125,7 +125,7 @@ def upload_new_data():
             }
         }
         for _, row in df.iterrows()
-        if (row['title'], row['date'], row['URL']) not in existing_entries
+        if (row['title'], row['start_date'], row['URL']) not in existing_entries
     ]
 
     print(f"중복 제거 후 삽입할 데이터 수: {len(actions)}")
