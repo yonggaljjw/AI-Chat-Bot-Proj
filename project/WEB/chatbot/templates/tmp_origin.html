@@ -14,28 +14,15 @@
             font-family: 'Roboto', sans-serif;
         }
 
-        html,
-        body {
-            width: 3000px;
-            height: 400vh;
-            overflow: hidden;
-            /* 스크롤 방지 */
-            transform: scale(0.77);
-            /* 50%로 축소 */
-            transform-origin: top left;
-            /* 축소 기준점을 왼쪽 상단으로 설정 */
-        }
-
         /* Sidebar Hover Effect */
         .sidebar-icon:hover {
             background-color: #e5e7eb;
-            /* Tailwind gray-200 */
             cursor: pointer;
         }
 
         #chat-window {
             z-index: 1000;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 4px 6px 4px rgba(0, 0, 0, 0.1), 0 2px 4px 2px rgba(0, 0, 0, 0.06);
         }
 
         #chat-messages {
@@ -54,42 +41,6 @@
         #chat-messages::-webkit-scrollbar-thumb {
             background-color: rgba(156, 163, 175, 0.5);
             border-radius: 3px;
-        }
-
-        .dashboard-container {
-            width: 100%;
-            height: 100vh;
-            padding: 20px;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .dashboard-row {
-            display: flex;
-            flex: 1;
-            gap: 20px;
-        }
-
-        .dashboard-item {
-            flex: 1;
-            background: white;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            display: flex;
-            flex-direction: column;
-        }
-
-        .dashboard-item h3 {
-            margin: 0 0 15px 0;
-            font-size: 16px;
-        }
-
-        .dashboard-item>div {
-            flex: 1;
-            min-height: 0;
         }
     </style>
 </head>
@@ -203,56 +154,54 @@
         <!-- Main Content -->
         <div class="ml-16 flex-1 p-2">
             <!-- Dashboard Content One -->
-            <div id="dashboard-content-one" class="p-3 grid grid-cols-8 gap-4">
-                <div class="col-span-2 bg-white shadow-md p-2 rounded-lg overflow-hidden">
-                    <h3 class="text-lg font-semibold mb-2">카드사별 총 사용금액</h3>
-                    <div class="flex justify-center items-center">
-                        {{ card_total_sales_ladar_html | safe }}
-                    </div>
+            <div id="dashboard-content-one" class="p-3 grid grid-cols-6 gap-4">
+                <div class="col-span-1 bg-white shadow-md p-2 rounded-lg overflow-hidden">
+                    <h3 class="text-lg font-semibold mb-2">금리</h3>
+                    <div class="flex justify-center items-center">INSERT HERE</div>
                 </div>
 
-                <div class="col-span-2 bg-white shadow-md p-2 rounded-lg overflow-hidden">
-                    <h3 class="text-lg font-semibold">우리카드 실제 현황</h3>
-                    <div class="flex justify-center items-center">Treemap</div>
+                <div class="col-span-1 bg-white shadow-md p-2 rounded-lg overflow-hidden">
+                    <h3 class="text-lg font-semibold">GDP</h3>
+                    <div class="flex justify-center items-center">INSERT HERE</div>
                 </div>
 
-                <div class="col-span-2 bg-white shadow-md p-2 rounded-lg overflow-hidden">
-                    <h3 class="text-lg font-semibold">소비 카테고리 현황</h3>
-                    <div class="flex justify-center items-center">{{ gender_html | safe }}</div>
+                <div class="col-span-1 bg-white shadow-md p-2 rounded-lg overflow-hidden">
+                    <h3 class="text-lg font-semibold">CPI</h3>
+                    <div class="flex justify-center items-center">INSERT HERE</div>
                 </div>
 
-                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">카드사별 세부구성 비교</h3>
-                    <div class="flex justify-center items-center">카드 Heatmap.T</div>
+                <div class="col-span-1 bg-white shadow-md p-3 rounded-lg">
+                    <h3 class="text-lg font-semibold">PCE</h3>
+                    <div class="flex justify-center items-center">INSERT HERE</div>
                 </div>
-                <div class="col-span-3 bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold">트래블 카드 지도</h3>
-                    <div class="flex justify-center items-center"> {{ visualize_travel_advice_html | safe }}</div>
+                <div class="col-span-1 bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">달러 환율</h3>
+                    <div class="flex justify-center items-center">INSERT HERE</div>
 
                 </div>
-                <div class="col-span-3 bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold">네이버 여행지역 트렌드</h3>
-                    <div class="flex justify-center items-center">Line Plot</div>
+                <div class="col-span-1 bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">Trend cartegory</h3>
+                    <div class="flex justify-center items-center">INSERT HERE</div>
                 </div>
-                <div class="col-span-3 bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold">여행 설문조사</h3>
-                    <div class="flex justify-center items-center">{{ tour_servey_html | safe }}</div>
+                <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">Fred 데이터 시각화</h3>
+                    <div class="flex justify-center items-center">INSERT HERE</div>
                 </div>
-                <div class="col-span-3 bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold">환율 데이터</h3>
-                    <div class="flex justify-center items-center">Line Plot</div>
+                <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">호섭 그래프</h3>
+                    <div class="flex justify-center items-center">INSERT HERE</div>
                 </div>
                 <div class="col-span-2 row-span-2 bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold">법</h3>
-                    <div class="overflow-y-scroll max-h-[300px]">
-                        <!-- {% for law in korean_law_html %}
-                            <div class="mb-4 border-b pb-2">
-                                <p class="font-semibold">{{ law.title }}</p>
-                                <p class="text-sm text-gray-500">({{ law.start_date }} ~ {{ law.end_date }})</p>
-                                <p class="mt-2">{{ law.summary }}</p>
-                            </div>
-                        {% endfor %}  -->
-                    </div>
+                    <h3 class="text-lg font-semibold">은채 워드클라우드</h3>
+                    <div class="overflow-y-scroll max-h-[300px]">INSERT HERE</div>
+                </div>
+                <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">주요 지표 현황</h3>
+                    <div class="flex justify-center items-center">INSERT HERE</div>
+                </div>
+                <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
+                    <h3 class="text-lg font-semibold">고객 지역별 지도</h3>
+                    <div class="flex justify-center items-center">INSERT HERE</div>
                 </div>
             </div>
         </div>

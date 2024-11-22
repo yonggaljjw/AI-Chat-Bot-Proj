@@ -80,3 +80,16 @@ def dashboard_view_practice(request):
         "visualize_travel_advice_html" : visualize_travel_advice_html,
         "travel_trend_line_json" : travel_trend_line_json,
     })
+
+def dashboard_view_practice2(request):
+
+    '''거시경제 대시보드 차트 구현 시각화 함수 넣어주세요'''
+
+    # 템플릿에 전달
+    return render(request, "tmp_origin.html", {
+        "gender_html": gender_html,
+        "card_total_sales_ladar_html": card_total_sales_ladar_html,
+        "korean_law_html": korean_law_html,
+        "tour_servey_html":tour_servey_html,
+        # "visualize_travel_advice_html" : visualize_travel_advice_html,
+    })
