@@ -1,26 +1,15 @@
-from django.shortcuts import render
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
 from plotly.io import to_json
 import plotly.express as px
 import pandas as pd
 import numpy as np
-from django.conf import settings
-from sqlalchemy import create_engine
-import pymysql
-import datetime
+from chatbot.sql import engine
 
 
 def load_card_sales_data_from_sql():
     """SQL에서 card_sales 데이터를 불러오는 함수"""
     try:
-        # MySQL 연결 문자열 생성
-        db_settings = settings.DATABASES['default']
-        connection_string = f"mysql+pymysql://{db_settings['USER']}:{db_settings['PASSWORD']}@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
-
-        # SQLAlchemy 엔진 생성
-        engine = create_engine(connection_string)
-
         # 가장 최신의 년월을 선택하는 쿼리
         query = """
         SELECT * FROM card_sales

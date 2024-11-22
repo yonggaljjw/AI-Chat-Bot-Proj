@@ -326,8 +326,44 @@
             'dashboard-five': document.getElementById('dashboard-content-five'),
         };
 
+        // 반응형 차트 크기 조절을 위한 함수
+        function resizeAllCharts() {
+            const charts = [
+                'card_total_sales_ladar_json',
+                'wooricard_sales_treemap_json',
+                'gender_json',
+                'create_card_heatmap_json',
+                'travel_trend_line_json',
+                'tour_servey_json'
+            ];
 
+            charts.forEach(chartId => {
+                const element = document.getElementById(chartId);
+                if (element) {
+                    Plotly.Plots.resize(element);
+                }
+            });
+        }
 
+        // 윈도우 리사이즈 이벤트에 차트 리사이즈 함수 연결
+        window.addEventListener('resize', resizeAllCharts);
+
+        // Mutation Observer를 사용하여 요소의 표시/숨김 상태 변화 감지
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.attributeName === 'class') {
+                    setTimeout(resizeAllCharts, 100);
+                }
+            });
+        });
+
+        // 대시보드 컨텐츠 요소들 관찰
+        const dashboardContents = document.querySelectorAll('[id^="dashboard-content-"]');
+        dashboardContents.forEach(content => {
+            observer.observe(content, {
+                attributes: true
+            });
+        });
 
         // 페이지 전환 이벤트
         sidebarButtons.forEach(button => {
