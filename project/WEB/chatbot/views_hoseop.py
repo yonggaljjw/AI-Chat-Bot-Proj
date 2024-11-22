@@ -3,19 +3,11 @@ from django.shortcuts import render
 import plotly.graph_objs as go
 from plotly.io import to_json
 import pandas as pd
-from django.conf import settings  # settings.py의 경로 설정 사용
-from sqlalchemy import create_engine
+from chatbot.sql import engine
 
 
 def load_csv_data():
     try:
-        # MySQL 연결 문자열 생성
-        db_settings = settings.DATABASES['default']
-        connection_string = f"mysql+pymysql://{db_settings['USER']}:{db_settings['PASSWORD']}@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
-        
-        # SQLAlchemy 엔진 생성
-        engine = create_engine(connection_string)
-        
         # MySQL 테이블을 DataFrame으로 읽어오기
         query = "SELECT * FROM edu_data_f_cleaned"
         data = pd.read_sql(query, engine)

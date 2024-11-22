@@ -1,21 +1,14 @@
 import pandas as pd
 import plotly.express as px
-from plotly.io import to_html,write_html
-from sqlalchemy import create_engine
+from plotly.io import to_html
 import pycountry
-from django.conf import settings
 import requests
 from bs4 import BeautifulSoup
+from chatbot.sql import engine
+
 
 def load_data_from_sql():
     try:
-        # MySQL 연결 문자열 생성
-        db_settings = settings.DATABASES['default']
-        connection_string = f"mysql+pymysql://{db_settings['USER']}:{db_settings['PASSWORD']}@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
-        
-        # SQLAlchemy 엔진 생성
-        engine = create_engine(connection_string)
-
         # MySQL 테이블을 DataFrame으로 읽어오기
         query = "SELECT * FROM travel_caution"
         travel_caution = pd.read_sql(query, engine)
@@ -65,9 +58,6 @@ def merge_and_process_data():
         sql_data['Country'] = sql_data['Country_EN']
     
     merged_df = pd.merge(web_data, sql_data, on='Country', how='outer')
-    
-    # translator = GoogleTranslator(source='ko', target='en')
-    # merged_df['Country_EN'] = merged_df['Country'].apply(lambda x: translator.translate(x) if pd.notnull(x) else None)
     
     def get_iso_code(country_name):
         try:

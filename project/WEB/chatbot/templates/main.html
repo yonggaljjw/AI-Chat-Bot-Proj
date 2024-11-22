@@ -263,6 +263,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+
         const chatIcon = document.getElementById('chat-icon');
         const chatWindow = document.getElementById('chat-window');
         const closeChat = document.getElementById('close-chat');
@@ -328,28 +329,28 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         };
 
-        // showChart 함수를 전역 스코프로 이동
-        window.showChart = function (chartId) {
-            // 모든 차트 숨기기
-            const charts = ['economic', 'gdp', 'price', 'consumer', 'employment'];
-            charts.forEach(id => {
-                const chart = document.getElementById(id);
-                if (chart) {
-                    chart.style.display = 'none';
-                }
-            });
+        // // showChart 함수를 전역 스코프로 이동
+        // window.showChart = function (chartId) {
+        //     // 모든 차트 숨기기
+        //     const charts = ['economic', 'gdp', 'price', 'consumer', 'employment'];
+        //     charts.forEach(id => {
+        //         const chart = document.getElementById(id);
+        //         if (chart) {
+        //             chart.style.display = 'none';
+        //         }
+        //     });
 
-            // 선택된 차트 보이기
-            const selectedChart = document.getElementById(chartId);
-            if (selectedChart) {
-                selectedChart.style.display = 'block';
-                // plotly 차트 리사이즈 트리거
-                window.dispatchEvent(new Event('resize'));
-            }
-        };
+        //     // 선택된 차트 보이기
+        //     const selectedChart = document.getElementById(chartId);
+        //     if (selectedChart) {
+        //         selectedChart.style.display = 'block';
+        //         // plotly 차트 리사이즈 트리거
+        //         window.dispatchEvent(new Event('resize'));
+        //     }
+        // };
 
-        // 초기 차트 표시 (페이지 로드 시)
-        window.showChart('economic');
+        // // 초기 차트 표시 (페이지 로드 시)
+        // window.showChart('economic');
 
         // 페이지 전환 기능
         const sidebarButtons = document.querySelectorAll('[data-page]');
