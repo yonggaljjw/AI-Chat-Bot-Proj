@@ -3,49 +3,83 @@ import numpy as np
 import pandas as pd
 import tensorflow as tf
 from tensorflow.keras.models import load_model
-from opensearchpy import OpenSearch, helpers
-# from train import normalize_mult, get_historical_exchange_rates, fill_na_with_avg
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from dotenv import load_dotenv
 import os
+import pymysql
+from sqlalchemy import create_engine
 
 load_dotenv()
 
-host = os.getenv("HOST")
-port = os.getenv("PORT")
-auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
+# 데이터베이스 연결 정보
+username = os.getenv('sql_username')
+password = os.getenv('sql_password')
+host = os.getenv('sql_host')
+port = os.getenv('sql_port')
+database = 'team5'
+engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
 
-client = OpenSearch(
-    hosts = [{'host': host, 'port': port}]
+
+
+# 데이터베이스 연결
+connection = pymysql.connect(
+    host=host,
+    user=username,
+    password=password,
+    database=database,
+    port=int(port)
 )
 
-# OpenSearch index setup
-def setup_index(opensearch_client, index_name):
-    # If the index exists, delete it
-    if opensearch_client.indices.exists(index=index_name):
-        opensearch_client.indices.delete(index=index_name)
-    
-    # Define the index mapping
-    index_mapping = {
-        "mappings": {
-            "properties": {
-                "date": {"type": "date"},
-                "USD": {"type": "float"},
-                "EUR": {"type": "float"},
-                "JPY": {"type": "float"},
-                "GBP": {"type": "float"},
-                "AUD": {"type": "float"},
-                "CAD": {"type": "float"},
-                "NZD": {"type": "float"},
-                "THB": {"type": "float"},
-                "HKD": {"type": "float"},
-                "TWD": {"type": "float"}
-            }
-        }
-    }
-    # Create the index with the mapping
-    opensearch_client.indices.create(index=index_name, body=index_mapping)
+# 쿼리문 작성
+sql_query = '''
+SELECT 
+	date,
+	MAX(CASE WHEN cur_unit = 'CAD' THEN deal_bas_r  END) AS CAD,
+	MAX(CASE WHEN cur_unit = 'JPY(100)' THEN deal_bas_r  END) AS JPY,
+	MAX(CASE WHEN cur_unit = 'USD' THEN deal_bas_r  END) AS USD,
+	MAX(CASE WHEN cur_unit = 'AED' THEN deal_bas_r  END) AS AED,
+	MAX(CASE WHEN cur_unit = 'AUD' THEN deal_bas_r  END) AS AUD,
+	MAX(CASE WHEN cur_unit = 'BHD' THEN deal_bas_r  END) AS BHD,
+	MAX(CASE WHEN cur_unit = 'CHF' THEN deal_bas_r  END) AS CHF,
+	MAX(CASE WHEN cur_unit = 'CNH' THEN deal_bas_r  END) AS CNH,
+	MAX(CASE WHEN cur_unit = 'DKK' THEN deal_bas_r  END) AS DKK,
+	MAX(CASE WHEN cur_unit = 'EUR' THEN deal_bas_r  END) AS EUR,
+	MAX(CASE WHEN cur_unit = 'GBP' THEN deal_bas_r  END) AS GBP,
+	MAX(CASE WHEN cur_unit = 'HKD' THEN deal_bas_r  END) AS HKD,
+	MAX(CASE WHEN cur_unit = 'IDR(100)' THEN deal_bas_r  END) AS IDR,
+	MAX(CASE WHEN cur_unit = 'KRW' THEN deal_bas_r  END) AS KRW,
+	MAX(CASE WHEN cur_unit = 'KWD' THEN deal_bas_r  END) AS KWD,
+	MAX(CASE WHEN cur_unit = 'MYR' THEN deal_bas_r  END) AS MYR,
+	MAX(CASE WHEN cur_unit = 'NOK' THEN deal_bas_r  END) AS NOK,
+	MAX(CASE WHEN cur_unit = 'NZD' THEN deal_bas_r  END) AS NZD,
+	MAX(CASE WHEN cur_unit = 'SAR' THEN deal_bas_r  END) AS SAR,
+	MAX(CASE WHEN cur_unit = 'SEK' THEN deal_bas_r  END) AS SEK,
+	MAX(CASE WHEN cur_unit = 'SGD' THEN deal_bas_r  END) AS SGD,
+	MAX(CASE WHEN cur_unit = 'THB' THEN deal_bas_r  END) AS THB
+FROM 
+	currency_rate
+WHERE 
+	date >= '2019-01-01'
+GROUP BY 
+	date
+ORDER BY 
+	date;
+'''
+
+try:
+    with connection.cursor() as cursor:
+
+        # 쿼리 실행
+        cursor.execute(sql_query)
+        
+        # 결과를 pandas DataFrame으로 저장
+        data = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
+finally:
+    # 연결 종료
+    connection.close()
+
+
 
 # 데이터 정규화
 def normalize_mult(data):
@@ -105,7 +139,8 @@ def run_prediction_and_upload():
     TIME_STEPS = 100
     FUTURE_DAYS = 100
     base_currency = 'KRW'
-    target_currencies = ['USD', 'EUR', 'JPY', 'GBP', 'AUD', 'CAD', 'NZD', 'THB', 'HKD', 'TWD']
+    target_currencies = ['CAD', 'JPY', 'USD', 'AED', 'AUD', 'BHD', 'CHF', 'CNH', 'DKK', 
+                         'EUR', 'GBP', 'HKD', 'IDR', 'KWD', 'MYR', 'NOK', 'NZD', 'SAR', 'SEK', 'SGD', 'THB']
     
     # 모델 로드
     model = load_model(MODEL_PATH)
@@ -115,11 +150,6 @@ def run_prediction_and_upload():
     
     # 빈 DataFrame 초기화
     predictions_df = pd.DataFrame({'date': future_dates})
-    
-    # OpenSearch client and index setup
-    opensearch_client = client
-    index_name = "currency_forcast"
-    setup_index(opensearch_client, index_name)
 
     # 각 통화에 대해 반복
     for target_currency in target_currencies:
@@ -141,31 +171,9 @@ def run_prediction_and_upload():
         # DataFrame에 예측 결과 추가
         predictions_df[target_currency] = future_predictions
     
-    # Bulk 인덱싱을 위한 actions 생성
-    actions = [
-        {
-            "_index": index_name,
-            "_source": {
-                "date": row['date'],
-                "USD": row['USD'],
-                "EUR": row['EUR'],
-                "JPY": row['JPY'],
-                "GBP": row['GBP'],
-                "AUD": row['AUD'],
-                "CAD": row['CAD'],
-                "NZD": row['NZD'],
-                "THB": row['THB'],
-                "VND": row['VND'],
-                "HKD": row['HKD'],
-                "TWD": row['TWD'],
-            }
-        }
-        for _, row in predictions_df.iterrows()
-    ]
-    
-    # OpenSearch에 데이터 일괄 삽입
-    helpers.bulk(opensearch_client, actions)
-    print(f"Predictions successfully saved to OpenSearch index '{index_name}'.")
+    # MySQL에 데이터 업로드
+    predictions_df.to_sql(name='currency_forecast', con=engine, if_exists='replace', index=False)
+    print("Predictions successfully saved to MySQL database 'currency_forecast' table.")
 
 # Airflow DAG definition
 default_args = {
@@ -173,14 +181,14 @@ default_args = {
     'depends_on_past': False,
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retries': 5,
+    'retry_delay': timedelta(hours=1),
 }
 
 with DAG(
     '05_Currency_Forecast',
     default_args=default_args,
-    description='Predicts future currency exchange rates and uploads to OpenSearch daily',
+    description='Predicts future currency exchange rates and uploads to MySQL daily',
     schedule_interval=timedelta(days=1),
     start_date=datetime(2024, 1, 1),
     catchup=False,
