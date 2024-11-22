@@ -1,12 +1,11 @@
 from datetime import datetime, timedelta
-from tqdm import tqdm
-import requests
 import pandas as pd
 from dotenv import load_dotenv
 import os
 from airflow import DAG
 from airflow.operators.python_operator import PythonOperator
 import pymysql
+import requests
 from sqlalchemy import create_engine
 
 
@@ -16,42 +15,43 @@ username = os.getenv('sql_username')
 password = os.getenv('sql_password')
 host = os.getenv('sql_host')
 port = os.getenv('sql_port')
-
+apikey = os.getenv('ECOS_KEY')
 engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/team5")
 
-url = 'https://www.koreaexim.go.kr/site/program/financial/exchangeJSON'
-authkey = os.getenv('cur_authkey')
-data = 'AP01'
-date = datetime.today().strftime('%Y-%m-%d')
+date = datetime.today().strftime('%Y%m%d')
 
 def extract_currency_rate() :
-    params = {
-        'authkey': authkey,
-        'searchdate' : date,
-        'data' : data}
-    
-    response = pd.DataFrame(requests.get(url, params=params, verify=False).json())
-    response['date'] = date
-    response = response.drop(columns=['result'])
+    # 달러
+    url = f'https://ecos.bok.or.kr/api/StatisticSearch/{apikey}/json/kr/1/10000/731Y001/D/{date}/{date}/0000001'
+    response = requests.get(url).json()
+    df1 = pd.DataFrame(response['StatisticSearch']['row'])[['TIME','DATA_VALUE']]
+    df1 = df1.rename(columns={'DATA_VALUE' : 'USD'})
 
-    response['ttb'] = response['ttb'].apply(lambda x : x.replace(",",""))
-    response['tts'] = response['tts'].apply(lambda x : x.replace(",",""))
-    response['deal_bas_r'] = response['deal_bas_r'].apply(lambda x : x.replace(",",""))
-    response['bkpr'] = response['bkpr'].apply(lambda x : x.replace(",",""))
-    response['kftc_bkpr'] = response['kftc_bkpr'].apply(lambda x : x.replace(",",""))
-    response['kftc_deal_bas_r'] = response['kftc_deal_bas_r'].apply(lambda x : x.replace(",",""))
+    # 위안
+    url = f'https://ecos.bok.or.kr/api/StatisticSearch/{apikey}/json/kr/1/10000/731Y001/D/{date}/{date}/0000053'
+    response = requests.get(url).json()
+    df2 = pd.DataFrame(response['StatisticSearch']['row'])[['TIME','DATA_VALUE']]
+    df2 = df2.rename(columns={'DATA_VALUE' : 'CNY'})
 
-    response['date'] = pd.to_datetime(response['date'], format='%Y-%m-%d')
-    response['ttb'] = response['ttb'].astype('float')
-    response['tts'] = response['tts'].astype('float')
-    response['deal_bas_r'] = response['deal_bas_r'].astype('float')
-    response['bkpr'] = response['bkpr'].astype('float')
-    response['yy_efee_r'] = response['yy_efee_r'].astype('float')
-    response['ten_dd_efee_r'] = response['ten_dd_efee_r'].astype('float')
-    response['kftc_bkpr'] = response['kftc_bkpr'].astype('float')
-    response['kftc_deal_bas_r'] = response['kftc_deal_bas_r'].astype('float')
+    # 엔화
+    url = f'https://ecos.bok.or.kr/api/StatisticSearch/{apikey}/json/kr/1/10000/731Y001/D/{date}/{date}/0000002'
+    response = requests.get(url).json()
+    df3 = pd.DataFrame(response['StatisticSearch']['row'])[['TIME','DATA_VALUE']]
+    df3 = df3.rename(columns={'DATA_VALUE' : 'JPY'})
 
-    return response
+    # 유로
+    url = f'https://ecos.bok.or.kr/api/StatisticSearch/{apikey}/json/kr/1/10000/731Y001/D/{date}/{date}/0000003'
+    response = requests.get(url).json()
+    df4 = pd.DataFrame(response['StatisticSearch']['row'])[['TIME','DATA_VALUE']]
+    df4 = df4.rename(columns={'DATA_VALUE' : 'EUR'})
+
+    df = pd.merge(df1,df2, on='TIME')
+    df = pd.merge(df,df3, on='TIME', how='left')
+    df = pd.merge(df,df4, on='TIME', how='left')
+    df['TIME'] = pd.to_datetime(df['TIME'], format='%Y%m%d')
+
+    return df
+
 
 def upload_currency_rate() :
     df = extract_currency_rate()
@@ -62,8 +62,8 @@ def upload_currency_rate() :
 # Airflow DAG 기본 설정
 default_args = {
     'depends_on_past': False,
-    'retries': 1,
-    'retry_delay': timedelta(minutes=5),
+    'retries': 5,
+    'retry_delay': timedelta(hours=1),
 }
 
 # DAG 정의
