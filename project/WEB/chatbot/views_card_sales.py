@@ -221,7 +221,7 @@ def wooricard_sales_treemap_view():
 
     # 최신 연월 데이터 추출
     year_month = card_sales['년월'].max()
-    year_month = year_month.strftime("%Y%m")
+
     # 특정 연월 데이터 필터링
     df_filtered = card_sales[card_sales['년월'] == year_month]
     # 우리카드 데이터만 선택하여 새로운 열 생성
