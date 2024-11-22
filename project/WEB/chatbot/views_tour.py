@@ -2,18 +2,11 @@
 import pandas as pd
 from plotly.io import to_json
 import plotly.express as px
-from django.conf import settings
-from sqlalchemy import create_engine
+from chatbot.sql import engine
+
 
 def load_data_from_sql():
     try:
-        # MySQL 연결 문자열 생성
-        db_settings = settings.DATABASES['default']
-        connection_string = f"mysql+pymysql://{db_settings['USER']}:{db_settings['PASSWORD']}@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
-        
-        # SQLAlchemy 엔진 생성
-        engine = create_engine(connection_string)
-        
         # MySQL 테이블을 DataFrame으로 읽어오기
         query = "SELECT * FROM tour_intrst"
         tour_intrst = pd.read_sql(query, engine)

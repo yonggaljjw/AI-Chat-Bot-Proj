@@ -9,7 +9,7 @@ from django.db import models
 
 
 class AuthGroup(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField()
     name = models.CharField(max_length=150, blank=True, null=True)
 
     class Meta:
@@ -18,7 +18,7 @@ class AuthGroup(models.Model):
 
 
 class AuthGroupPermissions(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField()
     group_id = models.IntegerField()
     permission_id = models.IntegerField()
 
@@ -28,7 +28,7 @@ class AuthGroupPermissions(models.Model):
 
 
 class AuthPermission(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField()
     name = models.CharField(max_length=255, blank=True, null=True)
     content_type_id = models.IntegerField()
     codename = models.CharField(max_length=100, blank=True, null=True)
@@ -39,7 +39,7 @@ class AuthPermission(models.Model):
 
 
 class AuthUser(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField()
     password = models.CharField(max_length=128, blank=True, null=True)
     last_login = models.DateTimeField(blank=True, null=True)
     is_superuser = models.IntegerField(blank=True, null=True)
@@ -57,7 +57,7 @@ class AuthUser(models.Model):
 
 
 class AuthUserGroups(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField()
     user_id = models.IntegerField()
     group_id = models.IntegerField()
 
@@ -67,7 +67,7 @@ class AuthUserGroups(models.Model):
 
 
 class AuthUserUserPermissions(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField()
     user_id = models.IntegerField()
     permission_id = models.IntegerField()
 
@@ -253,7 +253,7 @@ class CurrencyRate(models.Model):
 
 
 class DjangoAdminLog(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField()
     action_time = models.DateTimeField(blank=True, null=True)
     object_id = models.TextField(blank=True, null=True)
     object_repr = models.CharField(max_length=200, blank=True, null=True)
@@ -268,7 +268,7 @@ class DjangoAdminLog(models.Model):
 
 
 class DjangoContentType(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField()
     app_label = models.CharField(max_length=100, blank=True, null=True)
     model = models.CharField(max_length=100, blank=True, null=True)
 
@@ -278,7 +278,7 @@ class DjangoContentType(models.Model):
 
 
 class DjangoMigrations(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField()
     app = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=255, blank=True, null=True)
     applied = models.DateTimeField(blank=True, null=True)
@@ -289,7 +289,7 @@ class DjangoMigrations(models.Model):
 
 
 class DjangoPlotlyDashDashapp(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField()
     instance_name = models.CharField(max_length=100, blank=True, null=True)
     slug = models.CharField(max_length=110, blank=True, null=True)
     base_state = models.TextField()
@@ -304,7 +304,7 @@ class DjangoPlotlyDashDashapp(models.Model):
 
 
 class DjangoPlotlyDashStatelessapp(models.Model):
-    id = models.IntegerField(primary_key=True)
+    id = models.IntegerField()
     app_name = models.CharField(max_length=100, blank=True, null=True)
     slug = models.CharField(max_length=110, blank=True, null=True)
 

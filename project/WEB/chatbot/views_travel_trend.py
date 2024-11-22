@@ -1,19 +1,11 @@
 import pandas as pd
 import plotly.express as px
 from plotly.io import to_json
-from sqlalchemy import create_engine
-from django.conf import settings
+from chatbot.sql import engine
 
 
 def load_travel_trend_from_sql():
     try:
-        # MySQL 연결 문자열 생성
-        db_settings = settings.DATABASES['default']
-        connection_string = f"mysql+pymysql://{db_settings['USER']}:{db_settings['PASSWORD']}@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
-        
-        # SQLAlchemy 엔진 생성
-        engine = create_engine(connection_string)
-        
         # MySQL 테이블을 DataFrame으로 읽어오기
         query = "SELECT * FROM travel_trend"
         travel_trend = pd.read_sql(query, engine)
@@ -25,13 +17,6 @@ def load_travel_trend_from_sql():
     
 def load_travel_trend_cv_from_sql():
     try:
-        # MySQL 연결 문자열 생성
-        db_settings = settings.DATABASES['default']
-        connection_string = f"mysql+pymysql://{db_settings['USER']}:{db_settings['PASSWORD']}@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
-        
-        # SQLAlchemy 엔진 생성
-        engine = create_engine(connection_string)
-        
         # MySQL 테이블을 DataFrame으로 읽어오기
         query = "SELECT * FROM travel_trend_cv"
         travel_trend_cv = pd.read_sql(query, engine)
