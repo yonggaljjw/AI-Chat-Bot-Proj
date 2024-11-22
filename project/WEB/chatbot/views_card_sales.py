@@ -1,7 +1,7 @@
 from django.shortcuts import render
 import plotly.graph_objs as go
 import plotly.figure_factory as ff
-from plotly.io import to_html
+from plotly.io import to_json
 import plotly.express as px
 import pandas as pd
 import numpy as np
@@ -41,9 +41,6 @@ def card_total_sales_ladar_view():
     """카드사별 사용금액 비교 레이더 차트 뷰"""
     card_sales = load_card_sales_data_from_sql()
 
-    # if card_sales.empty:
-    #     return render(request, "dashboard_hoseop.html", {"error_message": "데이터를 불러올 수 없습니다."})
-
     card_companies = [
         '롯데카드', '비씨카드(자체)', '삼성카드', '신한카드',
         '우리카드', '하나카드', '현대카드', 'KB국민카드'
@@ -76,23 +73,15 @@ def card_total_sales_ladar_view():
             )
         ),
         showlegend=False,
-        title={
-            'y': 0.5,
-            'x': 0.1,
-            'xanchor': 'center',
-            'yanchor': 'top'
-        },
+        # title={
+        #     'y': 0.5,
+        #     'x': 0.1,
+        #     'xanchor': 'center',
+        #     'yanchor': 'top'
+        # },
         autosize=True
-        # width=300,  # 너비 300px로 수정
-        # height=300,  # 높이 300px로 수정
-        # margin=dict(  # 마진 추가
-        #     t=30,  # top margin
-        #     b=30,  # bottom margisn
-        #     l=30,  # left margin
-        #     r=30   # right margin
-        #)
     )
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def create_card_heatmap_view():
     """카드사별 세부 비교 히트맵 생성 (데이터 전치)"""
@@ -203,13 +192,9 @@ def create_card_heatmap_view():
             'yanchor': 'top'
         },
         autosize=True
-        # width=1200,
-        # height=800,
-        # xaxis=dict(tickangle=-45),  # X축 글자를 읽기 쉽게 기울임
-        # yaxis=dict(title="카테고리")
     )
 
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def wooricard_sales_treemap_view():
     """우리카드 실제 현황"""
@@ -253,33 +238,7 @@ def wooricard_sales_treemap_view():
     )
 
     fig.update_layout(
-        autosize=True,
-        # width=700,
-        # height=500,
-        title={
-            'text': f"{year_month} 우리카드 상세 사용 현황",
-            'y':0.95,
-            'x':0.5,
-            'xanchor': 'center',
-            'yanchor': 'top',
-            'font': {'size': 24}
-        }
+        autosize=True
     )
 
-    return to_html(fig, full_html=False)
-
-
-def card_sales_view(request):
-    """카드사 데이터를 HTML로 렌더링"""
-
-    card_total_sales_ladar_html =  card_total_sales_ladar_view()
-    create_card_heatmap_html = create_card_heatmap_view()
-    wooricard_sales_treemap_html = wooricard_sales_treemap_view()
-
-    # 템플릿에 전달
-    return render(request, "main.html", {
-        "card_total_sales_ladar_html" : card_total_sales_ladar_html,
-        "create_card_heatmap_html" : create_card_heatmap_html,
-        "wooricard_sales_treemap_html" : wooricard_sales_treemap_html
-
-    })
+    return to_json(fig)

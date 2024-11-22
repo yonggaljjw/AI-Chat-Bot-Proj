@@ -2,7 +2,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from sqlalchemy import create_engine
-import pymysql
 import pandas as pd
 from openai import OpenAI
 import urllib.parse  # 추가

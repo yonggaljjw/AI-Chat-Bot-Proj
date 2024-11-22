@@ -165,35 +165,35 @@
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">회원 등급별 이용 금액이 높은 항목 Top 10</h3>
                     <!-- Ploty 그래프 삽입 -->
-                    <div>{{ top10_level_html |safe }}</div>
+                    <div>{{ top10_level_json |safe }}</div>
                 </div>
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">회원 등급별 라이프 스테이지 분포 현황</h3>
-                    <div>{{ lifestage_distribution_html | safe }}</div>
+                    <div>{{ lifestage_distribution_json | safe }}</div>
                 </div>
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">거주 지역별로 연령대 분포</h3>
-                    <div>{{ age_dist_html | safe }}</div>
+                    <div>{{ age_dist_json | safe }}</div>
                 </div>
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">거주 지역별로 라이프 스테이지 분포</h3>
-                    <div>{{ lifestage_dist_html | safe }}</div>
+                    <div>{{ lifestage_dist_json | safe }}</div>
                 </div>
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">남성 소비 카테고리</h3>
-                    <div>{{ male_chart_html | safe }}</div>
+                    <div>{{ male_chart_json | safe }}</div>
                 </div>
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">여성 소비 카테고리</h3>
-                    <div>{{ female_chart_html | safe }}</div>
+                    <div>{{ female_chart_json | safe }}</div>
                 </div>
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">연령대별 신용카드 및 체크카드 선호 결제 방식</h3>
-                    <div>{{ age_payment_html | safe }}</div>
+                    <div>{{ age_payment_json | safe }}</div>
                 </div>
                 <div class="bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">연령대별 상위 5개 주요 소비 카테고리</h3>
-                    <div>{{ age_category_html | safe }}</div>
+                    <div>{{ age_category_json | safe }}</div>
                 </div>
             </div>
 
@@ -204,8 +204,8 @@
                     <!-- 제목과 셀렉트 박스를 포함하는 헤더 -->
                     <div class="mb-2">
                         <h3 class="text-lg font-semibold mb-1">거시 경제 지표(미국)</h3>
-                        <select id="chartSelector" onchange="showChart(this.value)" 
-                                class="w-full px-2 py-1 text-sm border rounded">
+                        <select id="chartSelector" onchange="showChart(this.value)"
+                            class="w-full px-2 py-1 text-sm border rounded">
                             <option value="economic">종합지표(table)</option>
                             <option value="gdp"> 기초 지표(GDP 성장률, 연방기금 금리, 실업률) (Line)</option>
                             <option value="price">물가 지표(Line)</option>
@@ -213,7 +213,7 @@
                             <option value="employment">고용 동향(Line)</option>
                         </select>
                     </div>
-                    
+
                     <!-- 차트 컨테이너 - style 속성 추가 -->
                     <div class="flex-1">
                         <div id="economic" style="display: none;">{{ economic_table_html|safe }}</div>
@@ -221,7 +221,7 @@
                         <div id="price" style="display: none;">{{ price_indicators_html|safe }}</div>
                         <div id="consumer" style="display: none;">{{ consumer_trends_html|safe }}</div>
                         <div id="employment" style="display: none;">{{ employment_trends_html|safe }}</div>
-                        
+
                     </div>
                 </div>
             </div>
@@ -230,7 +230,8 @@
             <div id="dashboard-content-three" class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 hidden">
                 <div class="bg-white shadow-md p-6 rounded-lg w-full h-[calc(100vh-2rem)]">
                     <h3 class="text-lg font-semibold mb-4 text-center">Word Cloud</h3>
-                    <iframe src="http://192.168.0.101:5602/goto/fa9ab72d181722c3bbadc830603f2394" height="550" width="1300"></iframe>
+                    <iframe src="http://192.168.0.101:5602/goto/fa9ab72d181722c3bbadc830603f2394" height="550"
+                        width="1300"></iframe>
                 </div>
             </div>
 
@@ -328,7 +329,7 @@
         };
 
         // showChart 함수를 전역 스코프로 이동
-        window.showChart = function(chartId) {
+        window.showChart = function (chartId) {
             // 모든 차트 숨기기
             const charts = ['economic', 'gdp', 'price', 'consumer', 'employment'];
             charts.forEach(id => {
@@ -337,7 +338,7 @@
                     chart.style.display = 'none';
                 }
             });
-            
+
             // 선택된 차트 보이기
             const selectedChart = document.getElementById(chartId);
             if (selectedChart) {
