@@ -80,3 +80,6 @@ def index(request):
 
 def tmp(request):
     return render(request, 'tmp.html', {})  # index.html 렌더링
+
+def tmp_origin(request):
+    return render(request, 'tmp_origin.html', {})  # index.html 렌더링
