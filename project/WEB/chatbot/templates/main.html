@@ -199,56 +199,29 @@
 
             <!-- Dashboard Content Two -->
             <div id="dashboard-content-two" class="w-[calc(100%-4.166%)] ml-[4.166%] p-6 grid grid-cols-2 gap-4 hidden">
-                <!-- GDP와 금리 그래프 -->
-                <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-4">GDP 성장률과 금리 동향</h3>
-                    <div>{{ gdp_rates_html | safe }}</div>
-                    <p class="mt-4 text-sm text-gray-600">
-                        GDP 성장률, 연방기금금리(FFTR), 실업률의 상관관계를 보여주는 지표입니다.
-                    </p>
-                </div>
-
-                <!-- 물가지표 그래프 -->
-                <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-4">물가지표 추이</h3>
-                    <div>{{ price_indicators_html | safe }}</div>
-                    <p class="mt-4 text-sm text-gray-600">
-                        CPI, Core PCE, Core CPI 등 주요 물가지표의 변화 추이를 보여줍니다.
-                    </p>
-                </div>
-
-                <!-- 소비자 동향 그래프 -->
-                <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-4">소비자 심리 및 소매판매 동향</h3>
-                    <div class="w-full h-[400px]">{{ consumer_trends_html | safe }}</div>
-                    <p class="mt-4 text-sm text-gray-600">
-                        소비자심리지수와 실제 소매판매액의 추이를 비교할 수 있습니다.
-                    </p>
-                </div>
-
-                <!-- 고용 시장 동향 그래프 -->
-                <div class="bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-4">고용 시장 동향</h3>
-                    <div class="w-full h-[400px]">{{ employment_trends_html | safe }}</div>
-                    <p class="mt-4 text-sm text-gray-600">
-                        비농업부문 고용과 신규 채용 현황을 보여주는 지표입니다.
-                    </p>
-                </div>
-
-                <!-- 경제 지표 현황 테이블 -->
-                <div class="bg-white shadow-sm rounded-lg border border-[#e6ecf5]">
-                    <div class="px-6 py-4">
-                        <h3 class="text-lg font-semibold text-[#0070C0] mb-4">주요 경제 지표 현황</h3>
+                <!-- 거시경제 지표 그래프(토글 선택 방식) -->
+                <div class="flex flex-col h-full">
+                    <!-- 제목과 셀렉트 박스를 포함하는 헤더 -->
+                    <div class="mb-2">
+                        <h3 class="text-lg font-semibold mb-1">거시 경제 지표(미국)</h3>
+                        <select id="chartSelector" onchange="showChart(this.value)" 
+                                class="w-full px-2 py-1 text-sm border rounded">
+                            <option value="economic">종합지표(table)</option>
+                            <option value="gdp">GDP 및 금리(Line)</option>
+                            <option value="price">물가지표(Line)</option>
+                            <option value="consumer">소비자동향(Line)</option>
+                            <option value="employment">고용동향(Line)</option>
+                        </select>
                     </div>
-                    <div class="overflow-x-auto">
-                        <div class="shadow-sm">
-                            {{ economic_table_html | safe }}
-                        </div>
-                    </div>
-                    <div class="px-6 py-4">
-                        <p class="text-sm text-[#4A5568]">
-                            주요 경제 지표의 최신 데이터와 이전 데이터를 비교할 수 있으며, 발표 일정과 중요도를 함께 제공합니다.
-                        </p>
+                    
+                    <!-- 차트 컨테이너 - style 속성 추가 -->
+                    <div class="flex-1">
+                        <div id="economic" style="display: none;">{{ economic_table_html|safe }}</div>
+                        <div id="gdp" style="display: block;">{{ gdp_rates_html|safe }}</div>
+                        <div id="price" style="display: none;">{{ price_indicators_html|safe }}</div>
+                        <div id="consumer" style="display: none;">{{ consumer_trends_html|safe }}</div>
+                        <div id="employment" style="display: none;">{{ employment_trends_html|safe }}</div>
+                        
                     </div>
                 </div>
             </div>
@@ -352,7 +325,30 @@
             `;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+        };
+
+        // showChart 함수를 전역 스코프로 이동
+        window.showChart = function(chartId) {
+            // 모든 차트 숨기기
+            const charts = ['economic', 'gdp', 'price', 'consumer', 'employment'];
+            charts.forEach(id => {
+                const chart = document.getElementById(id);
+                if (chart) {
+                    chart.style.display = 'none';
+                }
+            });
+            
+            // 선택된 차트 보이기
+            const selectedChart = document.getElementById(chartId);
+            if (selectedChart) {
+                selectedChart.style.display = 'block';
+                // plotly 차트 리사이즈 트리거
+                window.dispatchEvent(new Event('resize'));
+            }
+        };
+
+        // 초기 차트 표시 (페이지 로드 시)
+        window.showChart('economic');
 
         // 페이지 전환 기능
         const sidebarButtons = document.querySelectorAll('[data-page]');
@@ -363,9 +359,6 @@
             'dashboard-four': document.getElementById('dashboard-content-four'),
             'dashboard-five': document.getElementById('dashboard-content-five'),
         };
-
-
-
 
         // 페이지 전환 이벤트
         sidebarButtons.forEach(button => {
@@ -392,7 +385,6 @@
                 });
                 this.classList.add('bg-gray-300');
 
-
                 if (url) {
                     fetch(url)
                         .then(response => response.text())
@@ -417,5 +409,4 @@
             });
         });
     });
-
 </script>
