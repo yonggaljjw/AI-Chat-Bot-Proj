@@ -70,8 +70,8 @@ def update_wordcloud(*args):
     try:
         wordcloud = WordCloud(
             font_path=font_path,
-            width=400,
-            height=400,
+            width=450,
+            height=450,
             background_color='white'
         ).generate_from_frequencies(word_freq)
     except FileNotFoundError:
