@@ -71,14 +71,19 @@ def card_total_sales_ladar_view():
         ),
         showlegend=False,
         title={
-            'text': '최신 카드사별 총사용금액 비교 (단위: 백만원)',
             'y': 0.95,
             'x': 0.5,
             'xanchor': 'center',
             'yanchor': 'top'
         },
-        width=650,
-        height=400
+        width=300,  # 너비 300px로 수정
+        height=300,  # 높이 300px로 수정
+        margin=dict(  # 마진 추가
+            t=30,  # top margin
+            b=30,  # bottom margisn
+            l=30,  # left margin
+            r=30   # right margin
+        )
     )
     return to_html(fig, full_html=False)
 
