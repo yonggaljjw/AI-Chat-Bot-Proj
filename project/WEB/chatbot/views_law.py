@@ -3,14 +3,11 @@ from datetime import datetime
 from dotenv import load_dotenv
 import os
 
+# .env 파일에서 환경 변수 로드
 load_dotenv()
 
-host = os.getenv("OPENSEARCH_HOST")
-port = os.getenv("OPENSEARCH_PORT")
-auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
-
 client = OpenSearch(
-    hosts = [{'host': host, 'port': port}]
+    hosts = [{'host': os.getenv("OPENSEARCH_HOST"), 'port': os.getenv("OPENSEARCH_PORT")}]
 )
 
 
