@@ -1,18 +1,13 @@
 import os
 from dotenv import load_dotenv
 from opensearchpy import OpenSearch
-import re
+
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
 
-# 인증 정보를 사용하여 OpenSearch 클라이언트 생성
-host = os.getenv("OPENSEARCH_HOST")
-port = os.getenv("OPENSEARCH_PORT")
-auth = (os.getenv("OPENSEARCH_ID"), os.getenv("OPENSEARCH_PASSWORD")) # For testing only. Don't store credentials in code.
-
 client = OpenSearch(
-    hosts = [{'host': host, 'port': port}]
+    hosts = [{'host': os.getenv("OPENSEARCH_HOST"), 'port': os.getenv("OPENSEARCH_PORT")}]
 )
 
 def index(index, id, body, hard_refresh=False):
