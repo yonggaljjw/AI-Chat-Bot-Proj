@@ -58,7 +58,6 @@ def gdp_and_rates_view():
     ))
 
     fig.update_layout(
-        title='GDP 성장률과 연방기금금리, 실업률 비교',
         xaxis_title='날짜',
         yaxis=dict(
             title='GDP 성장률 (%)',
@@ -111,7 +110,6 @@ def price_indicators_view():
     ))
 
     fig.update_layout(
-        title='물가지표 추이',
         xaxis_title='날짜',
         yaxis_title='변화율 (%)',
         plot_bgcolor='white',
@@ -145,7 +143,6 @@ def consumer_trends_view():
     ))
 
     fig.update_layout(
-        title='소비자 심리 및 소매판매 동향',
         xaxis_title='날짜',
         yaxis=dict(
             title='소비자심리지수',
@@ -191,7 +188,6 @@ def employment_trends_view():
     ))
 
     fig.update_layout(
-        title='고용 시장 동향',
         xaxis_title='날짜',
         yaxis=dict(
             title='비농업부문 고용 (천명)',
