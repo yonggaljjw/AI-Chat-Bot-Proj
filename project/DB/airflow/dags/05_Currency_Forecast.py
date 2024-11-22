@@ -2,6 +2,7 @@ from datetime import datetime, timedelta
 import numpy as np
 import pandas as pd
 import tensorflow as tf
+import yfinance as yf
 from tensorflow.keras.models import load_model
 from airflow import DAG
 from airflow.operators.python import PythonOperator
@@ -19,6 +20,30 @@ host = os.getenv('sql_host')
 port = os.getenv('sql_port')
 database = 'team5'
 engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
+
+def load_data_from_sql():
+    try:
+        # MySQL 테이블을 DataFrame으로 읽어오기
+        query = "SELECT * FROM currency_rate WHERE time >= '2024-01-01'"
+        currency_rate = pd.read_sql(query, engine)
+        
+        return currency_rate
+        
+    except Exception as e:
+        print(f"데이터베이스에서 데이터를 불러오는 중 오류 발생: {str(e)}")
+        return pd.DataFrame()
+
+# 환율 데이터 가져오기
+def get_historical_exchange_rates(base_currency, target_currencies, start_date, end_date):
+    exchange_data = {}
+    for currency in target_currencies:
+        symbol = f"{currency}{base_currency}=X"
+        try:
+            data = yf.Ticker(symbol).history(start=start_date, end=end_date)
+            exchange_data[currency] = data['Close']
+        except Exception as e:
+            print(f"Error fetching data for {currency}: {e}")
+    return pd.DataFrame(exchange_data)
 
 
 
@@ -41,17 +66,7 @@ def FNormalizeMult(data, normalize):
             data[:, i] = data[:, i] * delta + normalize[i, 0]
     return data
 
-# 환율 데이터 가져오기
-def get_historical_exchange_rates(base_currency, target_currencies, start_date, end_date):
-    exchange_data = {}
-    for currency in target_currencies:
-        symbol = f"{currency}{base_currency}=X"
-        try:
-            data = yf.Ticker(symbol).history(start=start_date, end=end_date)
-            exchange_data[currency] = data['Close']
-        except Exception as e:
-            print(f"Error fetching data for {currency}: {e}")
-    return pd.DataFrame(exchange_data)
+
 
 # 결측값 처리
 def fill_na_with_avg(df):
@@ -80,8 +95,7 @@ def run_prediction_and_upload():
     TIME_STEPS = 100
     FUTURE_DAYS = 100
     base_currency = 'KRW'
-    target_currencies = ['CAD', 'JPY', 'USD', 'AED', 'AUD', 'BHD', 'CHF', 'CNH', 'DKK', 
-                         'EUR', 'GBP', 'HKD', 'IDR', 'KWD', 'MYR', 'NOK', 'NZD', 'SAR', 'SEK', 'SGD', 'THB']
+    target_currencies = ['USD','CNY', 'JPY', 'EUR']
     
     # 모델 로드
     model = load_model(MODEL_PATH)
@@ -91,7 +105,7 @@ def run_prediction_and_upload():
     
     # 빈 DataFrame 초기화
     predictions_df = pd.DataFrame({'date': future_dates})
-
+    exchange_df = load_data_from_sql()
     # 각 통화에 대해 반복
     for target_currency in target_currencies:
         print(f"Predicting future rates for {target_currency}")
@@ -99,7 +113,7 @@ def run_prediction_and_upload():
         # 환율 데이터 로드 및 결측치 처리
         start_date = "2012-01-01"
         end_date = datetime.now().strftime("%Y-%m-%d")
-        exchange_df = get_historical_exchange_rates(base_currency, [target_currency], start_date, end_date)
+        # exchange_df = get_historical_exchange_rates(base_currency, [target_currency], start_date, end_date)
         df = fill_na_with_avg(exchange_df[target_currency])
         
         # 데이터 정규화
