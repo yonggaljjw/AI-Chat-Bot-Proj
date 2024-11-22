@@ -1,7 +1,7 @@
 from .views_fred import *
 from .views_card_sales import *
 from .views_hoseop import *
-from .views_law import *
+# from .views_law import *
 from .veiws_cautions_map import *
 from .views_tour import *
 # from .views_eunchae import *
@@ -22,7 +22,7 @@ def dashboard_view(request):
     employment_trends_html = employment_trends_view()
     economic_table_html = economic_indicators_table_view()
     # 법 - 은지
-    korean_law_html = korean_law_view()
+    # korean_law_html = korean_law_view()
 
     # 템플릿에 전달
     return render(request, "main.html", {
@@ -41,7 +41,7 @@ def dashboard_view(request):
         "consumer_trends_html": consumer_trends_html,
         "employment_trends_html": employment_trends_html,
         "economic_table_html": economic_table_html,
-        "korean_law_html" : korean_law_html,
+        # "korean_law_html" : korean_law_html,
         })
 
 
@@ -51,7 +51,7 @@ def dashboard_view_practice(request):
     # 카드사 매출 정보 - 지연
     card_total_sales_ladar_html = card_total_sales_ladar_view()
     # 법 - 은지
-    korean_law_html = korean_law_view()
+    # korean_law_html = korean_law_view()
     # 여행
     tour_servey_html = tour_servey()
     visualize_travel_advice_html = visualize_travel_advice(),
@@ -60,7 +60,7 @@ def dashboard_view_practice(request):
     return render(request, "tmp.html", {
         "gender_html": gender_html,
         "card_total_sales_ladar_html": card_total_sales_ladar_html,
-        "korean_law_html": korean_law_html,
+        # "korean_law_html": korean_law_html,
         "tour_servey_html":tour_servey_html,
         "visualize_travel_advice_html" : visualize_travel_advice_html,
     })

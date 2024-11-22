@@ -226,7 +226,8 @@ def gender_view():
         name='전체 소비 유형',
         hole=0.3,
         visible=True,
-        hoverinfo='label+value'
+        hoverinfo='label+value',
+        textinfo='none'  # 텍스트 표시 제거
     ))
 
     # 남성 소비 카테고리 파이 차트 (초기 숨김 상태)
@@ -236,7 +237,8 @@ def gender_view():
         name='남성 소비 유형',
         hole=0.3,
         visible=False,
-        hoverinfo='label+value'
+        hoverinfo='label+value',
+        textinfo='none'  # 텍스트 표시 제거
     ))
 
     # 여성 소비 카테고리 파이 차트 (초기 숨김 상태)
@@ -246,7 +248,8 @@ def gender_view():
         name='여성 소비 유형',
         hole=0.3,
         visible=False,
-        hoverinfo='label+value'
+        hoverinfo='label+value',
+        textinfo='none'  # 텍스트 표시 제거
     ))
 
     # 버튼 생성
@@ -255,22 +258,22 @@ def gender_view():
             dict(
                 type="buttons",
                 direction="right",
-                x=0.7,
-                y=1.2,
+                x=0.5,
+                y=1.5,
                 showactive=True,
                 buttons=list([
                     dict(label="전체",
                          method="update",
-                         args=[{"visible": [True, False, False]},
-                              {"title": "전체 소비 카테고리 분포"}]),
+                         args=[{"visible": [True, False, False]}],
+                         ),
                     dict(label="남성",
                          method="update",
-                         args=[{"visible": [False, True, False]},
-                              {"title": "남성 소비 카테고리 분포"}]),
+                         args=[{"visible": [False, True, False]}],
+                         ),
                     dict(label="여성",
                          method="update",
-                         args=[{"visible": [False, False, True]},
-                              {"title": "여성 소비 카테고리 분포"}])
+                         args=[{"visible": [False, False, True]}]
+                         )
                 ]),
             )
         ]
@@ -278,10 +281,16 @@ def gender_view():
 
     # 레이아웃 설정
     fig.update_layout(
-        title="소비 카테고리 분포",
         showlegend=True,
         template="plotly_white",
-        height=600
+        height=400,
+        legend=dict(
+        x=0.7,        # 범례의 x 위치를 오른쪽으로
+        y=0.5,        # 범례의 y 위치를 중앙으로
+        xanchor='left',  # 범례의 정렬 기준점을 왼쪽으로
+        yanchor='middle', # 범례의 수직 정렬을 중앙으로
+        orientation='h'  # 범례를 수직으로 배열
+    )
     )
 
     return to_html(fig, full_html=False)

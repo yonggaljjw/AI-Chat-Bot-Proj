@@ -96,14 +96,13 @@ def visualize_travel_advice():
                         color='Risk_Level',  # 위험 수준에 따라 색상 변경
                         hover_name='Country',  # 마우스를 올리면 국가 이름 표시
                         color_continuous_scale="Emrld",  # 색상 팔레트
-                        title="국가별 여행 권고 위험 수준 시각화")
+                        )
 
     # 지도 투영 방식 설정: 'natural earth'
     fig.update_geos(projection_type="natural earth")
 
     # 지도 크기 및 마진 설정
-    fig.update_layout(height=500, margin={"r":0, "t":0, "l":0, "b":0})
-
+    fig.update_layout(width=400, height=300, margin={"r":0, "t":0, "l":0, "b":0}) 
     # 국가 경계를 표시하도록 설정
     fig.update_geos(showcountries=True, countrycolor="Gray")
     
@@ -111,7 +110,6 @@ def visualize_travel_advice():
     fig.update_layout(coloraxis_showscale=False)
 
     # 결과 출력
-    fig.show()
     return to_html(fig, full_html=False)
 
 
