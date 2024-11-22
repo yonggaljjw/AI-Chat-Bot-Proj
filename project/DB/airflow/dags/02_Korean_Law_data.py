@@ -95,9 +95,9 @@ def get_existing_entries():
             }
         }
     }
-    
+
     # Elasticsearch에서 검색
-    response = client.search(index="Korean_Law_data", body=query, size=10000)
+    response = client.search(index="korean_law_data", body=query, size=10000)
     existing_entries = {(hit['_source']['title'], hit['_source']['date'], hit['_source']['URL']) for hit in response['hits']['hits']}
     
     print(f"검색된 데이터 개수: {response['hits']['total']['value']}")
