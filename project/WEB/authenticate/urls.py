@@ -9,4 +9,5 @@ urlpatterns = [
     path('change_password/', views.change_password, name='change_password'),
     path('index/', views.index, name='index'),
     path('tmp/', views.tmp, name='tmp'),
+    path('tmp_origin/', views.tmp_origin, name='tmp_origin'),
 ]
