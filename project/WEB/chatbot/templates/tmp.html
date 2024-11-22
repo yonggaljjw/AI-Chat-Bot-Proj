@@ -165,8 +165,7 @@
                 <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg overflow-hidden">
                     <h3 class="text-lg font-semibold">우리카드 실제 현황</h3>
                     <div class="flex justify-center items-center h-[calc(100%-2rem)]">
-                        <img class="object-contain max-h-full w-auto"
-                            src="https://www.cat.meme/uploads/4/1/1/8/4118501/ff6bokjxkaiwxzl_orig.png" alt="샘플">
+                        {{ wooricard_sales_treemap_html | safe }}
                     </div>
                 </div>
                 <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg overflow-hidden">
@@ -179,8 +178,7 @@
                 <div class="col-span-2 row-span-4 bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold">카드사별 세부구성 비교</h3>
                     <div class="flex justify-center items-center h-[calc(100%-2rem)]">
-                        <img class="object-contain w-full"
-                            src="https://upload.wikimedia.org/wikipedia/en/3/3d/Longcat_is_loooooooooong.jpg" alt="샘플">
+                        {{ create_card_heatmap_html | safe }}                    
                     </div>
                 </div>
 
