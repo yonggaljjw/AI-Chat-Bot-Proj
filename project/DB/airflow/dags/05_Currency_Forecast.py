@@ -106,6 +106,12 @@ def run_prediction_and_upload():
     # 빈 DataFrame 초기화
     predictions_df = pd.DataFrame({'date': future_dates})
     exchange_df = load_data_from_sql()
+    exchange_df['TIME'] = pd.to_datetime(exchange_df['TIME'], errors='coerce')  # 시간으로 변환
+    exchange_df['USD'] = pd.to_numeric(exchange_df['USD'], errors='coerce')  # 숫자로 변환
+    exchange_df['CNY'] = pd.to_numeric(exchange_df['CNY'], errors='coerce')  # 숫자로 변환
+    exchange_df['JPY'] = pd.to_numeric(exchange_df['JPY'], errors='coerce')  # 숫자로 변환
+    exchange_df['EUR'] = pd.to_numeric(exchange_df['EUR'], errors='coerce')  # 숫자로 변환
+
     # 각 통화에 대해 반복
     for target_currency in target_currencies:
         print(f"Predicting future rates for {target_currency}")
