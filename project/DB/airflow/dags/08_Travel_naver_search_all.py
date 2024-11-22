@@ -29,12 +29,13 @@ naver_client_secret = os.getenv("eunji_naver_api_key")
 
 def create_travel_info():
     df = pd.read_csv("./dags/package/국토연구원 세계도시정보 자료(2019년).csv", encoding="EUC-KR")
-    group_names = []
-    for _, row in df.iterrows():
-        city = row['도시명']
-        group_name = f"{city} 여행"
-        group_names.append(group_name)
-    return group_names
+    # 나라별로 도시 묶기
+    country_city_df = df.groupby('나라')['도시명'].apply(list).reset_index()
+    country_city_df.rename(columns={'도시명': '도시목록'}, inplace=True)
+
+    # 나라 이름에 "여행" 추가
+    country_city_df['나라'] = country_city_df['나라'] + ' 여행'
+    return country_city_df
 
 def fetch_monthly_trend_data(word):
     """네이버 Datalab API에서 월별 트렌드 지수를 가져오는 함수."""
@@ -48,27 +49,28 @@ def fetch_monthly_trend_data(word):
     start_date = (today.replace(year=today.year - 1)).strftime('%Y-%m-%d')  # 1년 전
     end_date = today.strftime('%Y-%m-%d')  # 오늘
 
+    # 도시 목록을 keywords로 전달 (리스트 형태)
     body = json.dumps({
         "startDate": start_date,
         "endDate": end_date,
         "timeUnit": "month",
-        "keywordGroups": [{"groupName": word, "keywords": [word]}]
+        "keywordGroups": [{"groupName": country, "keywords": city_list}]
     })
 
     response = requests.post(url, headers=headers, data=body)
-    
+
     if response.status_code != 200:
-        print(f"Error fetching trend data for {word}: {response.status_code}")
+        print(f"Error fetching trend data for {country}: {response.status_code} - {response.text}")
         return []
 
     data = response.json()
     monthly_data = data.get('results', [])
-    
+
     if monthly_data:
-        print(f"Monthly trend data for {word}: {monthly_data[0]['data']}")
+        print(f"Monthly trend data for {country}: {monthly_data[0]['data']}")
     else:
-        print(f"No trend data found for {word}")
-    
+        print(f"No trend data found for {country}")
+
     return monthly_data[0]['data'] if monthly_data else []
 
 def calculate_average_growth(trend_data):
@@ -127,55 +129,67 @@ def calculate_cv_growth(trend_data):
 
 def analyze_articles_with_trends():
     """기사 분석 후 네이버 Datalab API를 사용해 트렌드 증가율을 포함한 데이터를 생성."""
-    words = create_travel_info()
+    travel_info_df = create_travel_info()  # 나라와 도시 목록 생성
     filtered_data = []
-    trend_data = {}  # 트렌드 데이터 저장
-    for word in words:  # 상위 15개 키워드만 처리
-        print(f"Analyzing trend for word: {word}")
-        # 네이버 Datalab API로 현재 검색량과 월별 트렌드 지수 가져오기
-        monthly_trend_data = fetch_monthly_trend_data(word)
+
+    for _, row in travel_info_df.iterrows():
+        country = row['나라']  # 나라 이름
+        city_list = row['도시목록']  # 해당 나라의 도시 목록
+        print(f"Analyzing trend for: {country}, {city_list}")
+
+        # 네이버 Datalab API 호출
+        monthly_trend_data = fetch_monthly_trend_data(country, city_list)
         if not monthly_trend_data:
-            trend_growth = 0  # 트렌드 데이터가 없으면 증가율 0%
-        else:
-            trend_growth = calculate_average_growth(monthly_trend_data)
-            trend_var = calculate_variance_growth(monthly_trend_data)
-            trend_cv = calculate_cv_growth(monthly_trend_data)
-        # 월별 ratio 저장
+            print(f"No trend data for {country}. Skipping...")
+            continue
+
+        trend_growth = calculate_average_growth(monthly_trend_data)
+        trend_var = calculate_variance_growth(monthly_trend_data)
+        trend_cv = calculate_cv_growth(monthly_trend_data)
+
         monthly_ratios = {entry['period']: entry['ratio'] for entry in monthly_trend_data}
-        
+
         filtered_data.append({
-            'word': word,
+            'country': country,
             'trend_growth': trend_growth,
-            'trend_var' : trend_var,
-            'trend_cv':trend_cv,
-            'monthly_ratios': monthly_ratios,  # 월별 ratio 추가
+            'trend_var': trend_var,
+            'trend_cv': trend_cv,
+            'monthly_ratios': monthly_ratios
         })
 
     return filtered_data
+
 
 def make_final_df():
     rows = []
     data = analyze_articles_with_trends()
     for entry in data:
-        word = entry['word']
+        country = entry['country']
         trend_growth = entry['trend_growth']
         trend_var = entry['trend_var']
         trend_cv = entry['trend_cv']
         for date, ratio in entry['monthly_ratios'].items():
-            rows.append({'word': word, 'trend_growth': trend_growth,'trend_var':trend_var, 'trend_cv':trend_cv, 'date': date, 'ratio': ratio})
+            rows.append({
+                'country': country,
+                'trend_growth': trend_growth,
+                'trend_var': trend_var,
+                'trend_cv': trend_cv,
+                'date': date,
+                'ratio': ratio
+            })
 
     df = pd.DataFrame(rows)
-    # 테이블 1: Words
-    words_table = df[['word', 'trend_growth', 'trend_var', 'trend_cv']].drop_duplicates()
-    words_table.to_sql('travel_trend_cv', con=engine, if_exists='replace', index=False) # mysql에 저장
+    # 테이블 1: Countries
+    countries_table = df[['country', 'trend_growth', 'trend_var', 'trend_cv']].drop_duplicates()
+    countries_table.to_sql('travel_trend_cv', con=engine, if_exists='replace', index=False)  # MySQL에 저장
     print(f"Saved all results to MySQL table 'travel_trend_cv'.")
 
     # 테이블 2: Trends
-    trends_table = df[['word', 'date', 'ratio']]
+    trends_table = df[['country', 'date', 'ratio']]
     trends_table['date'] = pd.to_datetime(trends_table['date'], errors='coerce').dt.strftime('%Y-%m-%d')
-    trends_table.to_sql('travel_trend', con=engine, if_exists='replace', index=False) # mysql에 저장
+    trends_table.to_sql('travel_trend', con=engine, if_exists='replace', index=False)  # MySQL에 저장
     print(f"Saved all results to MySQL table 'travel_trend'.")
-###
+
 
 
 
