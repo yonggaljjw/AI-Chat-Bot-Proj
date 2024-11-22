@@ -1,22 +1,16 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-from sqlalchemy import create_engine
 import pandas as pd
 from openai import OpenAI
-import urllib.parse  # 추가
-import requests  # 추가
-from bs4 import BeautifulSoup  # 추가
+import urllib.parse
+import requests
+from bs4 import BeautifulSoup
+from chatbot.sql import engine
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
-
-username = os.getenv('sql_username')
-password = os.getenv('sql_password')
-host = os.getenv('sql_host')
-port = os.getenv('sql_port')
-engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/team5")
 
 def execute_query_to_dataframe(query):
     try:
@@ -74,81 +68,6 @@ def generate_query(query):
     generated_query = response.choices[0].message.content
     generated_query = generated_query.replace("```sql","").replace("```","").strip()
     return generated_query
-
-def answer_question(query):
-    # Search for relevant documents
-    search_query = generate_query(query)
-    relevant_docs = execute_query_to_dataframe(search_query)
-
-    # Generate answer using OpenAI GPT model
-    prompt = f"""
-    
-    The following is a table of data extracted from an OpenSearch query:\n\n{relevant_docs}\n\n
-    Based on this data, provide an effective and detailed answer to the following natural language query: {query}"
-    
-    
-    Please follow these guidelines when answering:
-    1. Provide accurate and concise answers based on the data.
-    2. Only mention data relevant to the question.
-    3. If information is not available in the data, state that it's not available rather than speculating
-    4. Write your answer in Korean an-d keep it under 800 characters.
-    
-    Answer: """
-
-    response = openai.chat.completions.create(
-        model="gpt-4o-mini",  # Using the latest model
-        messages=[
-            {"role": "system", "content": "Your name is 우대리, You are an excellent assistant proficient in data analysis"},
-            {"role": "user", "content": prompt}
-        ],
-        max_tokens=800  # Limiting answer length
-    )
-    return response.choices[0].message.content
-    try:
-        # 구글 검색 결과 URL 가져오기 (첫 번째 결과만)
-        search_results = list(search(keyword, lang="ko", num_results=3))
-        
-        if not search_results:
-            return "검색 결과를 찾을 수 없습니다."
-        
-        combined_content = []
-        
-        for url in search_results:
-            try:
-                # 웹 페이지 내용 가져오기
-                headers = {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-                }
-                response = requests.get(url, headers=headers, timeout=5)
-                response.raise_for_status()
-                
-                # HTML 파싱
-                soup = BeautifulSoup(response.text, 'html.parser')
-                
-                # 불필요한 태그 제거
-                for tag in soup(['script', 'style', 'meta', 'link', 'header', 'footer', 'nav']):
-                    tag.decompose()
-                
-                # 텍스트 추출 및 정제
-                text = soup.get_text(strip=True)
-                text = ' '.join(text.split())
-                
-                if text:
-                    combined_content.append(text[:500])  # 각 결과당 500자로 제한
-                
-            except Exception as e:
-                print(f"URL 처리 중 오류 발생: {url} - {str(e)}")
-                continue
-        
-        if not combined_content:
-            return "검색 결과를 가져올 수 없습니다."
-        
-        # 모든 결과 합치기 (최대 1000자)
-        final_content = ' '.join(combined_content)
-        return final_content[:1000]
-        
-    except Exception as e:
-        return f"검색 중 오류 발생: {str(e)}"
 
 def get_wikipedia_content(keyword):
     try:
