@@ -1,10 +1,9 @@
 from django.shortcuts import render
 import plotly.graph_objs as go
-from plotly.io import to_html
+from plotly.io import to_json
 import pandas as pd
 from django.conf import settings
 from sqlalchemy import create_engine
-import pymysql
 
 def load_fred_data_from_sql():
     try:
@@ -79,7 +78,7 @@ def gdp_and_rates_view():
         legend=dict(x=0, y=1)
     )
 
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def price_indicators_view():
     """물가지표 추이 그래프"""
@@ -119,7 +118,7 @@ def price_indicators_view():
         legend=dict(x=0, y=1)
     )
 
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def consumer_trends_view():
     """소비자 동향 그래프"""
@@ -164,7 +163,7 @@ def consumer_trends_view():
         legend=dict(x=0, y=1)
     )
 
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def employment_trends_view():
     """고용 시장 동향 그래프"""
@@ -209,7 +208,7 @@ def employment_trends_view():
         legend=dict(x=0, y=1)
     )
 
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def economic_indicators_table_view():
     """경제 지표 현황 테이블"""
@@ -355,13 +354,10 @@ def economic_indicators_table_view():
     )])
 
     fig.update_layout(
-        width=800,
-        height=len(events_data) * 35 + 100,
-        margin=dict(t=50, l=30, r=30, b=30),
         paper_bgcolor='white'
     )
 
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
  
 def fred_dashboard_view(request):
@@ -369,19 +365,19 @@ def fred_dashboard_view(request):
     if fred_data.empty:
         return render(request, "dashboard_hoseop.html", {"error_message": "데이터를 불러올 수 없습니다."})
 
-    gdp_rates_html = gdp_and_rates_view()
-    price_indicators_html = price_indicators_view()
-    consumer_trends_html = consumer_trends_view()
-    employment_trends_html = employment_trends_view()
-    economic_table_html = economic_indicators_table_view()
+    gdp_rates_json = gdp_and_rates_view()
+    price_indicators_json = price_indicators_view()
+    consumer_trends_json = consumer_trends_view()
+    employment_trends_json = employment_trends_view()
+    economic_table_json = economic_indicators_table_view()
 
 
     # 템플릿에 전달
     return render(request, "dashboard_hoseop.html", {
-        "gdp_rates_html": gdp_rates_html,
-        "price_indicators_html": price_indicators_html,
-        "consumer_trends_html": consumer_trends_html,
-        "employment_trends_html": employment_trends_html,
-        "economic_table_html": economic_table_html
+        "gdp_rates_json": gdp_rates_json,
+        "price_indicators_json": price_indicators_json,
+        "consumer_trends_json": consumer_trends_json,
+        "employment_trends_json": employment_trends_json,
+        "economic_table_json": economic_table_json
         })
 

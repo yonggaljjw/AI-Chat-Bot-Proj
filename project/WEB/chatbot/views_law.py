@@ -1,11 +1,3 @@
-import pandas as pd
-import geopandas as gpd
-import plotly.graph_objects as go
-from plotly.io import to_html
-from deep_translator import GoogleTranslator
-import plotly.express as px
-from django.conf import settings
-
 from opensearchpy import OpenSearch
 from datetime import datetime
 from dotenv import load_dotenv

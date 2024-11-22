@@ -1,13 +1,9 @@
 # 데이터 로드 및 전처리 함수
 import pandas as pd
-import geopandas as gpd
-import plotly.graph_objects as go
-from plotly.io import to_html
+from plotly.io import to_json
 import plotly.express as px
 from django.conf import settings
 from sqlalchemy import create_engine
-# from django_plotly_dash import DjangoDash
-# from dash import Dash, dcc, html, Input, Output
 
 def load_data_from_sql():
     try:
@@ -109,13 +105,8 @@ def tour_servey():
             'x': 1.3,
             'y': 1.2
         }],
-        autosize=True,
-        # margin=dict(  # 마진 추가
-        #     t=30,  # top margin
-        #     b=30,  # bottom margisn
-        #     l=30,  # left margin
-        #     r=30   # right margin
-        # )
+        margin={"r":0, "t":0, "l":0, "b":0},
+        autosize=True
     )
 
-    return to_html(fig, full_html=False)
+    return to_json(fig)
