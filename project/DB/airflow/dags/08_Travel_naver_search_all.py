@@ -37,7 +37,7 @@ def create_travel_info():
     country_city_df['나라'] = country_city_df['나라'] + ' 여행'
     return country_city_df
 
-def fetch_monthly_trend_data(word):
+def fetch_monthly_trend_data(country, city_list):
     """네이버 Datalab API에서 월별 트렌드 지수를 가져오는 함수."""
     url = "https://openapi.naver.com/v1/datalab/search"
     headers = {
