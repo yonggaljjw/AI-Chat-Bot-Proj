@@ -22,65 +22,6 @@ engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/{da
 
 
 
-# 데이터베이스 연결
-connection = pymysql.connect(
-    host=host,
-    user=username,
-    password=password,
-    database=database,
-    port=int(port)
-)
-
-# 쿼리문 작성
-sql_query = '''
-SELECT 
-	date,
-	MAX(CASE WHEN cur_unit = 'CAD' THEN deal_bas_r  END) AS CAD,
-	MAX(CASE WHEN cur_unit = 'JPY(100)' THEN deal_bas_r  END) AS JPY,
-	MAX(CASE WHEN cur_unit = 'USD' THEN deal_bas_r  END) AS USD,
-	MAX(CASE WHEN cur_unit = 'AED' THEN deal_bas_r  END) AS AED,
-	MAX(CASE WHEN cur_unit = 'AUD' THEN deal_bas_r  END) AS AUD,
-	MAX(CASE WHEN cur_unit = 'BHD' THEN deal_bas_r  END) AS BHD,
-	MAX(CASE WHEN cur_unit = 'CHF' THEN deal_bas_r  END) AS CHF,
-	MAX(CASE WHEN cur_unit = 'CNH' THEN deal_bas_r  END) AS CNH,
-	MAX(CASE WHEN cur_unit = 'DKK' THEN deal_bas_r  END) AS DKK,
-	MAX(CASE WHEN cur_unit = 'EUR' THEN deal_bas_r  END) AS EUR,
-	MAX(CASE WHEN cur_unit = 'GBP' THEN deal_bas_r  END) AS GBP,
-	MAX(CASE WHEN cur_unit = 'HKD' THEN deal_bas_r  END) AS HKD,
-	MAX(CASE WHEN cur_unit = 'IDR(100)' THEN deal_bas_r  END) AS IDR,
-	MAX(CASE WHEN cur_unit = 'KRW' THEN deal_bas_r  END) AS KRW,
-	MAX(CASE WHEN cur_unit = 'KWD' THEN deal_bas_r  END) AS KWD,
-	MAX(CASE WHEN cur_unit = 'MYR' THEN deal_bas_r  END) AS MYR,
-	MAX(CASE WHEN cur_unit = 'NOK' THEN deal_bas_r  END) AS NOK,
-	MAX(CASE WHEN cur_unit = 'NZD' THEN deal_bas_r  END) AS NZD,
-	MAX(CASE WHEN cur_unit = 'SAR' THEN deal_bas_r  END) AS SAR,
-	MAX(CASE WHEN cur_unit = 'SEK' THEN deal_bas_r  END) AS SEK,
-	MAX(CASE WHEN cur_unit = 'SGD' THEN deal_bas_r  END) AS SGD,
-	MAX(CASE WHEN cur_unit = 'THB' THEN deal_bas_r  END) AS THB
-FROM 
-	currency_rate
-WHERE 
-	date >= '2019-01-01'
-GROUP BY 
-	date
-ORDER BY 
-	date;
-'''
-
-try:
-    with connection.cursor() as cursor:
-
-        # 쿼리 실행
-        cursor.execute(sql_query)
-        
-        # 결과를 pandas DataFrame으로 저장
-        data = pd.DataFrame(cursor.fetchall(), columns=[desc[0] for desc in cursor.description])
-finally:
-    # 연결 종료
-    connection.close()
-
-
-
 # 데이터 정규화
 def normalize_mult(data):
     normalize = np.zeros((data.shape[1], 2), dtype='float64')
@@ -135,7 +76,7 @@ def predict_future(model, last_data, time_steps, normalize, future_days=100):
 
 # 메인 함수
 def run_prediction_and_upload():
-    MODEL_PATH = './dags/package/model.keras'
+    MODEL_PATH = './dags/package/model.h5'
     TIME_STEPS = 100
     FUTURE_DAYS = 100
     base_currency = 'KRW'
