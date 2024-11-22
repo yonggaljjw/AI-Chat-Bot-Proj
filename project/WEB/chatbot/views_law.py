@@ -34,10 +34,10 @@ def korean_law_view():
         ],
         "query": {
             "bool": {
-                # "must": [
-                #     {"range": {"start_date": {"lte": current_time}}},  # start_date <= 현재 시간
-                #     {"range": {"end_date": {"gte": current_time}}}  # end_date >= 현재 시간
-                # ]
+                "must": [
+                    {"range": {"start_date": {"lte": current_time}}},  # start_date <= 현재 시간
+                    {"range": {"end_date": {"gte": current_time}}}  # end_date >= 현재 시간
+                ]
             }
         }
     }
