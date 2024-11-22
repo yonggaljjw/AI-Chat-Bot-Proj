@@ -3,7 +3,6 @@ import pandas as pd
 import geopandas as gpd
 import plotly.graph_objects as go
 from plotly.io import to_html
-from deep_translator import GoogleTranslator
 import plotly.express as px
 from django.conf import settings
 from sqlalchemy import create_engine
@@ -110,14 +109,13 @@ def tour_servey():
             'x': 1.3,
             'y': 1.2
         }],
-        width=400,
-        height=300,
-        margin=dict(  # 마진 추가
-            t=30,  # top margin
-            b=30,  # bottom margisn
-            l=30,  # left margin
-            r=30   # right margin
-        )
+        autosize=True,
+        # margin=dict(  # 마진 추가
+        #     t=30,  # top margin
+        #     b=30,  # bottom margisn
+        #     l=30,  # left margin
+        #     r=30   # right margin
+        # )
     )
 
     return to_html(fig, full_html=False)
