@@ -1,6 +1,6 @@
 import pandas as pd
 import plotly.express as px
-from plotly.io import to_html
+from plotly.io import to_json
 from sqlalchemy import create_engine
 from django.conf import settings
 
@@ -56,7 +56,7 @@ def travel_trend_line():
 
     # travel_trend 데이터에서 top 10 나라에 해당하는 데이터 필터링
     filtered_travel_trend_top_10 = travel_trend[travel_trend['country'].isin(top_10_trend_cv_from_top_30['country'])]
-
+    
     # Plotly로 라인 그래프 그리기
     fig = px.line(
         filtered_travel_trend_top_10,
@@ -67,7 +67,7 @@ def travel_trend_line():
         title="변동성이 큰 여행 관심 TOP 10 국가 (30개국 중)",
         labels={"date": "Date", "ratio": "Ratio", "country": "Country"}
     )
+    
+    fig.update_layout(autosize=True)
 
-    # 그래프 출력
-    # fig.show()
-    return to_html(fig, full_html=False) 
+    return to_json(fig) 

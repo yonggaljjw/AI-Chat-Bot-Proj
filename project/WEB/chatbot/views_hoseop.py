@@ -1,11 +1,10 @@
 # Create your views here.
 from django.shortcuts import render
 import plotly.graph_objs as go
-from plotly.io import to_html
+from plotly.io import to_json
 import pandas as pd
 from django.conf import settings  # settings.py의 경로 설정 사용
 from sqlalchemy import create_engine
-import pymysql
 
 
 def load_csv_data():
@@ -61,11 +60,10 @@ def top10_level_view():
         yaxis=dict(title="Average Spending"),  # y축 제목
         legend=dict(title="Membership Level"),  # 범례 제목
         template="plotly_white",  # 그래프 스타일
-        margin=dict(l=50, r=50, t=50, b=100),  # 여백 설정
     )
 
     # 그래프를 HTML로 변환
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def lifestage_distribution_view():
 
@@ -96,11 +94,10 @@ def lifestage_distribution_view():
         yaxis=dict(title="Count"),  # y축 제목 설정
         legend=dict(title="Life Stage"),  # 범례 제목 설정
         template="plotly_white",  # 그래프 스타일
-        margin=dict(l=50, r=50, t=50, b=100),  # 여백 설정
     )
 
     # 그래프를 HTML로 변환
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def age_and_life_stage_distribution_view():
 
@@ -131,7 +128,6 @@ def age_and_life_stage_distribution_view():
         yaxis=dict(title="Count"),  # y축 제목 설정
         legend=dict(title="Age Group", x=1.05),  # 범례 제목 및 위치 설정
         template="plotly_white",  # 그래프 스타일
-        margin=dict(l=50, r=150, t=50, b=100),  # 여백 설정
     )
 
     # 거주 지역별 라이프 스테이지 분포 카운트
@@ -159,11 +155,10 @@ def age_and_life_stage_distribution_view():
         yaxis=dict(title="Count"),  # y축 제목 설정
         legend=dict(title="Life Stage", x=1.05),  # 범례 제목 및 위치 설정
         template="plotly_white",  # 그래프 스타일
-        margin=dict(l=50, r=150, t=50, b=100),  # 여백 설정
     )
 
     # 두 개의 그래프를 HTML로 변환 및 리턴
-    return to_html(fig_age, full_html=False), to_html(fig_life_stage, full_html=False)
+    return to_json(fig_age, full_json=False), to_json(fig_life_stage, full_json=False)
 
 def gender_expense_distribution_view():
     
@@ -208,7 +203,7 @@ def gender_expense_distribution_view():
         template="plotly_white"
     )
 
-    return to_html(fig_male, full_html=False), to_html(fig_female, full_html=False)
+    return to_json(fig_male, full_json=False), to_json(fig_female, full_json=False)
 
 def gender_view():
     # 전체, 남성, 여성의 소비 카테고리 합계를 각각 계산
@@ -262,10 +257,11 @@ def gender_view():
                 y=1.5,
                 showactive=True,
                 buttons=list([
-                    dict(label="전체",
-                         method="update",
-                         args=[{"visible": [True, False, False]}],
-                         ),
+                    dict(
+                        label="전체",
+                        method="update",
+                        args=[{"visible": [True, False, False]}],
+                        ),
                     dict(label="남성",
                          method="update",
                          args=[{"visible": [False, True, False]}],
@@ -283,17 +279,10 @@ def gender_view():
     fig.update_layout(
         showlegend=True,
         template="plotly_white",
-        height=400,
-        legend=dict(
-        x=0.7,        # 범례의 x 위치를 오른쪽으로
-        y=0.5,        # 범례의 y 위치를 중앙으로
-        xanchor='left',  # 범례의 정렬 기준점을 왼쪽으로
-        yanchor='middle', # 범례의 수직 정렬을 중앙으로
-        orientation='h'  # 범례를 수직으로 배열
-    )
+        autosize=True
     )
 
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def age_payment_distribution_view():
 
@@ -331,11 +320,10 @@ def age_payment_distribution_view():
         yaxis=dict(title='이용 금액 (단위: 원)'),
         legend=dict(title='결제 방식'),
         template='plotly_white',  # 배경 스타일 설정
-        margin=dict(l=50, r=150, t=50, b=100)
     )
 
     # 그래프를 HTML로 변환 후 리턴
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def age_category_top5_view():
 
@@ -390,4 +378,4 @@ def age_category_top5_view():
     )
 
     # 그래프를 HTML로 변환 후 리턴
-    return to_html(fig, full_html=False)
+    return to_json(fig)

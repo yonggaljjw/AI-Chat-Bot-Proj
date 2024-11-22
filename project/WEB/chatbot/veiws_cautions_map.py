@@ -1,9 +1,8 @@
 import pandas as pd
 import plotly.express as px
-from plotly.io import to_html
+from plotly.io import to_html,write_html
 from sqlalchemy import create_engine
 import pycountry
-from deep_translator import GoogleTranslator
 from django.conf import settings
 import requests
 from bs4 import BeautifulSoup
@@ -91,16 +90,13 @@ def visualize_travel_advice():
         print("경고: 시각화할 데이터가 없습니다.")
         return None
 
-    fig = px.choropleth(df, 
+    fig = px.choropleth(df,
                         locations='ISO_Alpha_3',
                         color='Risk_level',
                         hover_name='Country',
                         color_continuous_scale="Emrld")
 
-    fig.update_geos(projection_type="natural earth")
-    fig.update_layout(width=700, margin={"r":0, "t":0, "l":0, "b":0})
-    fig.update_geos(showcountries=True, countrycolor="Gray")
-    fig.update_layout(coloraxis_showscale=False, autosize=True)
+    fig.update_geos(projection_type="natural earth", showcountries=True, countrycolor="Gray")
+    fig.update_layout(coloraxis_showscale=False, autosize=True, width=1000)
 
-    # 결과 출력
-    return to_html(fig, full_html=False)
+    return to_html(fig)

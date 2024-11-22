@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Prototype</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -152,68 +153,84 @@
         </div>
 
         <!-- Main Content -->
-        <div class="ml-16 flex-1 p-2">
+        <div class="ml-16 flex-1">
             <!-- Dashboard Content One -->
             <div id="dashboard-content-one" class="p-3 grid grid-cols-8 gap-4">
                 <!-- 첫 번째 줄 -->
-                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg overflow-hidden">
+                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold mb-2">카드사별 총 사용금액</h3>
-                    <div class="flex justify-center items-center h-[calc(100%-2rem)]">
-                        {{ card_total_sales_ladar_html | safe }}
+                    <div class="flex justify-center items-center" id="card_total_sales_ladar_json">
+                        <script>
+                            const card_total_sales_ladar = {{ card_total_sales_ladar_json | safe }};
+                            Plotly.newPlot('card_total_sales_ladar_json', card_total_sales_ladar.data, card_total_sales_ladar.layout);
+                        </script>
                     </div>
                 </div>
-                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg overflow-hidden">
+                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold">우리카드 실제 현황</h3>
-                    <div class="flex justify-center items-center h-[calc(100%-2rem)]">
-                        {{ wooricard_sales_treemap_html | safe }}
+                    <div class="flex justify-center items-center" id="wooricard_sales_treemap_json">
+                        <script>
+                            const wooricard_sales_treemap = {{ wooricard_sales_treemap_json | safe }};
+                            Plotly.newPlot('wooricard_sales_treemap_json', wooricard_sales_treemap.data, wooricard_sales_treemap.layout);
+                        </script>
                     </div>
                 </div>
-                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg overflow-hidden">
+                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold">소비 카테고리 현황</h3>
-                    <div class="flex justify-center items-center h-[calc(100%-2rem)]">
-                        {{ gender_html | safe }}
+                    <div class="flex justify-center items-center" id="gender_json">
+                        <script>
+                            const gender = {{ gender_json | safe }};
+                            Plotly.newPlot('gender_json', gender.data, gender.layout);
+                        </script>
                     </div>
                 </div>
                 <!-- 카드사별 세부구성 비교는 row-span-6 유지 -->
                 <div class="col-span-2 row-span-4 bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold">카드사별 세부구성 비교</h3>
-                    <div class="flex justify-center items-center h-[calc(100%-2rem)]">
-                        {{ create_card_heatmap_html | safe }}                    
+                    <div class="flex justify-center items-center" id="create_card_heatmap_json">
+                        <script>
+                            const create_card_heatmap = {{ create_card_heatmap_json | safe }};
+                            Plotly.newPlot('create_card_heatmap_json', create_card_heatmap.data, create_card_heatmap.layout);
+                        </script>
                     </div>
                 </div>
 
                 <!-- 두 번째 줄 -->
                 <div class="col-span-3 row-span-2 bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold">트래블 카드 지도</h3>
-                    <div class="flex justify-center items-center h-[calc(100%-2rem)] overflow-hidden">
+                    <div class="flex justify-center items-center overflow-hidden">
                         {{ visualize_travel_advice_html | safe }}
                     </div>
                 </div>
                 <div class="col-span-3 row-span-2 bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold">네이버 여행지역 트렌드</h3>
-                    <div class="flex justify-center items-center h-[calc(100%-2rem)]">
-                        <img class="object-contain max-h-full w-auto"
-                            src="https://cfa.org/wp-content/uploads/2024/06/2022-g-CiciCatYoucaiLin-1024x768.webp"
-                            alt="샘플">
+                    <div class="flex justify-center items-center" id="travel_trend_line_json">
+                        <script>
+                            const travel_trend_line = {{ travel_trend_line_json | safe }};
+                            Plotly.newPlot('travel_trend_line_json', travel_trend_line.data, travel_trend_line.layout);
+                        </script>
                     </div>
                 </div>
 
                 <!-- 세 번째 줄 -->
                 <div class="col-span-3 row-span-2 bg-white shadow-md p-3 rounded-lg overflow-hidden">
                     <h3 class="text-lg font-semibold">여행 설문조사</h3>
-                    <div class="flex justify-center items-center h-[calc(100%-2rem)]">
-                        {{ tour_servey_html | safe }}
+                    <div class="flex justify-center items-center" id="tour_servey_json">
+                        <script>
+                            const tour_servey = {{ tour_servey_json | safe }};
+                            Plotly.newPlot('tour_servey_json', tour_servey.data, tour_servey.layout);
+                        </script>
                     </div>
                 </div>
-                <div class="col-span-3 row-span-2 bg-white shadow-md p-3 rounded-lg">
+                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold">환율 데이터</h3>
-                    <div class="flex justify-center items-center h-[calc(100%-2rem)]">
+                    <div class="flex justify-center items-center">
                         <img class="object-contain max-h-full w-auto"
                             src="https://i.cbc.ca/1.5359228.1577206958!/fileImage/httpImage/image.jpg_gen/derivatives/16x9_940/smudge-the-viral-cat.jpg"
                             alt="샘플">
                     </div>
                 </div>
-                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg h-[600px]">
+                <div class="col-span-3 row-span-2 bg-white shadow-md p-3 rounded-lg h-[600px]">
                     <h3 class="text-lg font-semibold mb-2">법률 정보</h3>
                     <div class="h-[calc(100%-2.5rem)] overflow-y-auto">
                         {% for law in korean_law_html %}
@@ -227,6 +244,7 @@
                 </div>
             </div>
         </div>
+    </div>
 </body>
 
 </html>
@@ -290,10 +308,10 @@
             messageDiv.classList.add('flex', isUser ? 'justify-end' : 'justify-start');
 
             messageDiv.innerHTML = `
-                <div class="max-w-[70%] rounded-lg p-3 ${isUser ? 'bg-blue-500 text-white' : 'bg-gray-100'}">
-                    ${message}
-                </div>
-            `;
+                    <div class="max-w-[70%] rounded-lg p-3 ${isUser ? 'bg-blue-500 text-white' : 'bg-gray-100'}">
+                        ${message}
+                    </div>
+                `;
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
