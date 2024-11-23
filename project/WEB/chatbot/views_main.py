@@ -5,6 +5,7 @@ from .views_law import *
 from .veiws_cautions_map import *
 from .views_tour import *
 from .views_travel_trend import *
+from django.views.decorators.cache import cache_page
 
 
 def dashboard_view(request):
@@ -53,6 +54,8 @@ def dashboard_view(request):
         })
 
 
+# 캐시 데코레이터 추가 (60*60*24 = 24시간)
+@cache_page(60 * 60)  
 def dashboard_view_practice(request):
     # 카드 소비 카테고리 - 호섭
     gender_json = gender_view()
