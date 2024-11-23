@@ -1,13 +1,22 @@
 # Create your views here.
 from django.shortcuts import render
 import plotly.graph_objs as go
-from plotly.io import to_json
+from plotly.io import to_html
 import pandas as pd
-from chatbot.sql import engine
+from django.conf import settings  # settings.py의 경로 설정 사용
+from sqlalchemy import create_engine
+import pymysql
 
 
-def load_csv_data():
+def load_wooricard_data():
     try:
+        # MySQL 연결 문자열 생성
+        db_settings = settings.DATABASES['default']
+        connection_string = f"mysql+pymysql://{db_settings['USER']}:{db_settings['PASSWORD']}@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
+        
+        # SQLAlchemy 엔진 생성
+        engine = create_engine(connection_string)
+        
         # MySQL 테이블을 DataFrame으로 읽어오기
         query = "SELECT * FROM edu_data_f_cleaned"
         data = pd.read_sql(query, engine)
@@ -18,7 +27,26 @@ def load_csv_data():
         print(f"데이터베이스에서 데이터를 불러오는 중 오류 발생: {str(e)}")
         return pd.DataFrame()  # 오류 발생 시 빈 DataFrame 반환
 
-data = load_csv_data()
+data = load_wooricard_data()
+
+def load_cpi_card_data():
+    try:
+        # MySQL 연결 문자열 생성
+        db_settings = settings.DATABASES['default']
+        connection_string = f"mysql+pymysql://{db_settings['USER']}:{db_settings['PASSWORD']}@{db_settings['HOST']}:{db_settings['PORT']}/{db_settings['NAME']}"
+        
+        # SQLAlchemy 엔진 생성
+        engine = create_engine(connection_string)
+        
+        # MySQL 테이블을 DataFrame으로 읽어오기
+        query = "SELECT * FROM cpi_card_data"
+        data = pd.read_sql(query, engine)
+        
+        return data
+        
+    except Exception as e:
+        print(f"데이터베이스에서 데이터를 불러오는 중 오류 발생: {str(e)}")
+        return pd.DataFrame()  # 오류 발생 시 빈 DataFrame 반환
 
 def top10_level_view():
     
@@ -52,10 +80,11 @@ def top10_level_view():
         yaxis=dict(title="Average Spending"),  # y축 제목
         legend=dict(title="Membership Level"),  # 범례 제목
         template="plotly_white",  # 그래프 스타일
+        margin=dict(l=50, r=50, t=50, b=100),  # 여백 설정
     )
 
     # 그래프를 HTML로 변환
-    return to_json(fig)
+    return to_html(fig, full_html=False)
 
 def lifestage_distribution_view():
 
@@ -86,10 +115,11 @@ def lifestage_distribution_view():
         yaxis=dict(title="Count"),  # y축 제목 설정
         legend=dict(title="Life Stage"),  # 범례 제목 설정
         template="plotly_white",  # 그래프 스타일
+        margin=dict(l=50, r=50, t=50, b=100),  # 여백 설정
     )
 
     # 그래프를 HTML로 변환
-    return to_json(fig)
+    return to_html(fig, full_html=False)
 
 def age_and_life_stage_distribution_view():
 
@@ -120,6 +150,7 @@ def age_and_life_stage_distribution_view():
         yaxis=dict(title="Count"),  # y축 제목 설정
         legend=dict(title="Age Group", x=1.05),  # 범례 제목 및 위치 설정
         template="plotly_white",  # 그래프 스타일
+        margin=dict(l=50, r=150, t=50, b=100),  # 여백 설정
     )
 
     # 거주 지역별 라이프 스테이지 분포 카운트
@@ -147,10 +178,11 @@ def age_and_life_stage_distribution_view():
         yaxis=dict(title="Count"),  # y축 제목 설정
         legend=dict(title="Life Stage", x=1.05),  # 범례 제목 및 위치 설정
         template="plotly_white",  # 그래프 스타일
+        margin=dict(l=50, r=150, t=50, b=100),  # 여백 설정
     )
 
     # 두 개의 그래프를 HTML로 변환 및 리턴
-    return to_json(fig_age, full_json=False), to_json(fig_life_stage, full_json=False)
+    return to_html(fig_age, full_html=False), to_html(fig_life_stage, full_html=False)
 
 def gender_expense_distribution_view():
     
@@ -195,7 +227,7 @@ def gender_expense_distribution_view():
         template="plotly_white"
     )
 
-    return to_json(fig_male, full_json=False), to_json(fig_female, full_json=False)
+    return to_html(fig_male, full_html=False), to_html(fig_female, full_html=False)
 
 def gender_view():
     # 전체, 남성, 여성의 소비 카테고리 합계를 각각 계산
@@ -249,11 +281,10 @@ def gender_view():
                 y=1.5,
                 showactive=True,
                 buttons=list([
-                    dict(
-                        label="전체",
-                        method="update",
-                        args=[{"visible": [True, False, False]}],
-                        ),
+                    dict(label="전체",
+                         method="update",
+                         args=[{"visible": [True, False, False]}],
+                         ),
                     dict(label="남성",
                          method="update",
                          args=[{"visible": [False, True, False]}],
@@ -271,10 +302,17 @@ def gender_view():
     fig.update_layout(
         showlegend=True,
         template="plotly_white",
-        autosize=True
+        height=400,
+        legend=dict(
+        x=0.7,        # 범례의 x 위치를 오른쪽으로
+        y=0.5,        # 범례의 y 위치를 중앙으로
+        xanchor='left',  # 범례의 정렬 기준점을 왼쪽으로
+        yanchor='middle', # 범례의 수직 정렬을 중앙으로
+        orientation='h'  # 범례를 수직으로 배열
+    )
     )
 
-    return to_json(fig)
+    return to_html(fig, full_html=False)
 
 def age_payment_distribution_view():
 
@@ -312,10 +350,11 @@ def age_payment_distribution_view():
         yaxis=dict(title='이용 금액 (단위: 원)'),
         legend=dict(title='결제 방식'),
         template='plotly_white',  # 배경 스타일 설정
+        margin=dict(l=50, r=150, t=50, b=100)
     )
 
     # 그래프를 HTML로 변환 후 리턴
-    return to_json(fig)
+    return to_html(fig, full_html=False)
 
 def age_category_top5_view():
 
@@ -370,4 +409,133 @@ def age_category_top5_view():
     )
 
     # 그래프를 HTML로 변환 후 리턴
-    return to_json(fig)
+    return to_html(fig, full_html=False)
+
+def cpi_card_predict_view():
+    """
+    드롭다운으로 카테고리를 선택하여 PCE 및 CPI 데이터를 시각화하는 Plotly 그래프 생성 함수.
+    오른쪽 y축에 CPI 값을 표시하고, 신뢰구간 내부를 옅은 색으로 채웁니다.
+    """
+
+    data = load_cpi_card_data()
+
+    try:
+        # 카테고리 정의
+        categories = [
+            '합계', '식료품', '의류/잡화', '연료', '가구/가전', '의료/보건', '여행/교통',
+            '오락/문화', '교육', '숙박/음식', '공과금/개인 및 전문 서비스'
+        ]
+
+        # 기본 그래프 객체 생성
+        fig = go.Figure()
+
+        # 드롭다운 버튼 데이터 생성
+        buttons = []
+        for i, category in enumerate(categories):
+            # 컬럼명 설정
+            pce_pred = f"{category}_PCE_pred"
+            pce_lower = f"{category}_PCE_lower"
+            pce_upper = f"{category}_PCE_upper"
+            cpi_pred = f"{category}_CPI_pred"
+            cpi_lower = f"{category}_CPI_lower"
+            cpi_upper = f"{category}_CPI_upper"
+
+            # PCE 신뢰구간 및 예측값 trace 추가
+            fig.add_trace(go.Scatter(
+                x=data['TIME'], y=data[pce_upper],
+                mode='lines',
+                line=dict(width=0),
+                showlegend=False,
+                hoverinfo='skip',
+                visible=(i == 0)  # 첫 번째 카테고리만 표시
+            ))
+            fig.add_trace(go.Scatter(
+                x=data['TIME'], y=data[pce_lower],
+                mode='lines',
+                fill='tonexty',
+                fillcolor='rgba(0, 0, 255, 0.2)',  # 옅은 파란색
+                line=dict(width=0),
+                showlegend=False,
+                hoverinfo='skip',
+                visible=(i == 0)
+            ))
+            fig.add_trace(go.Scatter(
+                x=data['TIME'], y=data[pce_pred],
+                mode='lines',
+                name=f"{category} PCE",
+                line=dict(color='blue'),
+                visible=(i == 0)
+            ))
+
+            # CPI 신뢰구간 및 예측값 trace 추가
+            fig.add_trace(go.Scatter(
+                x=data['TIME'], y=data[cpi_upper],
+                mode='lines',
+                line=dict(width=0),
+                showlegend=False,
+                hoverinfo='skip',
+                visible=(i == 0),
+                yaxis="y2"  # 오른쪽 y축 사용
+            ))
+            fig.add_trace(go.Scatter(
+                x=data['TIME'], y=data[cpi_lower],
+                mode='lines',
+                fill='tonexty',
+                fillcolor='rgba(255, 165, 0, 0.2)',  # 옅은 주황색
+                line=dict(width=0),
+                showlegend=False,
+                hoverinfo='skip',
+                visible=(i == 0),
+                yaxis="y2"  # 오른쪽 y축 사용
+            ))
+            fig.add_trace(go.Scatter(
+                x=data['TIME'], y=data[cpi_pred],
+                mode='lines',
+                name=f"{category} CPI",
+                line=dict(color='orange'),
+                visible=(i == 0),
+                yaxis="y2"  # 오른쪽 y축 사용
+            ))
+
+            # 버튼 생성
+            visibility = [False] * len(categories) * 6  # 총 trace 수
+            for j in range(i * 6, (i + 1) * 6):
+                visibility[j] = True  # 해당 카테고리 trace만 활성화
+            buttons.append(dict(
+                label=category,
+                method="update",
+                args=[{"visible": visibility}, {"title": f"{category} PCE 및 CPI 예측 시계열 데이터"}]
+            ))
+
+        # 레이아웃 설정
+        fig.update_layout(
+            title=f"{categories[0]} PCE 및 CPI 예측 시계열 데이터",
+            xaxis=dict(title="시간"),
+            yaxis=dict(title="PCE 지출", titlefont=dict(color="blue"), tickfont=dict(color="blue")),
+            yaxis2=dict(
+                title="CPI 지수",
+                titlefont=dict(color="orange"),
+                tickfont=dict(color="orange"),
+                overlaying="y",
+                side="right"
+            ),
+            updatemenus=[{
+                "buttons": buttons,
+                "direction": "down",
+                "showactive": True,
+                "x": 1.15,
+                "y": 1.15,
+            }],
+            legend=dict(x=0.5, y=1.2, orientation="h"),
+            template="plotly_white",
+            autosize=False,
+            width=700,  # 가로 크기 조정
+            height=500,  # 세로 크기 조정
+        )
+
+        # HTML로 변환
+        return to_html(fig, full_html=False)
+    
+    except Exception as e:
+        print(f"그래프 생성 중 오류 발생: {e}")
+        return None
