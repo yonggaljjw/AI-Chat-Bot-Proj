@@ -84,8 +84,8 @@ def dashboard_view_practice(request):
 def dashboard_view_practice2(request):
 
     '''거시경제 대시보드 차트 구현 시각화 함수 넣어주세요'''
-    cpi_card_predict_html = cpi_card_predict_view()
+    cpi_card_predict_json = cpi_card_predict_view()
     # 템플릿에 전달
     return render(request, "tmp_origin.html", {
-        "cpi_card_predict_html" : cpi_card_predict_html
+        "cpi_card_predict_json" : cpi_card_predict_json
     })

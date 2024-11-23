@@ -230,6 +230,7 @@ def gender_expense_distribution_view():
     return to_html(fig_male, full_html=False), to_html(fig_female, full_html=False)
 
 def gender_view():
+
     # 전체, 남성, 여성의 소비 카테고리 합계를 각각 계산
     total_expense = data.loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
     male_expense = data[data['성별'] == '남자'].loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
@@ -529,12 +530,12 @@ def cpi_card_predict_view():
             legend=dict(x=0.5, y=1.2, orientation="h"),
             template="plotly_white",
             autosize=False,
-            width=700,  # 가로 크기 조정
-            height=500,  # 세로 크기 조정
+            width=500,  # 가로 크기 조정
+            height=400,  # 세로 크기 조정
         )
 
         # HTML로 변환
-        return to_html(fig, full_html=False)
+        return to_json(fig)
     
     except Exception as e:
         print(f"그래프 생성 중 오류 발생: {e}")
