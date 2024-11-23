@@ -47,200 +47,195 @@
 </head>
 
 <body class="bg-gray-100">
-    <div class="flex">
-        <!-- Sidebar -->
-        <div class="w-16 bg-white shadow-md h-screen p-4 fixed top-0 left-0 flex flex-col gap-4">
+    <!-- Sidebar -->
+    <div class="fixed top-0 left-0 w-24 h-screen bg-white shadow-md flex flex-col p-4">
+        <div class="flex flex-col gap-4">
             <!-- Icon-1 -->
-            <button class="p-1 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors bg-gray-300"
+            <button
+                class="p-3 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
                 data-page="dashboard-one">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 16 16">
                     <path
                         d="M11 2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v12h.5a.5.5 0 0 1 0 1H.5a.5.5 0 0 1 0-1H1v-3a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v3h1V7a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v7h1zm1 12h2V2h-2zm-3 0V7H7v7zm-5 0v-3H2v3z" />
                 </svg>
             </button>
 
             <!-- Icon-2 -->
-            <button class="p-1 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors" id="Icon-2"
+            <button
+                class="p-3 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
                 data-page="dashboard-two">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 16 16">
                     <path
                         d="M.5 0a.5.5 0 0 1 .5.5v15a.5.5 0 0 1-1 0V.5A.5.5 0 0 1 .5 0M2 1.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5z" />
                 </svg>
             </button>
 
             <!-- Icon-3 -->
-            <button class="p-1 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors"
+            <button
+                class="p-3 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
                 data-page="dashboard-three">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 16 16">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 16 16">
                     <path fill-rule="evenodd"
                         d="M0 .5A.5.5 0 0 1 .5 0h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 0 .5m0 2A.5.5 0 0 1 .5 2h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m9 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-9 2A.5.5 0 0 1 .5 4h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m5 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-12 2A.5.5 0 0 1 .5 6h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-8 2A.5.5 0 0 1 .5 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-7 2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5" />
                 </svg>
             </button>
 
             <!-- Icon-4 -->
-            <button class="p-1 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors" data-page="dashboard-four">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 16 16">
+            <button
+                class="p-3 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                data-page="dashboard-four">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 16 16">
                     <path fill-rule="evenodd"
                         d="M0 0h1v15h15v1H0zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07" />
                 </svg>
             </button>
 
             <!-- Icon-5 -->
-            <button class="p-1 text-gray-600 hover:bg-gray-300 rounded-lg transition-colors" data-page="dashboard-five">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="currentColor" viewBox="0 0 16 16">
+            <button
+                class="p-3 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                data-page="dashboard-five">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 16 16">
                     <path
                         d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v4h10V2a1 1 0 0 0-1-1zm9 6H6v2h7zm0 3H6v2h7zm0 3H6v2h6a1 1 0 0 0 1-1zm-8 2v-2H3v1a1 1 0 0 0 1 1zm-2-3h2v-2H3zm0-3h2V7H3z" />
                 </svg>
             </button>
+        </div>
 
-            <!-- Chat Bot Icon -->
-            <div id="chat-icon" class="mt-auto">
-                <button class="p-1 bg-gray-700 text-gray-300 hover:bg-gray-900 rounded-lg transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="w-6 h-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+        <!-- Chat Bot Icon -->
+        <div id="chat-icon" class="mt-auto">
+            <button
+                class="p-3 bg-gray-700 text-gray-300 hover:bg-gray-900 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+    <!-- End of Sidebar -->
+
+    <!-- Chat Window -->
+    <div class="offcanvas" tabindex="-1">
+        <div id="chat-window"
+            class="fixed bottom-4 left-24 w-[40rem] h-[40rem] bg-white rounded-lg shadow-xl hidden flex flex-col">
+            <!-- 채팅창 헤더 -->
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 class="text-lg font-semibold">WOODAERI</h3>
+                <button id="close-chat" class="text-gray-500 hover:text-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
                     </svg>
                 </button>
             </div>
-        </div>
-        <!-- End of Sidebar -->
 
-        <!-- Chat Window -->
-        <div class="offcanvas" tabindex="-1">
-            <div id="chat-window"
-                class="fixed bottom-4 left-16 w-[600px] h-[600px] bg-white rounded-lg shadow-xl hidden flex flex-col">
-                <!-- 채팅창 헤더 -->
-                <div class="flex justify-between items-center p-4 border-b">
-                    <h3 class="text-lg font-semibold">WOODAERI</h3>
-                    <button id="close-chat" class="text-gray-500 hover:text-gray-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </button>
+            <!-- 채팅 메시지 영역 -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
+                <!-- 메시지들이 여기에 추가됨 -->
+            </div>
+
+            <!-- 입력 영역 (토글 + 입력창) -->
+            <div class="border-t p-2">
+                <!-- 토글 스위치 -->
+                <div class="flex items-center mb-2">
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="power-mode-toggle" class="sr-only peer">
+                        <div
+                            class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500">
+                        </div>
+                        <span class="ml-2 text-sm text-gray-600">POWER 모드</span>
+                    </label>
                 </div>
 
-                <!-- 채팅 메시지 영역 -->
-                <div id="chat-messages" class="flex-1 overflow-y-auto p-4 space-y-4">
-                    <!-- 메시지들이 여기에 추가됨 -->
-                </div>
-
-                <!-- 입력 영역 (토글 + 입력창) -->
-                <div class="border-t p-2">
-                    <!-- 토글 스위치 -->
-                    <div class="flex items-center mb-2">
-                        <label class="relative inline-flex items-center cursor-pointer">
-                            <input type="checkbox" id="power-mode-toggle" class="sr-only peer">
-                            <div
-                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-500">
-                            </div>
-                            <span class="ml-2 text-sm text-gray-600">POWER 모드</span>
-                        </label>
-                    </div>
-
-                    <!-- 입력창 -->
-                    <form id="chat-form" class="flex gap-2">
-                        {% csrf_token %}
-                        <input type="text" id="message-input" class="flex-1 rounded-lg border p-2"
-                            placeholder="메시지를 입력하세요...">
-                        <button type="submit"
-                            class="bg-blue-500 text-white px-4 rounded-lg hover:bg-blue-600">전송</button>
-                    </form>
-                </div>
+                <!-- 입력창 -->
+                <form id="chat-form" class="flex gap-2">
+                    {% csrf_token %}
+                    <input type="text" id="message-input" class="flex-1 rounded-lg border p-2"
+                        placeholder="메시지를 입력하세요...">
+                    <button type="submit" class="bg-blue-500 text-white px-4 rounded-lg hover:bg-blue-600">전송</button>
+                </form>
             </div>
         </div>
+    </div>
 
-        <!-- Main Content -->
-        <div class="ml-16 flex-1">
-            <!-- Dashboard Content One -->
-            <div id="dashboard-content-one" class="p-3 grid grid-cols-8 gap-4">
-                <!-- 첫 번째 줄 -->
-                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-2">카드사별 총 사용금액</h3>
-                    <div class="flex justify-center items-center" id="card_total_sales_ladar_json">
-                        <script>
-                            const card_total_sales_ladar = {{ card_total_sales_ladar_json | safe }};
-                            Plotly.newPlot('card_total_sales_ladar_json', card_total_sales_ladar.data, card_total_sales_ladar.layout);
-                        </script>
-                    </div>
+    <!-- Main Content -->
+    <div class="flex-1 ml-24">
+        <!-- Dashboard Content One -->
+        <div id="dashboard-content-one" class="grid grid-cols-12 p-3 gap-4">
+            <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">카드사별 총 사용금액</h3>
+                <div id="card_total_sales_ladar_json">
+                    <script>
+                        Plotly.newPlot('card_total_sales_ladar_json', JSON.parse('{{ card_total_sales_ladar_json | escapejs }}'), { responsive: true })
+                    </script>
                 </div>
-                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">우리카드 실제 현황</h3>
-                    <div class="flex justify-center items-center" id="wooricard_sales_treemap_json">
-                        <script>
-                            const wooricard_sales_treemap = {{ wooricard_sales_treemap_json | safe }};
-                            Plotly.newPlot('wooricard_sales_treemap_json', wooricard_sales_treemap.data, wooricard_sales_treemap.layout);
-                        </script>
-                    </div>
+            </div>
+            <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">우리카드 실제 현황</h3>
+                <div id="wooricard_sales_treemap_json">
+                    <script>
+                        Plotly.newPlot('wooricard_sales_treemap_json', JSON.parse('{{ wooricard_sales_treemap_json | escapejs }}'), { responsive: true })
+                    </script>
                 </div>
-                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">소비 카테고리 현황</h3>
-                    <div class="flex justify-center items-center" id="gender_json">
-                        <script>
-                            const gender = {{ gender_json | safe }};
-                            Plotly.newPlot('gender_json', gender.data, gender.layout);
-                        </script>
-                    </div>
+            </div>
+            <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold">소비 카테고리 현황</h3>
+                <div id="gender_json">
+                    <script>
+                        Plotly.newPlot('gender_json', JSON.parse('{{ gender_json | escapejs }}'), { responsive: true })
+                    </script>
                 </div>
-                <!-- 카드사별 세부구성 비교는 row-span-6 유지 -->
-                <div class="col-span-2 row-span-4 bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">카드사별 세부구성 비교</h3>
-                    <div class="flex justify-center items-center" id="create_card_heatmap_json">
-                        <script>
-                            const create_card_heatmap = {{ create_card_heatmap_json | safe }};
-                            Plotly.newPlot('create_card_heatmap_json', create_card_heatmap.data, create_card_heatmap.layout);
-                        </script>
-                    </div>
+            </div>
+            <div class="col-span-5 row-span-1 bg-white shadow-md p-3 rounded-lg overflow-hidden">
+                <h3 class="text-lg font-semibold">트래블 카드 지도</h3>
+                <div class="w-full flex justify-center items-center">
+                    {{ visualize_travel_advice_html | safe }}
                 </div>
-
-                <!-- 두 번째 줄 -->
-                <div class="col-span-3 row-span-2 bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">트래블 카드 지도</h3>
-                    <div class="flex justify-center items-center overflow-hidden">
-                        {{ visualize_travel_advice_html | safe }}
-                    </div>
+            </div>
+            <div class="col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold">네이버 여행지역 트렌드</h3>
+                <div id="travel_trend_line_json">
+                    <script>
+                        Plotly.newPlot('travel_trend_line_json', JSON.parse('{{ travel_trend_line_json | escapejs }}'), { responsive: true })
+                    </script>
                 </div>
-                <div class="col-span-3 row-span-2 bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">네이버 여행지역 트렌드</h3>
-                    <div class="flex justify-center items-center" id="travel_trend_line_json">
-                        <script>
-                            const travel_trend_line = {{ travel_trend_line_json | safe }};
-                            Plotly.newPlot('travel_trend_line_json', travel_trend_line.data, travel_trend_line.layout);
-                        </script>
-                    </div>
+            </div>
+            <div class="col-span-6 row-span-2 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold">카드사별 세부구성 비교</h3>
+                <div id="create_card_heatmap_json">
+                    <script>
+                        Plotly.newPlot('create_card_heatmap_json', JSON.parse('{{ create_card_heatmap_json | escapejs }}'), { responsive: true })
+                    </script>
                 </div>
-
-                <!-- 세 번째 줄 -->
-                <div class="col-span-3 row-span-2 bg-white shadow-md p-3 rounded-lg overflow-hidden">
-                    <h3 class="text-lg font-semibold">여행 설문조사</h3>
-                    <div class="flex justify-center items-center" id="tour_servey_json">
-                        <script>
-                            const tour_servey = {{ tour_servey_json | safe }};
-                            Plotly.newPlot('tour_servey_json', tour_servey.data, tour_servey.layout);
-                        </script>
-                    </div>
+            </div>
+            <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold">여행 설문조사</h3>
+                <div id="tour_servey_json">
+                    <script>
+                        Plotly.newPlot('tour_servey_json', JSON.parse('{{ tour_servey_json | escapejs }}'), { responsive: true })
+                    </script>
                 </div>
-                <div class="col-span-2 row-span-2 bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">환율 데이터</h3>
-                    <div class="flex justify-center items-center">
-                        <img class="object-contain max-h-full w-auto"
-                            src="https://i.cbc.ca/1.5359228.1577206958!/fileImage/httpImage/image.jpg_gen/derivatives/16x9_940/smudge-the-viral-cat.jpg"
-                            alt="샘플">
+            </div>
+            <div class="col-span-8 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">법률 정보</h3>
+                <div class="overflow-y-auto h-[20rem]">
+                    {% for law in korean_law_html %}
+                    <div class="mb-4 pb-3 border-b border-gray-200 last:border-b-0 last:mb-0">
+                        <p class="font-semibold text-gray-800 text-sm mb-1">{{ law.title }}</p>
+                        <p class="text-xs text-gray-500 mb-1">시행일: {{ law.start_date }} ~ {{ law.end_date }}</p>
+                        <p class="text-xs text-gray-600 leading-relaxed">{{ law.summary }}</p>
                     </div>
+                    {% endfor %}
                 </div>
-                <div class="col-span-3 row-span-2 bg-white shadow-md p-3 rounded-lg h-[600px]">
-                    <h3 class="text-lg font-semibold mb-2">법률 정보</h3>
-                    <div class="h-[calc(100%-2.5rem)] overflow-y-auto">
-                        {% for law in korean_law_html %}
-                        <div class="mb-4 pb-3 border-b border-gray-200 last:border-b-0 last:mb-0">
-                            <p class="font-semibold text-gray-800 text-sm mb-1">{{ law.title }}</p>
-                            <p class="text-xs text-gray-500 mb-1">시행일: {{ law.start_date }} ~ {{ law.end_date }}</p>
-                            <p class="text-xs text-gray-600 leading-relaxed">{{ law.summary }}</p>
-                        </div>
-                        {% endfor %}
-                    </div>
+            </div>
+            <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold">환율 데이터</h3>
+                <div id="g_json">
+                    <img class="object-contain max-h-full w-auto"
+                        src="https://i.cbc.ca/1.5359228.1577206958!/fileImage/httpImage/image.jpg_gen/derivatives/16x9_940/smudge-the-viral-cat.jpg"
+                        alt="샘플">
                 </div>
             </div>
         </div>
@@ -316,17 +311,7 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        // 페이지 전환 기능
-        const sidebarButtons = document.querySelectorAll('[data-page]');
-        const contents = {
-            'dashboard-one': document.getElementById('dashboard-content-one'),
-            'dashboard-two': document.getElementById('dashboard-content-two'),
-            'dashboard-three': document.getElementById('dashboard-content-three'),
-            'dashboard-four': document.getElementById('dashboard-content-four'),
-            'dashboard-five': document.getElementById('dashboard-content-five'),
-        };
-
-        // 반응형 차트 크기 조절을 위한 함수
+        // 차트 리사이즈 함수 추가
         function resizeAllCharts() {
             const charts = [
                 'card_total_sales_ladar_json',
@@ -340,13 +325,41 @@
             charts.forEach(chartId => {
                 const element = document.getElementById(chartId);
                 if (element) {
-                    Plotly.Plots.resize(element);
+                    const update = {
+                        width: element.clientWidth,
+                        height: element.clientHeight
+                    };
+                    Plotly.relayout(chartId, update);
                 }
             });
         }
 
-        // 윈도우 리사이즈 이벤트에 차트 리사이즈 함수 연결
-        window.addEventListener('resize', resizeAllCharts);
+        // 리사이즈 이벤트에 디바운스 적용
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(resizeAllCharts, 100);
+        });
+
+        // 초기 로드 시 차트 크기 조정
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(resizeAllCharts, 100);
+        });
+
+        // 페이지 전환 기능
+        const sidebarButtons = document.querySelectorAll('[data-page]');
+        const contents = {
+            'dashboard-one': document.getElementById('dashboard-content-one'),
+            'dashboard-two': document.getElementById('dashboard-content-two'),
+            'dashboard-three': document.getElementById('dashboard-content-three'),
+            'dashboard-four': document.getElementById('dashboard-content-four'),
+            'dashboard-five': document.getElementById('dashboard-content-five'),
+        };
+        // 활성화 상태 변경 시
+        sidebarButtons.forEach(btn => {
+            btn.classList.remove('bg-gray-300');
+        });
+        this.classList.add('bg-gray-300');
 
         // Mutation Observer를 사용하여 요소의 표시/숨김 상태 변화 감지
         const observer = new MutationObserver((mutations) => {
@@ -396,7 +409,7 @@
                         .then(response => response.text())
                         .then(html => {
                             // 메인 콘텐츠 영역 선택자 수정
-                            document.querySelector('.ml-16.flex-1').innerHTML = html;
+                            document.querySelector('.flex-1.ml-24').innerHTML = html;
 
                             // URL 히스토리 업데이트
                             history.pushState(null, '', url + '#' + pageId);

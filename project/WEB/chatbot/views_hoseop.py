@@ -1,11 +1,9 @@
 # Create your views here.
-from django.shortcuts import render
 import plotly.graph_objs as go
-from plotly.io import to_html
+from plotly.io import to_json
 import pandas as pd
 from django.conf import settings  # settings.py의 경로 설정 사용
 from sqlalchemy import create_engine
-import pymysql
 
 
 def load_wooricard_data():
@@ -312,7 +310,7 @@ def gender_view():
     )
     )
 
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def age_payment_distribution_view():
 
