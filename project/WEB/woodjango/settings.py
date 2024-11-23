@@ -11,8 +11,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-import sys
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 CSRF_TRUSTED_ORIGINS = ['http://localhost:8000']
 
@@ -113,10 +115,10 @@ DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
         "NAME": "team5", # mysql의 scheme랑 일치해야한다.
-        "USER": "fisaai",
-        "PASSWORD": "woorifisa3!W",
-        "HOST": "118.67.131.22",
-        "PORT": "3306",
+        "USER": os.getenv("sql_username"),
+        "PASSWORD": os.getenv("sql_password"),
+        "HOST": os.getenv("sql_host"),
+        "PORT": os.getenv("sql_port")
     },
     'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'" #  MySQL 데이터베이스의 초기 설정 명령어
