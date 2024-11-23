@@ -171,18 +171,6 @@ def create_card_heatmap_view():
         showscale=True
     )
 
-    # 레이아웃 수정
-    fig.update_layout(
-        title={
-            'text': f'{year_month} 카드사별 세부 구성 비교 (단위: 백만원)',
-            'y': 0.95,
-            'x': 0.5,
-            'xanchor': 'center',
-            'yanchor': 'top'
-        },
-        autosize=True
-    )
-
     return to_json(fig)
 
 def wooricard_sales_treemap_view():
@@ -215,7 +203,7 @@ def wooricard_sales_treemap_view():
     fig = px.treemap(df_sum,
                      path=['대분류', '카드 종류', '사용구분', '결제 방법'],
                      values='사용금액',
-                     title=f'{year_month} 우리카드 월별 매출 현황',
+                    #  title=f'{year_month} 우리카드 월별 매출 현황',
                      color='사용금액',
                      color_continuous_scale='Blues',
                      custom_data=['표시금액'])
@@ -224,10 +212,6 @@ def wooricard_sales_treemap_view():
     fig.update_traces(
         textinfo="label+text",
         hovertemplate="<b>%{label}</b><br>금액: %{customdata[0]}<extra></extra>"
-    )
-
-    fig.update_layout(
-        autosize=True
     )
 
     return to_json(fig)
