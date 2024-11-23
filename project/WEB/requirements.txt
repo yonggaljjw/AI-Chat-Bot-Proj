@@ -123,3 +123,4 @@ pymysql
 deep-translator
 geopandas
 pycountry
+cryptography
