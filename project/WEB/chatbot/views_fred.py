@@ -1,6 +1,6 @@
 from django.shortcuts import render
 import plotly.graph_objs as go
-from plotly.io import to_json
+from plotly.io import to_json, to_html
 import pandas as pd
 from chatbot.sql import engine
 
