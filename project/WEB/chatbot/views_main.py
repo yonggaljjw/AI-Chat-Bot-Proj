@@ -5,6 +5,8 @@ from .views_law import *
 from .veiws_cautions_map import *
 from .views_tour import *
 from .views_travel_trend import *
+from .views_indicator import *
+from .views_fred import *
 from django.views.decorators.cache import cache_page
 
 
@@ -85,10 +87,22 @@ def dashboard_view_practice(request):
     })
 
 def dashboard_view_practice2(request):
-
+    bankrate_indicator_html = bankrate_indicator()
+    K_GDP_indicator_html = K_GDP_indicator()
+    K_growth_indicator_html = K_growth_indicator()
+    K_USD_indicator_html = K_USD_indicator()
     '''거시경제 대시보드 차트 구현 시각화 함수 넣어주세요'''
     cpi_card_predict_html = cpi_card_predict_view()
+    
+    economic_indicators_table_html = economic_indicators_table_view()
     # 템플릿에 전달
     return render(request, "tmp_origin.html", {
-        "cpi_card_predict_html" : cpi_card_predict_html
+        "cpi_card_predict_html" : cpi_card_predict_html,
+        "bankrate_indicator_html" : bankrate_indicator_html,
+        "K_GDP_indicator_html" : K_GDP_indicator_html,
+        "K_growth_indicator_html" : K_growth_indicator_html,
+        "K_USD_indicator_html" : K_USD_indicator_html,
+        "economic_indicators_table_html" : economic_indicators_table_html
     })
+
+##
