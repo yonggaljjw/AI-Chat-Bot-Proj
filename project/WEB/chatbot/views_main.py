@@ -5,10 +5,13 @@ from .views_law import *
 from .veiws_cautions_map import *
 from .views_tour import *
 from .views_travel_trend import *
+from .views_indicator import *
+from .views_fred import *
 from django.views.decorators.cache import cache_page
 
 
 def dashboard_view(request):
+    """main.html과 연동 + /index에서 확인"""
     # 우리카드 데이터 분석 - 호섭
     top10_level_json = top10_level_view()
     lifestage_distribution_json = lifestage_distribution_view()
@@ -46,6 +49,7 @@ def dashboard_view(request):
         "consumer_trends_json": consumer_trends_json,
         "employment_trends_json": employment_trends_json,
         "economic_table_json": economic_table_json,
+        # 법 - 은지
         "korean_law_html" : korean_law_html,
         # 카드사 매출 정보 - 지연
         "card_total_sales_ladar_json" : card_total_sales_ladar_json,
@@ -57,6 +61,7 @@ def dashboard_view(request):
 # 캐시 데코레이터 추가 (60*60*24 = 24시간)
 @cache_page(60 * 60)  
 def dashboard_view_practice(request):
+    """tmp와 연동 + /tmp에서 확인"""
     # 카드 소비 카테고리 - 호섭
     gender_json = gender_view()
     # 카드사 매출 정보 - 지연
@@ -85,10 +90,10 @@ def dashboard_view_practice(request):
     })
 
 def dashboard_view_practice2(request):
-
+    """tmp_origin과 연동 + /tmp_origin에서 확인"""
     '''거시경제 대시보드 차트 구현 시각화 함수 넣어주세요'''
-    cpi_card_predict_json = cpi_card_predict_view()
+    cpi_card_predict_html = cpi_card_predict_view()
     # 템플릿에 전달
     return render(request, "tmp_origin.html", {
-        "cpi_card_predict_json" : cpi_card_predict_json
+        "cpi_card_predict_html" : cpi_card_predict_html
     })
