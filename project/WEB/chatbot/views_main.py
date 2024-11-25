@@ -5,6 +5,7 @@ from .views_law import *
 from .veiws_cautions_map import *
 from .views_tour import *
 from .views_travel_trend import *
+from .views_currency import *
 from .views_indicator import *
 from .views_fred import *
 from django.views.decorators.cache import cache_page
@@ -74,6 +75,17 @@ def dashboard_view_practice(request):
     tour_servey_json = tour_servey()
     visualize_travel_advice_html = visualize_travel_advice(),
     travel_trend_line_json = travel_trend_line()
+    # 환율
+    # currency_rates_json = create_currency_view()
+    # indicator
+    bankrate_indicator_json = bankrate_indicator()
+    K_GDP_indicator_json = K_GDP_indicator()
+    K_USD_indicator_json = K_USD_indicator()
+    K_growth_indicator_json = K_growth_indicator()
+    cpi_card_predict_json = cpi_card_predict_view()
+    economic_indicators_table_json = economic_indicators_table_view()
+    #
+
 
     # 템플릿에 전달
     return render(request, "tmp.html", {
@@ -87,6 +99,16 @@ def dashboard_view_practice(request):
         "tour_servey_json":tour_servey_json,
         "visualize_travel_advice_html" : visualize_travel_advice_html,
         "travel_trend_line_json" : travel_trend_line_json,
+        # 환율
+        # "currency_rates_json" : currency_rates_json,
+        # indicator
+        "bankrate_indicator_json" : bankrate_indicator_json,
+        "K_GDP_indicator_json" : K_GDP_indicator_json,
+        "K_USD_indicator_json" : K_USD_indicator_json,
+        "K_growth_indicator_json" : K_growth_indicator_json,
+        "economic_indicators_table_json" : economic_indicators_table_json,
+        #
+        "cpi_card_predict_json" : cpi_card_predict_json
     })
 
 def dashboard_view_practice2(request):
@@ -104,8 +126,8 @@ def dashboard_view_practice2(request):
     K_GDP_indicator_html = K_GDP_indicator()
     K_growth_indicator_html = K_growth_indicator()
     K_USD_indicator_html = K_USD_indicator()
-    
     economic_indicators_table_html = economic_indicators_table_view()
+
     # 템플릿에 전달
     return render(request, "tmp_origin.html", {
         # 거시경제 지표 - 지연
