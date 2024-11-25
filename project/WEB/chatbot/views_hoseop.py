@@ -303,12 +303,12 @@ def gender_view():
         template="plotly_white",
         height=400,
         legend=dict(
-        x=0.7,        # 범례의 x 위치를 오른쪽으로
-        y=0.5,        # 범례의 y 위치를 중앙으로
-        xanchor='left',  # 범례의 정렬 기준점을 왼쪽으로
-        yanchor='middle', # 범례의 수직 정렬을 중앙으로
-        orientation='h'  # 범례를 수직으로 배열
-    )
+            x=0.7,        # 범례의 x 위치를 오른쪽으로
+            y=0.5,        # 범례의 y 위치를 중앙으로
+            xanchor='left',  # 범례의 정렬 기준점을 왼쪽으로
+            yanchor='middle', # 범례의 수직 정렬을 중앙으로
+            orientation='h'  # 범례를 수직으로 배열
+        )
     )
 
     return to_json(fig)
@@ -349,7 +349,8 @@ def age_payment_distribution_view():
         yaxis=dict(title='이용 금액 (단위: 원)'),
         legend=dict(title='결제 방식'),
         template='plotly_white',  # 배경 스타일 설정
-        margin=dict(l=50, r=150, t=50, b=100)
+        margin=dict(l=50, r=150, t=50, b=100),
+        color_discrete_sequence = 'Plotly'
     )
 
     # 그래프를 HTML로 변환 후 리턴
@@ -528,9 +529,6 @@ def cpi_card_predict_view():
             }],
             legend=dict(x=0.5, y=1.2, orientation="h"),
             template="plotly_white",
-            autosize=False,
-            width=500,  # 가로 크기 조정
-            height=400,  # 세로 크기 조정
         )
 
         # HTML로 변환

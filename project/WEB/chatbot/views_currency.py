@@ -1,6 +1,7 @@
 import pandas as pd
 import plotly.graph_objects as go
 from plotly.io import to_json
+import plotly.express as px
 import requests
 from chatbot.sql import engine
 
@@ -76,6 +77,7 @@ def create_currency_view():
         title="Currency Rates Over Time - USD",
         xaxis_title="Time",
         yaxis_title="Currency Value",
+        template="plotly_white",
     )
 
     return to_json(fig)
