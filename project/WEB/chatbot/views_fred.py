@@ -7,8 +7,18 @@ from chatbot.sql import engine
 
 def load_fred_data_from_sql():
     try:
-        # MySQL 테이블을 DataFrame으로 읽어오기
-        query = "SELECT * FROM fred_data"
+        # 정확히 최근 5년치 데이터만 가져오기
+        query = """
+        WITH MaxDate AS (
+            SELECT MAX(date) as latest_date 
+            FROM fred_data
+        )
+        SELECT * 
+        FROM fred_data 
+        WHERE date >= DATE_SUB((SELECT latest_date FROM MaxDate), INTERVAL 5 YEAR)
+        AND date <= (SELECT latest_date FROM MaxDate)
+        ORDER BY date ASC
+        """
         fred_data = pd.read_sql(query, engine)
         
         return fred_data
@@ -356,7 +366,7 @@ def economic_indicators_table_view():
 def fred_dashboard_view(request):
     """메인 대시보드 뷰"""
     if fred_data.empty:
-        return render(request, "dashboard_hoseop.html", {"error_message": "데이터를 불러올 수 없습니다."})
+        return render(request, "main.html", {"error_message": "데이터를 불러올 수 없습니다."})
 
     gdp_rates_json = gdp_and_rates_view()
     price_indicators_json = price_indicators_view()
@@ -366,7 +376,7 @@ def fred_dashboard_view(request):
 
 
     # 템플릿에 전달
-    return render(request, "dashboard_hoseop.html", {
+    return render(request, "main.html", {
         "gdp_rates_json": gdp_rates_json,
         "price_indicators_json": price_indicators_json,
         "consumer_trends_json": consumer_trends_json,
