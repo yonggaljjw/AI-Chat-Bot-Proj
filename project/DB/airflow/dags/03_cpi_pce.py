@@ -205,6 +205,13 @@ def run_data_pipeline():
     # MySQL에 업로드
     all_forecasts.to_sql('cpi_card_data', con=engine, if_exists='append', index=False)
 
+def cpi_data_upload():
+    """매달 cpi 지표를 최신화하여 MySQL에 업로드 합니다."""
+    
+    cpi_df = fetch_cpi_data()
+
+    cpi_df.to_sql('cpi_data', con=engine, if_exists='append', index=False)
+
 # 기본 DAG 설정
 default_args = {
     'depends_on_past': False,
@@ -230,5 +237,11 @@ with DAG(
         execution_timeout=timedelta(hours=1)
     )
 
+    cpi_upload_task = PythonOperator(
+        task_id='cpi_data_upload',
+        python_callable=cpi_data_upload,
+        execution_timeout=timedelta(hours=1)
+    )
+
     # 태스크 간의 의존성 설정
-    run_pipeline_task
+    run_pipeline_task >> cpi_upload_task
