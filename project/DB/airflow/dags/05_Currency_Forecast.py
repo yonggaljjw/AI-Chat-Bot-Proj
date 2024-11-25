@@ -195,7 +195,7 @@ def run_prediction_and_upload():
 
     # Save to CSV
     # final_df.to_csv('currency_predictions.csv', index=False)
-    final_df.to_sql('currency_forecast', con=engine, if_exists='append', index=False)
+    final_df.to_sql('currency_forecast', con=engine, if_exists='replace', index=False)
     print("Results saved to 'currency_forecast.csv'.")
 
 # Airflow DAG definition
