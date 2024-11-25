@@ -168,12 +168,12 @@
 
                 <div class="col-span-1 bg-white shadow-md p-2 rounded-lg overflow-hidden">
                     <h3 class="text-lg font-semibold">CPI</h3>
-                    <div class="flex justify-center items-center">INSERT</div>
+                    <div class="flex justify-center items-center">{{ K_cpi_indicator_html | safe}}</div>
                 </div>
 
                 <div class="col-span-1 bg-white shadow-md p-3 rounded-lg overflow-hidden">
                     <h3 class="text-lg font-semibold">PCE</h3>
-                    <div class="flex justify-center items-center">INSERT HERE</div>
+                    <div class="flex justify-center items-center">{{ K_pce_indicator_html | safe}}</div>
                 </div>
                 <div class="col-span-1 bg-white shadow-md p-6 rounded-lg overflow-hidden">
                     <h3 class="text-lg font-semibold">달러 환율</h3>
@@ -190,7 +190,7 @@
                 </div>
                 <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">호섭 그래프</h3>
-                    <div class="flex justify-center items-center">{{ cpi_card_predict_html | safe }}</div>
+                    <div class="flex justify-center items-center">{{ cpi_card_predict_json | safe }}</div>
                 </div>
                 <!-- <div class="col-span-2 row-span-2 bg-white shadow-md p-6 rounded-lg"> -->
                     <!-- <h3 class="text-lg font-semibold">은채 워드클라우드</h3> -->
@@ -205,7 +205,7 @@
                         </script>
                     </div>
                 </div>
-                <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
+                <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">  
                     <h3 class="text-lg font-semibold">고객 지역별 지도</h3>
                     <div class="flex justify-center items-center">INSERT HERE</div>
                 </div>
