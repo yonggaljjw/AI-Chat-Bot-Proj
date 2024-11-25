@@ -114,14 +114,9 @@ def dashboard_view_practice(request):
 def dashboard_view_practice2(request):
     """tmp_origin과 연동 + /tmp_origin에서 확인"""
     '''거시경제 대시보드 차트 구현 시각화 함수 넣어주세요'''
-    # 거시경제 지표 - 지연
-    gdp_rates_json = gdp_and_rates_view()
-    price_indicators_json = price_indicators_view()
-    consumer_trends_json = consumer_trends_view()
-    employment_trends_json = employment_trends_view()
-    economic_table_json = economic_indicators_table_view()
-    # 
     cpi_card_predict_html = cpi_card_predict_view()
+    K_cpi_indicator_html = K_cpi_indicator()
+    K_pce_indicator_html = K_pce_indicator()
     bankrate_indicator_html = bankrate_indicator()
     K_GDP_indicator_html = K_GDP_indicator()
     K_growth_indicator_html = K_growth_indicator()
@@ -130,17 +125,7 @@ def dashboard_view_practice2(request):
 
     # 템플릿에 전달
     return render(request, "tmp_origin.html", {
-        # 거시경제 지표 - 지연
-        "gdp_rates_json": gdp_rates_json,
-        "price_indicators_json": price_indicators_json,
-        "consumer_trends_json": consumer_trends_json,
-        "employment_trends_json": employment_trends_json,
-        "economic_table_json": economic_table_json,
-        #         
         "cpi_card_predict_html" : cpi_card_predict_html,
-        "bankrate_indicator_html" : bankrate_indicator_html,
-        "K_GDP_indicator_html" : K_GDP_indicator_html,
-        "K_growth_indicator_html" : K_growth_indicator_html,
-        "K_USD_indicator_html" : K_USD_indicator_html,
-        "economic_indicators_table_html" : economic_indicators_table_html
+        "K_cpi_indicator_html" : K_cpi_indicator_html,
+        "K_pce_indicator_html" : K_pce_indicator_html
     })

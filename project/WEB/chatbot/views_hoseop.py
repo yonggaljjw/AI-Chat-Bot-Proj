@@ -228,6 +228,7 @@ def gender_expense_distribution_view():
     return to_json(fig_male), to_json(fig_female)
 
 def gender_view():
+
     # 전체, 남성, 여성의 소비 카테고리 합계를 각각 계산
     total_expense = data.loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
     male_expense = data[data['성별'] == '남자'].loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
@@ -410,6 +411,7 @@ def age_category_top5_view():
     return to_json(fig)
 
 def cpi_card_predict_view():
+
     """
     드롭다운으로 카테고리를 선택하여 PCE 및 CPI 데이터를 시각화하는 Plotly 그래프 생성 함수.
     오른쪽 y축에 CPI 값을 표시하고, 신뢰구간 내부를 옅은 색으로 채웁니다.
@@ -527,8 +529,8 @@ def cpi_card_predict_view():
             legend=dict(x=0.5, y=1.2, orientation="h"),
             template="plotly_white",
             autosize=False,
-            width=700,  # 가로 크기 조정
-            height=500,  # 세로 크기 조정
+            width=500,  # 가로 크기 조정
+            height=400,  # 세로 크기 조정
         )
 
         # HTML로 변환
