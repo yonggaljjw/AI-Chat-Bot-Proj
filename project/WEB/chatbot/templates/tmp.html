@@ -192,21 +192,19 @@
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold mb-2">CPI</h3>
-                    <!-- <div id="cpi_card_predict_json">
-                    <script>
-                        Plotly.newPlot('cpi_card_predict_json', JSON.parse('{{ cpi_card_predict_json | escapejs }}'), { responsive: true })
-                    </script>
-                </div> -->
-                    <img class="object-contain max-h-full w-auto" src="https://cataas.com/cat/gif" alt="샘플">
+                    <div id="K_cpi_indicator_json">
+                        <script>
+                            Plotly.newPlot('K_cpi_indicator_json', JSON.parse('{{ K_cpi_indicator_json | escapejs }}'), { responsive: true })
+                        </script>
+                    </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold mb-2">PCE</h3>
-                    <!-- <div id="bankrate_indicator_json">
-                    <script>
-                        Plotly.newPlot('bankrate_indicator_json', JSON.parse('{{ bankrate_indicator_json | escapejs }}'), { responsive: true })
-                    </script>
-                </div> -->
-                    <img class="object-contain max-h-full w-auto" src="https://cataas.com/cat/gif" alt="샘플">
+                    <div id="K_pce_indicator_json">
+                        <script>
+                            Plotly.newPlot('K_pce_indicator_json', JSON.parse('{{ K_pce_indicator_json | escapejs }}'), { responsive: true })
+                        </script>
+                    </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold mb-2">달러 환율</h3>
@@ -226,23 +224,22 @@
                 </div>
             </div>
             <!-- End of Indicator Row -->
-            <div class="col-span-6 row-span-2 bg-white shadow-md p-3 rounded-lg flex flex-col h-[calc(100%)]">
+            <div class="col-span-5 row-span-2 bg-white shadow-md p-3 rounded-lg flex flex-col h-[calc(100%)]">
                 <h3 class="text-lg font-semibold mb-2">은채 워드클라우드</h3>
                 <div class="flex-1">
                     <iframe src="http://192.168.0.101:5602/goto/4418ab1823a219ccd90b45dc6cd8a1d9" class="w-full h-full"
                         style="min-height: 100%; border: none;"></iframe>
                 </div>
             </div>
-            <div class=" col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
+            <div class=" col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">Fred 데이터 시각화</h3>
-                <!-- <div id="K_growth_indicator_json">
+                <div id="economic_indicators_table_json">
                     <script>
-                        Plotly.newPlot('K_growth_indicator_json', JSON.parse('{{ K_growth_indicator_json | escapejs }}'), { responsive: true })
+                        Plotly.newPlot('economic_indicators_table_json', JSON.parse('{{ economic_indicators_table_json | escapejs }}'), { responsive: true })
                     </script>
-                </div> -->
-                <img class="object-contain max-h-full w-auto" src="https://cataas.com/cat/gif" alt="샘플">
+                </div>
             </div>
-            <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
+            <div class="col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">호섭 그래프</h3>
                 <div id="cpi_card_predict_json">
                     <script>
@@ -292,7 +289,7 @@
                     </script>
                 </div>
             </div>
-            <div class="col-span-6 row-span-2 bg-white shadow-md p-3 rounded-lg">
+            <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold">카드사별 세부구성 비교</h3>
                 <div id="create_card_heatmap_json">
                     <script>
@@ -308,7 +305,7 @@
                     </script>
                 </div>
             </div>
-            <div class="col-span-8 row-span-1 bg-white shadow-md p-3 rounded-lg">
+            <div class="col-span-5 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">법률 정보</h3>
                 <div class="overflow-y-auto h-[20rem]">
                     {% for law in korean_law_html %}
@@ -320,14 +317,13 @@
                     {% endfor %}
                 </div>
             </div>
-            <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
+            <div class="col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold">환율 데이터</h3>
-                <!-- <div id="currency_rates_json">
+                <div id="currency_rates_json">
                     <script>
                         Plotly.newPlot('currency_rates_json', JSON.parse('{{ currency_rates_json | escapejs }}'), { responsive: true })
                     </script>
-                </div> -->
-                <img class="object-contain max-h-full w-auto" src="https://cataas.com/cat/gif" alt="샘플">
+                </div>
             </div>
         </div>
     </div>

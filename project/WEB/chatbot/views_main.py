@@ -76,12 +76,15 @@ def dashboard_view_practice(request):
     visualize_travel_advice_html = visualize_travel_advice(),
     travel_trend_line_json = travel_trend_line()
     # 환율
-    # currency_rates_json = create_currency_view()
+    currency_rates_json = create_currency_view()
     # indicator
     bankrate_indicator_json = bankrate_indicator()
     K_GDP_indicator_json = K_GDP_indicator()
+    K_cpi_indicator_json = K_cpi_indicator()
+    K_pce_indicator_json = K_pce_indicator()
     K_USD_indicator_json = K_USD_indicator()
     K_growth_indicator_json = K_growth_indicator()
+    #
     cpi_card_predict_json = cpi_card_predict_view()
     economic_indicators_table_json = economic_indicators_table_view()
     #
@@ -100,10 +103,12 @@ def dashboard_view_practice(request):
         "visualize_travel_advice_html" : visualize_travel_advice_html,
         "travel_trend_line_json" : travel_trend_line_json,
         # 환율
-        # "currency_rates_json" : currency_rates_json,
+        "currency_rates_json" : currency_rates_json,
         # indicator
         "bankrate_indicator_json" : bankrate_indicator_json,
         "K_GDP_indicator_json" : K_GDP_indicator_json,
+        "K_cpi_indicator_json" : K_cpi_indicator_json,
+        "K_pce_indicator_json" : K_pce_indicator_json,
         "K_USD_indicator_json" : K_USD_indicator_json,
         "K_growth_indicator_json" : K_growth_indicator_json,
         "economic_indicators_table_json" : economic_indicators_table_json,
