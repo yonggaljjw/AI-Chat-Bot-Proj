@@ -82,7 +82,7 @@ def top10_level_view():
     )
 
     # 그래프를 HTML로 변환
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def lifestage_distribution_view():
 
@@ -117,7 +117,7 @@ def lifestage_distribution_view():
     )
 
     # 그래프를 HTML로 변환
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def age_and_life_stage_distribution_view():
 
@@ -180,7 +180,7 @@ def age_and_life_stage_distribution_view():
     )
 
     # 두 개의 그래프를 HTML로 변환 및 리턴
-    return to_html(fig_age, full_html=False), to_html(fig_life_stage, full_html=False)
+    return to_json(fig_age), to_json(fig_life_stage)
 
 def gender_expense_distribution_view():
     
@@ -225,7 +225,7 @@ def gender_expense_distribution_view():
         template="plotly_white"
     )
 
-    return to_html(fig_male, full_html=False), to_html(fig_female, full_html=False)
+    return to_json(fig_male), to_json(fig_female)
 
 def gender_view():
     # 전체, 남성, 여성의 소비 카테고리 합계를 각각 계산
@@ -352,7 +352,7 @@ def age_payment_distribution_view():
     )
 
     # 그래프를 HTML로 변환 후 리턴
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def age_category_top5_view():
 
@@ -407,7 +407,7 @@ def age_category_top5_view():
     )
 
     # 그래프를 HTML로 변환 후 리턴
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def cpi_card_predict_view():
     """
@@ -532,7 +532,7 @@ def cpi_card_predict_view():
         )
 
         # HTML로 변환
-        return to_html(fig, full_html=False)
+        return to_json(fig)
     
     except Exception as e:
         print(f"그래프 생성 중 오류 발생: {e}")
