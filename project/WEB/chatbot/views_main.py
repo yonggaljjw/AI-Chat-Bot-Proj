@@ -11,6 +11,7 @@ from django.views.decorators.cache import cache_page
 
 
 def dashboard_view(request):
+    """main.html과 연동 + /index에서 확인"""
     # 우리카드 데이터 분석 - 호섭
     top10_level_json = top10_level_view()
     lifestage_distribution_json = lifestage_distribution_view()
@@ -48,6 +49,7 @@ def dashboard_view(request):
         "consumer_trends_json": consumer_trends_json,
         "employment_trends_json": employment_trends_json,
         "economic_table_json": economic_table_json,
+        # 법 - 은지
         "korean_law_html" : korean_law_html,
         # 카드사 매출 정보 - 지연
         "card_total_sales_ladar_json" : card_total_sales_ladar_json,
@@ -59,6 +61,7 @@ def dashboard_view(request):
 # 캐시 데코레이터 추가 (60*60*24 = 24시간)
 @cache_page(60 * 60)  
 def dashboard_view_practice(request):
+    """tmp와 연동 + /tmp에서 확인"""
     # 카드 소비 카테고리 - 호섭
     gender_json = gender_view()
     # 카드사 매출 정보 - 지연
@@ -87,16 +90,31 @@ def dashboard_view_practice(request):
     })
 
 def dashboard_view_practice2(request):
+    """tmp_origin과 연동 + /tmp_origin에서 확인"""
+    '''거시경제 대시보드 차트 구현 시각화 함수 넣어주세요'''
+    # 거시경제 지표 - 지연
+    gdp_rates_json = gdp_and_rates_view()
+    price_indicators_json = price_indicators_view()
+    consumer_trends_json = consumer_trends_view()
+    employment_trends_json = employment_trends_view()
+    economic_table_json = economic_indicators_table_view()
+    # 
+    cpi_card_predict_html = cpi_card_predict_view()
     bankrate_indicator_html = bankrate_indicator()
     K_GDP_indicator_html = K_GDP_indicator()
     K_growth_indicator_html = K_growth_indicator()
     K_USD_indicator_html = K_USD_indicator()
-    '''거시경제 대시보드 차트 구현 시각화 함수 넣어주세요'''
-    cpi_card_predict_html = cpi_card_predict_view()
     
     economic_indicators_table_html = economic_indicators_table_view()
     # 템플릿에 전달
     return render(request, "tmp_origin.html", {
+        # 거시경제 지표 - 지연
+        "gdp_rates_json": gdp_rates_json,
+        "price_indicators_json": price_indicators_json,
+        "consumer_trends_json": consumer_trends_json,
+        "employment_trends_json": employment_trends_json,
+        "economic_table_json": economic_table_json,
+        #         
         "cpi_card_predict_html" : cpi_card_predict_html,
         "bankrate_indicator_html" : bankrate_indicator_html,
         "K_GDP_indicator_html" : K_GDP_indicator_html,
@@ -104,5 +122,3 @@ def dashboard_view_practice2(request):
         "K_USD_indicator_html" : K_USD_indicator_html,
         "economic_indicators_table_html" : economic_indicators_table_html
     })
-
-##

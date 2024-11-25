@@ -10,6 +10,21 @@ from sklearn.model_selection import train_test_split
 import yfinance as yf
 from datetime import datetime
 from tensorflow.keras.models import load_model
+import pymysql
+from sqlalchemy import create_engine
+from dotenv import load_dotenv
+import os
+
+
+load_dotenv()
+
+# 데이터베이스 연결 정보
+username = os.getenv('sql_username')
+password = os.getenv('sql_password')
+host = os.getenv('sql_host')
+port = os.getenv('sql_port')
+database = 'team5'
+engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
 
 # Attention 블록 정의
 def attention_3d_block(inputs):
@@ -28,6 +43,18 @@ def attention_model(input_dims, time_steps, lstm_units):
     attention_mul = Flatten()(attention_3d_block(lstm_out2))
     output = Dense(1, activation='linear')(attention_mul)
     return Model(inputs=[inputs], outputs=output)
+
+def load_data_from_sql():
+    try:
+        # MySQL 테이블을 DataFrame으로 읽어오기
+        query = "SELECT TIME, USD, CNY,JPY, EUR  FROM currency_rate WHERE time >= '2012-01-01'"
+        currency_rate = pd.read_sql(query, engine)
+
+        return currency_rate
+
+    except Exception as e:
+        print(f"데이터베이스에서 데이터를 불러오는 중 오류 발생: {str(e)}")
+        return pd.DataFrame()
 
 # 환율 데이터 가져오기
 def get_historical_exchange_rates(base_currency, target_currencies, start_date, end_date):
@@ -51,6 +78,18 @@ def r2_keras(y_true, y_pred):
     SS_tot = tf.reduce_sum(tf.square(y_true - tf.reduce_mean(y_true)))
     return 1 - SS_res / (SS_tot + tf.keras.backend.epsilon())
 
+# 학습 진행 상황 시각화 함수
+def plot_training_history(history):
+    plt.figure(figsize=(12, 6))
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title('Model Training Progress')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+    plt.grid(True)
+    plt.show()
+
 # 데이터셋 생성
 def create_dataset(dataset, look_back):
     dataX, dataY = [], []
@@ -63,7 +102,7 @@ def create_dataset(dataset, look_back):
 def normalize_mult(data):
     normalize = np.zeros((data.shape[1], 2), dtype='float64')
     for i in range(data.shape[1]):
-        listlow, listhigh = np.percentile(data[:, i], [0, 100])
+        listlow, listhigh = np.percentile(data[:, i], [0, 60])
         normalize[i, :] = [listlow, listhigh]
         delta = listhigh - listlow
         if delta != 0:
@@ -92,35 +131,65 @@ def train_model(train_X, train_Y, input_dims, time_steps, lstm_units, model_path
     )
     model.save(model_path)
 
-# 학습을 위한 메인 함수
+# 모델 학습 함수 수정
+def train_model_for_currency(train_X, train_Y, input_dims, time_steps, lstm_units, currency_code, epochs=20, batch_size=64):
+    model = attention_model(input_dims, time_steps, lstm_units)
+    model.compile(loss='mse', optimizer='adam', metrics=['mse'])
+    history = model.fit(
+        [train_X], train_Y,
+        epochs=epochs, batch_size=batch_size, validation_split=0.25,
+        callbacks=[
+            EarlyStopping(monitor='val_loss', patience=10, mode='min'),
+            ModelCheckpoint(f"./{currency_code}.h5", monitor='val_loss', save_best_only=True, mode='min')
+        ]
+    )
+    model.save(f"./{currency_code}.h5")
+    plot_training_history(history)
+    return model
+
+# Main 함수 수정
 def main():
-    base_currency = 'KRW'
-    target_currencies = ['USD', 'EUR', 'JPY', 'CNY', 'GBP']
-    start_date = "2012-01-01"
-    end_date = datetime.now().strftime("%Y-%m-%d")
-    
-    # 환율 데이터 가져오기
-    exchange_df = get_historical_exchange_rates(base_currency, target_currencies, start_date, end_date)
-    df = fill_na_with_avg(exchange_df['GBP'])
+    target_currencies = ['USD', 'CNY', 'JPY', 'EUR']
+    exchange_df = load_data_from_sql()
+    if exchange_df.empty:
+        print("No data loaded. Exiting.")
+        return
 
-    # 데이터 분할 및 준비
-    test_index = int(len(df) * 0.8)
-    train_full, test = df[:test_index], df[test_index:]
-    val_index = int(len(train_full) * 0.75)
-    train, valid = train_full[:val_index], train_full[val_index:]
+    exchange_df['TIME'] = pd.to_datetime(exchange_df['TIME'], errors='coerce')
+    exchange_df = exchange_df.dropna().sort_values(by='TIME')  # Drop rows with NaT or NaN
+    exchange_df['USD'] = pd.to_numeric(exchange_df['USD'], errors='coerce')  # 숫자로 변환
+    exchange_df['CNY'] = pd.to_numeric(exchange_df['CNY'], errors='coerce')  # 숫자로 변환
+    exchange_df['JPY'] = pd.to_numeric(exchange_df['JPY'], errors='coerce')  # 숫자로 변환
+    exchange_df['EUR'] = pd.to_numeric(exchange_df['EUR'], errors='coerce')  # 숫자로 변환
 
-    train = np.array(train).reshape(-1, 1)
-    train, normalize = normalize_mult(train)
-    TIME_STEPS = 100
-    INPUT_DIMS = 1
+
+    TIME_STEPS = 60
     LSTM_UNITS = 64
-    MODEL_PATH = './model.keras'
+    epochs = 20
+    batch_size = 64
 
-    train_X, _ = create_dataset(train, TIME_STEPS)
-    _, train_Y = create_dataset(train[:, 0].reshape(len(train), 1), TIME_STEPS)
+    for currency in target_currencies:
+        if currency not in exchange_df.columns:
+            print(f"{currency} 데이터가 없습니다. 건너뜁니다.")
+            continue
 
-    # 모델 학습
-    train_model(train_X, train_Y, INPUT_DIMS, TIME_STEPS, LSTM_UNITS, MODEL_PATH)
+        print(f"Processing {currency}...")
+
+        # 해당 통화 데이터 선택 및 결측값 처리
+        df = fill_na_with_avg(exchange_df[currency])
+        df = np.array(df).reshape(-1, 1)
+        df, normalize_params = normalize_mult(df)
+
+        # 데이터셋 생성
+        train_X, _ = create_dataset(df, TIME_STEPS)
+        _, train_Y = create_dataset(df[:, 0].reshape(len(df), 1), TIME_STEPS)
+
+        # 데이터 분리
+        train_X, test_X, train_Y, test_Y = train_test_split(train_X, train_Y, test_size=0.2, random_state=42)
+
+        # 모델 학습
+        train_model_for_currency(train_X, train_Y, 1, TIME_STEPS, LSTM_UNITS, currency, epochs, batch_size)
+        print(f"{currency} 모델 학습 완료 및 저장: {currency}.h5")
 
 if __name__ == "__main__":
     main()
