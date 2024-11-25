@@ -84,7 +84,7 @@ def visualize_travel_advice():
                         locations='ISO_Alpha_3',
                         color='Risk_level',
                         hover_name='Country',
-                        color_continuous_scale="Emrld")
+                        color_continuous_scale="inferno")
 
     fig.update_geos(projection_type="natural earth", showcountries=True, countrycolor="Gray")
     fig.update_layout(coloraxis_showscale=False, autosize=True, width=1000)

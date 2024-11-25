@@ -231,7 +231,7 @@ def K_USD_indicator() :
         height=180  # 전체 높이 설정
     )
     
-    return to_html(fig)
+    return to_json(fig)
 
 def K_cpi_indicator() :
 
@@ -263,16 +263,16 @@ def K_cpi_indicator() :
         delta={'reference': previous_value, 'relative': True, 'valueformat' : '.2f', 'font' : {'color': delta_color}},
         # title={'text': variable_name, 'font': {'size': 20}, 'align': 'center'},
         number={'font': {'size': 50}},
-        domain={'x': [0, 1], 'y': [0, 1]}
+        domain={'x': [0, 1], 'y': [0.6, 0.6]}
     ))
 
-    # 레이아웃 업데이트
+    # 레이아웃 설정 추가
     fig.update_layout(
-        # margin=dict(l=50, r=50, t=50, b=50),
-        height=400,
-        width=400
+        margin=dict(t=0, b=0, l=0, r=0),  # 마진 축소
+        height=180  # 전체 높이 설정
     )
-    return to_html(fig)
+    
+    return to_json(fig)
 
 def K_pce_indicator() :
 
@@ -304,14 +304,13 @@ def K_pce_indicator() :
         delta={'reference': previous_value, 'relative': True, 'valueformat' : '.2f', 'font' : {'color': delta_color}},
         # title={'text': variable_name, 'font': {'size': 20}, 'align': 'center'},
         number={'font': {'size': 50}},
-        domain={'x': [0, 1], 'y': [0, 1]}
+        domain={'x': [0, 1], 'y': [0.6, 0.6]}
     ))
 
-    # 레이아웃 업데이트
+    # 레이아웃 설정 추가
     fig.update_layout(
-        # margin=dict(l=50, r=50, t=50, b=50),
-        height=400,
-        width=400
+        margin=dict(t=0, b=0, l=0, r=0),  # 마진 축소
+        height=180  # 전체 높이 설정
     )
-
+    
     return to_json(fig)
