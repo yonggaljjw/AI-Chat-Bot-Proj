@@ -1,6 +1,6 @@
 import pandas as pd
 import plotly.graph_objects as go
-from plotly.io import to_html
+from plotly.io import to_json
 import requests
 from chatbot.sql import engine
 
@@ -9,7 +9,7 @@ from chatbot.sql import engine
 def load_currency_forecast_from_sql():
     try:
         # MySQL 테이블을 DataFrame으로 읽어오기
-        query = "SELECT TIME, USD, CNY,JPY, EUR, SOURCE FROM currency_forecast"
+        query = "SELECT TIME, USD, CNY, JPY, EUR, SOURCE FROM currency_forecast"
         currency_forecast = pd.read_sql(query, engine)
 
         return currency_forecast
@@ -19,7 +19,7 @@ def load_currency_forecast_from_sql():
         return pd.DataFrame()    
     
 
-def create_currency_plot():
+def create_currency_view():
     """
     통화 환율 데이터를 기반으로 Plotly 그래프를 생성하는 함수.
     """
@@ -78,9 +78,6 @@ def create_currency_plot():
         yaxis_title="Currency Value",
     )
 
-    # 그래프 출력
-    fig.show()
-
-    return to_html(fig)
+    return to_json(fig)
 
 
