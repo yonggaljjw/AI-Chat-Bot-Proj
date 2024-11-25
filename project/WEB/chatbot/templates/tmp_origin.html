@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Prototype</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -157,31 +158,31 @@
             <div id="dashboard-content-one" class="p-3 grid grid-cols-6 gap-4">
                 <div class="col-span-1 bg-white shadow-md p-2 rounded-lg overflow-hidden">
                     <h3 class="text-lg font-semibold mb-2">금리</h3>
-                    <div class="flex justify-center items-center">INSERT HERE</div>
+                    <div class="flex justify-center items-center">{{ bankrate_indicator_html | safe }}</div>
                 </div>
 
                 <div class="col-span-1 bg-white shadow-md p-2 rounded-lg overflow-hidden">
                     <h3 class="text-lg font-semibold">GDP</h3>
-                    <div class="flex justify-center items-center">INSERT HERE</div>
+                    <div class="flex justify-center items-center">{{ K_GDP_indicator_html | safe }}</div>
                 </div>
 
                 <div class="col-span-1 bg-white shadow-md p-2 rounded-lg overflow-hidden">
                     <h3 class="text-lg font-semibold">CPI</h3>
-                    <div class="flex justify-center items-center">INSERT HERE</div>
+                    <div class="flex justify-center items-center">INSERT</div>
                 </div>
 
-                <div class="col-span-1 bg-white shadow-md p-3 rounded-lg">
+                <div class="col-span-1 bg-white shadow-md p-3 rounded-lg overflow-hidden">
                     <h3 class="text-lg font-semibold">PCE</h3>
                     <div class="flex justify-center items-center">INSERT HERE</div>
                 </div>
-                <div class="col-span-1 bg-white shadow-md p-6 rounded-lg">
+                <div class="col-span-1 bg-white shadow-md p-6 rounded-lg overflow-hidden">
                     <h3 class="text-lg font-semibold">달러 환율</h3>
-                    <div class="flex justify-center items-center">INSERT HERE</div>
+                    <div class="flex justify-center items-center">{{ K_USD_indicator_html | safe }}</div>
 
                 </div>
-                <div class="col-span-1 bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold">Trend cartegory</h3>
-                    <div class="flex justify-center items-center">INSERT HERE</div>
+                <div class="col-span-1 bg-white shadow-md p-6 rounded-lg overflow-hidden">
+                    <h3 class="text-lg font-semibold">경제성장률</h3>
+                    <div class="flex justify-center items-center">{{ K_growth_indicator_html | safe }}</div>
                 </div>
                 <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">Fred 데이터 시각화</h3>
@@ -191,13 +192,18 @@
                     <h3 class="text-lg font-semibold">호섭 그래프</h3>
                     <div class="flex justify-center items-center">{{ cpi_card_predict_json | safe }}</div>
                 </div>
-                <div class="col-span-2 row-span-2 bg-white shadow-md p-6 rounded-lg">
-                    <h3 class="text-lg font-semibold">은채 워드클라우드</h3>
-                    <div class="overflow-y-scroll max-h-[300px]">INSERT HERE</div>
-                </div>
+                <!-- <div class="col-span-2 row-span-2 bg-white shadow-md p-6 rounded-lg"> -->
+                    <!-- <h3 class="text-lg font-semibold">은채 워드클라우드</h3> -->
+                    <iframe class="row-span-3" src="http://192.168.0.101:5602/goto/4418ab1823a219ccd90b45dc6cd8a1d9" height="600" width="400"></iframe>
+                    <!-- <div class="overflow-y-scroll max-h-[300px]">INSERT HERE</div> -->
+                <!-- </div> -->
                 <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">
                     <h3 class="text-lg font-semibold">주요 지표 현황</h3>
-                    <div class="flex justify-center items-center">INSERT HERE</div>
+                    <div class="flex justify-center items-center">
+                        <script>
+                            Plotly.newPlot('economic_indicators_table_html', JSON.parse('{{ economic_indicators_table_html | escape}}'), { responsive: true })
+                        </script>
+                    </div>
                 </div>
                 <div class="col-span-2 bg-white shadow-md p-6 rounded-lg">  
                     <h3 class="text-lg font-semibold">고객 지역별 지도</h3>

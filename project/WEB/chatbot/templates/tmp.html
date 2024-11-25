@@ -160,10 +160,30 @@
         </div>
     </div>
 
-    <!-- Main Content -->
-    <div class="flex-1 ml-24">
-        <!-- Dashboard Content One -->
+    <!-- 상단 고정 제목 영역 -->
+    <div class="fixed top-0 left-24 right-0 bg-blue-300 shadow-md z-10">
+        <div id="dashboard-header" class="px-6 py-4">
+            <h1 class="text-2xl font-bold text-gray-800">첫번째</h1>
+            <p class="text-sm text-gray-600">카드 사용 현황 및 분석 리포트</p>
+        </div>
+    </div>
+
+    <!-- Main Content에 상단 여백 추가 -->
+    <div class="flex-1 ml-24 mt-20">
+        <!-- Dashboard Content one -->
         <div id="dashboard-content-one" class="grid grid-cols-12 p-3 gap-4">
+            <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">카드사별 총 사용금액</h3>
+                <div id="card_total_sales_ladar_json1">
+                    <script>
+                        Plotly.newPlot('card_total_sales_ladar_json1', JSON.parse('{{ card_total_sales_ladar_json | escapejs }}'), { responsive: true })
+                    </script>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard Content two -->
+        <div id="dashboard-content-two" class="grid grid-cols-12 p-3 gap-4 hidden">
             <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">카드사별 총 사용금액</h3>
                 <div id="card_total_sales_ladar_json">
@@ -246,6 +266,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        // DOM 요소 선택
         const chatIcon = document.getElementById('chat-icon');
         const chatWindow = document.getElementById('chat-window');
         const closeChat = document.getElementById('close-chat');
@@ -253,101 +274,9 @@
         const messageInput = document.getElementById('message-input');
         const chatMessages = document.getElementById('chat-messages');
         const powerModeToggle = document.getElementById('power-mode-toggle');
-
-        // 챗봇 아이콘 클릭 이벤트 수정
-        chatIcon.addEventListener('click', function () {
-            chatWindow.classList.toggle('hidden');
-        });
-
-        // 닫기 버튼 클릭 이벤트
-        closeChat.addEventListener('click', function () {
-            chatWindow.classList.add('hidden');
-        });
-
-        // 메시지 전송
-        chatForm.addEventListener('submit', function (e) {
-            e.preventDefault();
-            const message = messageInput.value.trim();
-            if (!message) return;
-
-            // 사용자 메시지 표시
-            appendMessage(message, true);
-
-            // Django 서버로 메시지 전송
-            fetch('/chatbot/send/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                },
-                body: JSON.stringify({
-                    message: message,
-                    isPowerMode: powerModeToggle.checked  // 토글 상태 전송
-                })
-            })
-                .then(response => response.json())
-                .then(data => {
-                    // 봇 응답 표시
-                    appendMessage(data.response, false);
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    appendMessage('죄송합니다. 오류가 발생했습니다.', false);
-                });
-
-            messageInput.value = '';
-        });
-
-        function appendMessage(message, isUser) {
-            const messageDiv = document.createElement('div');
-            messageDiv.classList.add('flex', isUser ? 'justify-end' : 'justify-start');
-
-            messageDiv.innerHTML = `
-                    <div class="max-w-[70%] rounded-lg p-3 ${isUser ? 'bg-blue-500 text-white' : 'bg-gray-100'}">
-                        ${message}
-                    </div>
-                `;
-            chatMessages.appendChild(messageDiv);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        // 차트 리사이즈 함수 추가
-        function resizeAllCharts() {
-            const charts = [
-                'card_total_sales_ladar_json',
-                'wooricard_sales_treemap_json',
-                'gender_json',
-                'create_card_heatmap_json',
-                'travel_trend_line_json',
-                'tour_servey_json'
-            ];
-
-            charts.forEach(chartId => {
-                const element = document.getElementById(chartId);
-                if (element) {
-                    const update = {
-                        width: element.clientWidth,
-                        height: element.clientHeight
-                    };
-                    Plotly.relayout(chartId, update);
-                }
-            });
-        }
-
-        // 리사이즈 이벤트에 디바운스 적용
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(resizeAllCharts, 100);
-        });
-
-        // 초기 로드 시 차트 크기 조정
-        document.addEventListener('DOMContentLoaded', () => {
-            setTimeout(resizeAllCharts, 100);
-        });
-
-        // 페이지 전환 기능
         const sidebarButtons = document.querySelectorAll('[data-page]');
+
+        // 대시보드 콘텐츠 매핑
         const contents = {
             'dashboard-one': document.getElementById('dashboard-content-one'),
             'dashboard-two': document.getElementById('dashboard-content-two'),
@@ -355,34 +284,112 @@
             'dashboard-four': document.getElementById('dashboard-content-four'),
             'dashboard-five': document.getElementById('dashboard-content-five'),
         };
-        // 활성화 상태 변경 시
-        sidebarButtons.forEach(btn => {
-            btn.classList.remove('bg-gray-300');
-        });
-        this.classList.add('bg-gray-300');
+        // 대시보드 헤더 정보 설정
+        const headerConfig = {
+            'dashboard-one': {
+                title: '첫번째 대시보드',
+                subtitle: '카드 사용 현황 및 분석 리포트'
+            },
+            'dashboard-two': {
+                title: '두번째 대시보드',
+                subtitle: '카드 사용 현황 및 분석 리포트'
+            },
+            'dashboard-three': {
+                title: '세번째 대시보드',
+                subtitle: '상세 분석 리포트'
+            },
+            'dashboard-four': {
+                title: '네번째 대시보드',
+                subtitle: '통계 분석 리포트'
+            },
+            'dashboard-five': {
+                title: '다섯번째 대시보드',
+                subtitle: '종합 분석 리포트'
+            }
+        };
 
-        // Mutation Observer를 사용하여 요소의 표시/숨김 상태 변화 감지
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === 'class') {
-                    setTimeout(resizeAllCharts, 100);
+        // 차트 관련 설정
+        const charts = [
+            'card_total_sales_ladar_json',
+            'wooricard_sales_treemap_json',
+            'gender_json',
+            'create_card_heatmap_json',
+            'travel_trend_line_json',
+            'tour_servey_json'
+        ];
+
+        // 챗봇 관련 함수들
+        const chatbot = {
+            toggleWindow: () => chatWindow.classList.toggle('hidden'),
+            closeWindow: () => chatWindow.classList.add('hidden'),
+            appendMessage: (message, isUser) => {
+                const messageDiv = document.createElement('div');
+                messageDiv.classList.add('flex', isUser ? 'justify-end' : 'justify-start');
+                messageDiv.innerHTML = `
+                    <div class="max-w-[70%] rounded-lg p-3 ${isUser ? 'bg-blue-500 text-white' : 'bg-gray-100'}">
+                        ${message}
+                    </div>
+                `;
+                chatMessages.appendChild(messageDiv);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            },
+            sendMessage: async (message) => {
+                try {
+                    const response = await fetch('/chatbot/send/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+                        },
+                        body: JSON.stringify({
+                            message: message,
+                            isPowerMode: powerModeToggle.checked
+                        })
+                    });
+                    const data = await response.json();
+                    chatbot.appendMessage(data.response, false);
+                } catch (error) {
+                    console.error('Error:', error);
+                    chatbot.appendMessage('죄송합니다. 오류가 발생했습니다.', false);
                 }
-            });
-        });
+            }
+        };
 
-        // 대시보드 컨텐츠 요소들 관찰
-        const dashboardContents = document.querySelectorAll('[id^="dashboard-content-"]');
-        dashboardContents.forEach(content => {
-            observer.observe(content, {
-                attributes: true
-            });
-        });
+        // 차트 관련 함수들
+        const chartUtils = {
+            resizeAll: () => {
+                charts.forEach(chartId => {
+                    const element = document.getElementById(chartId);
+                    if (element) {
+                        const update = {
+                            width: element.clientWidth,
+                            height: element.clientHeight
+                        };
+                        Plotly.relayout(chartId, update);
+                    }
+                });
+            },
+            initResizeObserver: () => {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.attributeName === 'class') {
+                            setTimeout(chartUtils.resizeAll, 100);
+                        }
+                    });
+                });
 
-        // 페이지 전환 이벤트
-        sidebarButtons.forEach(button => {
-            button.addEventListener('click', function () {
-                const pageId = this.dataset.page;
+                const dashboardContents = document.querySelectorAll('[id^="dashboard-content-"]');
+                dashboardContents.forEach(content => {
+                    observer.observe(content, {
+                        attributes: true
+                    });
+                });
+            }
+        };
 
+        // 페이지 전환 함수
+        const pageManager = {
+            switchPage: (pageId) => {
                 // 모든 콘텐츠 숨기기
                 Object.values(contents).forEach(content => {
                     if (content) content.classList.add('hidden');
@@ -391,44 +398,73 @@
                 // 선택된 콘텐츠만 보이기
                 if (contents[pageId]) {
                     contents[pageId].classList.remove('hidden');
-                    // 그래프 리사이즈 트리거
-                    setTimeout(() => {
-                        window.dispatchEvent(new Event('resize'));
-                    }, 100);
+
+                    // 헤더 업데이트
+                    const headerInfo = headerConfig[pageId];
+                    const dashboardHeader = document.getElementById('dashboard-header');
+                    if (headerInfo && dashboardHeader) {
+                        dashboardHeader.innerHTML = `
+                        <h1 class="text-2xl font-bold text-gray-800">${headerInfo.title}</h1>
+                        <p class="text-sm text-gray-600">${headerInfo.subtitle}</p>
+                    `;
+                    }
+
+                    setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
                 }
+            },
+            updateButtonStyles: (activeButton) => {
+                sidebarButtons.forEach(btn => btn.classList.remove('bg-gray-300'));
+                activeButton.classList.add('bg-gray-300');
+            }
+        };
 
-                // 활성화된 버튼 스타일 변경
-                sidebarButtons.forEach(btn => {
-                    btn.classList.remove('bg-gray-300');
-                });
-                this.classList.add('bg-gray-300');
+        // 이벤트 리스너 설정
+        const initEventListeners = () => {
+            // 챗봇 이벤트
+            chatIcon.addEventListener('click', chatbot.toggleWindow);
+            closeChat.addEventListener('click', chatbot.closeWindow);
 
+            chatForm.addEventListener('submit', function (e) {
+                e.preventDefault();
+                const message = messageInput.value.trim();
+                if (!message) return;
 
-                if (url) {
-                    fetch(url)
-                        .then(response => response.text())
-                        .then(html => {
-                            // 메인 콘텐츠 영역 선택자 수정
-                            document.querySelector('.flex-1.ml-24').innerHTML = html;
-
-                            // URL 히스토리 업데이트
-                            history.pushState(null, '', url + '#' + pageId);
-
-                            // 해시가 있는 경우 해당 요소로 스크롤
-                            const scrollTo = pageId;
-                            if (scrollTo) {
-                                const element = document.getElementById(scrollTo);
-                                if (element) {
-                                    element.scrollIntoView();
-                                }
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error:', error);
-                        });
-                }
+                chatbot.appendMessage(message, true);
+                chatbot.sendMessage(message);
+                messageInput.value = '';
             });
-        });
-    });
 
+            // 리사이즈 이벤트
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(chartUtils.resizeAll, 100);
+            });
+
+            // 사이드바 버튼 이벤트
+            sidebarButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const pageId = this.dataset.page;
+                    pageManager.switchPage(pageId);
+                    pageManager.updateButtonStyles(this);
+                });
+            });
+        };
+
+        // 초기화 함수 
+        const initialize = () => {
+            initEventListeners();
+            chartUtils.initResizeObserver();
+
+            // 첫 번째 대시보드 버튼에 활성화 스타일 적용
+            const firstDashboardButton = document.querySelector('[data-page="dashboard-one"]');
+            if (firstDashboardButton) {
+                pageManager.updateButtonStyles(firstDashboardButton);
+            }
+
+            setTimeout(chartUtils.resizeAll, 100);
+        };
+
+        initialize();
+    });
 </script>
