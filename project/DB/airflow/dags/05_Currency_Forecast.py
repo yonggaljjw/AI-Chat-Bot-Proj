@@ -46,7 +46,7 @@ def create_dataset(dataset, look_back):
 def normalize_mult(data):
     normalize = np.zeros((data.shape[1], 2), dtype='float64')
     for i in range(data.shape[1]):
-        listlow, listhigh = np.percentile(data[:, i], [0, 100])
+        listlow, listhigh = np.percentile(data[:, i], [0, 60])
         normalize[i, :] = [listlow, listhigh]
         delta = listhigh - listlow
         if delta != 0:

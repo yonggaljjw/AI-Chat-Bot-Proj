@@ -79,16 +79,16 @@ def r2_keras(y_true, y_pred):
     return 1 - SS_res / (SS_tot + tf.keras.backend.epsilon())
 
 # 학습 진행 상황 시각화 함수
-def plot_training_history(history):
-    plt.figure(figsize=(12, 6))
-    plt.plot(history.history['loss'], label='Training Loss')
-    plt.plot(history.history['val_loss'], label='Validation Loss')
-    plt.title('Model Training Progress')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.legend()
-    plt.grid(True)
-    plt.show()
+# def plot_training_history(history):
+#     plt.figure(figsize=(12, 6))
+#     plt.plot(history.history['loss'], label='Training Loss')
+#     plt.plot(history.history['val_loss'], label='Validation Loss')
+#     plt.title('Model Training Progress')
+#     plt.xlabel('Epochs')
+#     plt.ylabel('Loss')
+#     plt.legend()
+#     plt.grid(True)
+#     plt.show()
 
 # 데이터셋 생성
 def create_dataset(dataset, look_back):
