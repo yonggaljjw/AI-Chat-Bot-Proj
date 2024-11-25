@@ -164,7 +164,7 @@ def run_prediction_and_upload():
     for currency in target_currencies:
         print(f"Evaluating for currency: {currency}")
 
-        MODEL_PATH = f'./{currency}.h5'
+        MODEL_PATH = f'./dags/package/{currency}.h5'
 
         # 해당 통화의 데이터 가져오기 및 결측치 처리
         df = fill_na_with_avg(exchange_df[currency])
@@ -195,8 +195,8 @@ def run_prediction_and_upload():
 
     # Save to CSV
     # final_df.to_csv('currency_predictions.csv', index=False)
-    final_df.to_sql('currency_predictions', con=engine, if_exists='append', index=False)
-    print("Results saved to 'currency_predictions.csv'.")
+    final_df.to_sql('currency_forecast', con=engine, if_exists='append', index=False)
+    print("Results saved to 'currency_forecast.csv'.")
 
 # Airflow DAG definition
 default_args = {
