@@ -93,7 +93,11 @@ def dashboard_view_practice2(request):
     """tmp_origin과 연동 + /tmp_origin에서 확인"""
     '''거시경제 대시보드 차트 구현 시각화 함수 넣어주세요'''
     cpi_card_predict_html = cpi_card_predict_view()
+    K_cpi_indicator_html = K_cpi_indicator()
+    K_pce_indicator_html = K_pce_indicator()
     # 템플릿에 전달
     return render(request, "tmp_origin.html", {
-        "cpi_card_predict_html" : cpi_card_predict_html
+        "cpi_card_predict_html" : cpi_card_predict_html,
+        "K_cpi_indicator_html" : K_cpi_indicator_html,
+        "K_pce_indicator_html" : K_pce_indicator_html
     })
