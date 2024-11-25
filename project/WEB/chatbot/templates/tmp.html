@@ -321,7 +321,7 @@
                 <h3 class="text-lg font-semibold">환율 데이터</h3>
                 <div id="currency_rates_json">
                     <script>
-                        Plotly.newPlot('currency_rates_json', JSON.parse('{{ currency_rates_json | escapejs }}'), { responsive: true })
+                        Plotly.newPlot('currency_rates_json', JSON.parse('{{ currency_rates_json | escapejs }}'), { responsive: true, autosize: true })
                     </script>
                 </div>
             </div>
@@ -392,6 +392,8 @@
             'bankrate_indicator_json',
             'K_GDP_indicator_json',
             'cpi_card_predict_json',
+            'economic_indicators_table_json',
+            'currency_rates_json',
         ];
 
         // 챗봇 관련 함수들
