@@ -324,26 +324,32 @@ class InsightGenerator:
     def get_chart_data(self, chart_id):
         """차트 ID에 따른 실제 데이터 조회"""
         try:
-            # 엔진 재연결
             from sqlalchemy import create_engine
             engine = create_engine('mysql+pymysql://root:0000@localhost:3306/team5')
             
-            # chart_id에 따라 적절한 쿼리 선택
-            if 'bankrate_indicator' in chart_id:
-                query = "SELECT * FROM team5.bank_rate ORDER BY date DESC LIMIT 5"
-            elif 'K_GDP_indicator' in chart_id:
-                query = "SELECT * FROM team5.gdp_data ORDER BY date DESC LIMIT 5"
-            elif 'K_cpi_indicator' in chart_id:
-                query = "SELECT * FROM team5.cpi_data ORDER BY date DESC LIMIT 5"
-            elif 'card_total_sales_ladar' in chart_id:
-                query = "SELECT * FROM team5.card_sales LIMIT 5"
-            elif 'wooricard_sales_treemap' in chart_id:
-                query = "SELECT * FROM team5.woori_card LIMIT 5"
-            else:
-                return "해당 차트의 데이터가 준비중입니다."
+            # 차트 ID별 쿼리 매핑
+            query_map = {
+                'gender_json': "SELECT * FROM team5.card_category_gender ORDER BY date DESC LIMIT 10",
+                'card_total_sales_ladar_json': "SELECT * FROM team5.card_sales ORDER BY date DESC LIMIT 10",
+                'wooricard_sales_treemap_json': "SELECT * FROM team5.woori_card ORDER BY date DESC LIMIT 10",
+                'tour_servey_json': "SELECT * FROM team5.tour_survey ORDER BY date DESC LIMIT 10",
+                'travel_trend_line_json': "SELECT * FROM team5.travel_trend ORDER BY date DESC LIMIT 10",
+                'currency_rates_json': "SELECT * FROM team5.currency_rates ORDER BY date DESC LIMIT 10",
+                'bankrate_indicator_json': "SELECT * FROM team5.bank_rate ORDER BY date DESC LIMIT 10",
+                'K_GDP_indicator_json': "SELECT * FROM team5.gdp_data ORDER BY date DESC LIMIT 10",
+                'K_cpi_indicator_json': "SELECT * FROM team5.cpi_data ORDER BY date DESC LIMIT 10",
+                'K_pce_indicator_json': "SELECT * FROM team5.pce_data ORDER BY date DESC LIMIT 10",
+                'K_USD_indicator_json': "SELECT * FROM team5.usd_rate ORDER BY date DESC LIMIT 10",
+                'K_growth_indicator_json': "SELECT * FROM team5.growth_rate ORDER BY date DESC LIMIT 10",
+                'economic_indicators_table_json': "SELECT * FROM team5.fred_data ORDER BY date DESC LIMIT 10",
+                'cpi_card_predict_json': "SELECT * FROM team5.cpi_card_predict ORDER BY date DESC LIMIT 10"
+            }
             
-            df = pd.read_sql(query, engine)
-            engine.dispose()  # 연결 종료
+            if chart_id not in query_map:
+                return "해당 차트의 데이터가 준비중입니다."
+                
+            df = pd.read_sql(query_map[chart_id], engine)
+            engine.dispose()
             
             if df.empty:
                 return "데이터가 없습니다."
@@ -351,31 +357,54 @@ class InsightGenerator:
             return df.to_string()
             
         except Exception as e:
-            print(f"Error in get_chart_data: {str(e)}")  # 서버 로그에 에러 출력
-            return f"데이터 조회 중 오류가 발생했습니다: {str(e)}"
+            print(f"Error in get_chart_data: {str(e)}")
+            return "분석 준비중입니다."
         
     def generate_chart_insight(self, chart_id, chart_data):
         """차트별 인사이트 생성"""
+        # 차트별 컨텍스트 매핑
+        context_map = {
+            'gender_json': "성별에 따른 카드 사용 패턴",
+            'card_total_sales_ladar_json': "카드사별 총 매출 현황",
+            'wooricard_sales_treemap_json': "우리카드 실제 매출 구조",
+            'tour_servey_json': "여행 관련 소비자 설문 결과",
+            'travel_trend_line_json': "여행 트렌드 변화",
+            'currency_rates_json': "주요 환율 동향",
+            'bankrate_indicator_json': "금리 변동 추이",
+            'K_GDP_indicator_json': "GDP 성장률 동향",
+            'K_cpi_indicator_json': "소비자물가지수 변화",
+            'K_pce_indicator_json': "개인소비지출 동향",
+            'K_USD_indicator_json': "달러 환율 추이",
+            'K_growth_indicator_json': "경제성장률 동향",
+            'economic_indicators_table_json': "주요 경제지표 현황",
+            'cpi_card_predict_json': "물가와 카드소비 연관성"
+        }
+        
         base_prompt = f"""
-        다음은 {chart_id}에 대한 최근 데이터입니다:
+        다음은 {context_map.get(chart_id, '차트')}에 대한 최근 데이터입니다:
         {chart_data}
         
-        이 데이터를 기반으로 다음 조건을 만족하는 인사이트를 생성해주세요:
-        1. 핵심 트렌드나 변화 패턴 포함
-        2. 비즈니스적 시사점 또는 실행 가능한 제안 제시
-        3. 50자 이내로 명확하고 간결하게 작성
-        """
+        다음 두 가지 분석을 수행해주세요:
+        1. 데이터 변화 요약 (15자 내외):
+        - read_sql에서 조회된 구체적인 데이터 변화 수치 설명
+        - 눈에 띄는 패턴이 있을시 우선적으로 해당 데이터와 기간을 설명
+        - 예시) "(00)기간 동안 (sql_컬럼)이 (변화율|변화 수치) 증가/감소/유지"
         
-        if 'bankrate' in chart_id:
-            base_prompt += "\n특히 금리 변동이 시장에 미치는 영향을 중점적으로 분석해주세요."
-        elif 'GDP' in chart_id:
-            base_prompt += "\n특히 경제 성장에 대한 시사점을 중점적으로 분석해주세요."
+        2. 카드 개발/마케팅 관점의 시사점 (20자 내외):
+        - 상품 개발시 유의점 제안
+        - 상품 개발 방향
+        - 마케팅 전략 제안
+        
+        결과는 다음 형식으로 제시:
+        [변화] (분석1)
+        [제안] (분석2)
+        """
         
         try:
             response = self.client.chat.completions.create(
                 model="gpt-4o-mini",
                 messages=[
-                    {"role": "system", "content": "You are an expert financial analyst providing clear, actionable insights in Korean."},
+                    {"role": "system", "content": "You are a financial data analyst expert in card industry."},
                     {"role": "user", "content": base_prompt}
                 ],
                 max_tokens=100,
@@ -383,5 +412,4 @@ class InsightGenerator:
             )
             return response.choices[0].message.content.strip()
         except Exception as e:
-            return f"인사이트 생성 중 오류 발생: {str(e)}"
-        
+            return "분석 준비중입니다."
