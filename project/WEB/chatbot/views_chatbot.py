@@ -7,10 +7,68 @@ import urllib.parse
 import requests
 from bs4 import BeautifulSoup
 from chatbot.sql import engine
+from opensearchpy import OpenSearch
 import os
 from dotenv import load_dotenv
 
 load_dotenv()
+############################################################################################################
+# 여기에 오픈 서치 내용 만들기
+client = OpenSearch(
+    hosts = [{'host': os.getenv("OPENSEARCH_HOST"), 'port': os.getenv("OPENSEARCH_PORT")}]
+)
+def search_embedding(query_embedding):
+    """
+    주어진 임베딩에 가장 유사한 문서 검색.
+    """
+    index = 'korean_law_data'
+    num_results=10
+    field_name = "embedding_vector"  # 검색할 임베딩 필드
+    try:
+        body = {
+            "size": num_results,
+            "query": {
+                "script_score": {
+                    "query": {
+                        "match_all": {}
+                    },
+                    "script": {
+                        "source": f"cosineSimilarity(params.query_vector, '{field_name}') + 1.0",
+                        "params": {
+                            "query_vector": query_embedding
+                        }
+                    }
+                }
+            }
+        }
+
+        # 검색 실행
+        res = client.search(index=index, body=body)
+        return res
+    except Exception as e:
+        print(f"Error executing search: {e}")
+        return None
+    
+def os_output_text(query_embedding):
+    BEST_SCORE_THRESHOLD = 1.7
+    matched_texts = ""
+    best_score = 0
+
+    res = search_embedding(query_embedding)
+    if res:
+        i = 0
+        for hit in res['hits']['hits']:
+            score = hit['_score']
+            text = hit['_source'].get('content') 
+            # 임계값 이상의 점수를 가진 텍스트를 최대 5개까지 추가
+            if score >= BEST_SCORE_THRESHOLD and len(text) > 30 and i < 5:
+                matched_texts += text + "\n"
+                i += 1
+        best_score = res['hits']['hits'][0]['_score']
+        return matched_texts
+    else:
+        print('유사 항목 없음')
+############################################################################################################
 
 def execute_query_to_dataframe(query):
     try:
@@ -100,13 +158,17 @@ def get_wikipedia_content(keyword):
 def answer_question_with_context(query, context=None):
     # Search for relevant documents
     search_query = generate_query(query)
+    ############################################################################################################
+    # 여기에 오픈 서치 내용 만들기
+    os_relevant_docs = os_output_text(search_query)
+    ############################################################################################################   
     relevant_docs = execute_query_to_dataframe(search_query)
-
+    
     # 컨텍스트가 있는 경우와 없는 경우에 따라 프롬프트 구성
     context_text = f"\nAdditional context from Wikipedia:\n{context}" if context else ""
     
     prompt = f"""
-    The following is a table of data extracted from an OpenSearch query:\n\n{relevant_docs}\n
+    The following is a table of data extracted from an OpenSearch query:\n\n{os_relevant_docs}\n\n{relevant_docs}\n
     {context_text}\n
     Based on this data and context, provide an effective and detailed answer to the following natural language query: {query}
     
