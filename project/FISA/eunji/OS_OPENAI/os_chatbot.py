@@ -24,34 +24,34 @@ def search_embedding(query_embedding):
         }
 
         # 검색 실행
-        res = es.search(index=index, body=body)
+        res = client.search(index=index, body=body)
         return res
     except Exception as e:
         print(f"Error executing search: {e}")
         return None
     
-def os_output_text(index, query_embedding):
-    res = search_embedding(index, query_embedding, 10)
+def os_output_text(query_embedding):
+    BEST_SCORE_THRESHOLD = 1.7
+    matched_texts = ""
+    best_score = 0
+
+    res = search_embedding(query_embedding)
     if res:
         i = 0
         for hit in res['hits']['hits']:
             score = hit['_score']
-            text0 = hit['_source'].get('제목') 
-            text1 = hit['_source'].get('개정이유')  
-            text2 = hit['_source'].get('주요내용')
-            text = text0 + "\n" + text1 + text2
-
+            text = hit['_source'].get('content') 
             # 임계값 이상의 점수를 가진 텍스트를 최대 5개까지 추가
             if score >= BEST_SCORE_THRESHOLD and len(text) > 30 and i < 5:
                 matched_texts += text + "\n"
                 i += 1
         best_score = res['hits']['hits'][0]['_score']
+        return matched_texts
     else:
         print('유사 항목 없음')
 
 
-
-def generate_answer(query, index=None, pre_msgs=None):
+def generate_answer(query_embedding, index=None, pre_msgs=None):
     """
     질문에 대해 가장 유사한 텍스트를 바탕으로 응답을 생성합니다.
     가까운 유사 항목이 없을 경우 질문만을 바탕으로 응답을 생성합니다.
@@ -64,7 +64,6 @@ def generate_answer(query, index=None, pre_msgs=None):
 
     # 인덱스가 지정된 경우 유사한 임베딩 검색 수행
     if index:
-        query_embedding = generate_embedding(query)
         res = search_embedding(index, query_embedding, 10)
         if res:
             i = 0
