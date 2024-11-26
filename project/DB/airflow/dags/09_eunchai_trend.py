@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+import pandas as pd
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from collections import Counter
@@ -8,10 +9,18 @@ from konlpy.tag import Okt
 from datetime import datetime
 from airflow import DAG
 from airflow.operators.python import PythonOperator
+from sqlalchemy import create_engine
 from opensearchpy import OpenSearch
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
+# MySQL 연결 정보 설정
+username = os.getenv('sql_username')
+password = os.getenv('sql_password')
+host = os.getenv('sql_host')
+port = os.getenv('sql_port')
+engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/team5")
+
 
 NAVER_CLIENT_ID = os.getenv("NAVER_API_ID")
 NAVER_CLIENT_SECRET = os.getenv("NAVER_API_SECRET")
@@ -196,7 +205,7 @@ def upload_to_opensearch(data):
             trend_growth = item['trend_growth']
             related_articles = item.get('related_articles', [])
             monthly_ratios = item['monthly_ratios']
-
+            data = []
             for period, ratio in monthly_ratios.items():
                 # 문서 데이터 구성
                 document = {
@@ -210,9 +219,11 @@ def upload_to_opensearch(data):
                     'related_articles': related_articles,
                     'upload_date': today  # 업로드 날짜
                 }
+                data.append(document)
                 print(f"Uploading {word} for period {period} with ratio {ratio}")
                 client.index(index=index_name, body=document)
-
+            df = pd.DataFrame(data)
+            df.to_sql('new_trend', con=engine, if_exists='replace', index=False)  # MySQL에 저장
     print(f"All data uploaded to OpenSearch index {index_name}.")
 
 def run_pipeline_with_trends_and_upload():

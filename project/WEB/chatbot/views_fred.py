@@ -78,8 +78,7 @@ def gdp_and_rates_view():
         paper_bgcolor='white',
         font=dict(color='black'),
         showlegend=True,
-        legend=dict(x=0, y=1),
-        color_discrete_sequence = 'Plotly'
+        legend=dict(x=0, y=1)
     )
 
     return to_json(fig)
@@ -217,33 +216,58 @@ def employment_trends_view():
 def economic_indicators_table_view():    
     try:
         # 정확히 최근 5년치 데이터만 가져오기
-        query = """
-        WITH RankedData AS (
-        SELECT 
-            date,
-            FIRST_VALUE(`FFTR`) OVER (ORDER BY CASE WHEN `FFTR` IS NOT NULL THEN date END DESC) as FFTR,
-            FIRST_VALUE(`GDP`) OVER (ORDER BY CASE WHEN `GDP` IS NOT NULL THEN date END DESC) as GDP,
-            FIRST_VALUE(`GDP Growth Rate`) OVER (ORDER BY CASE WHEN `GDP Growth Rate` IS NOT NULL THEN date END DESC) as `GDP Growth Rate`,
-            FIRST_VALUE(`PCE`) OVER (ORDER BY CASE WHEN `PCE` IS NOT NULL THEN date END DESC) as PCE,
-            FIRST_VALUE(`Core PCE`) OVER (ORDER BY CASE WHEN `Core PCE` IS NOT NULL THEN date END DESC) as `Core PCE`,
-            FIRST_VALUE(`CPI`) OVER (ORDER BY CASE WHEN `CPI` IS NOT NULL THEN date END DESC) as CPI,
-            FIRST_VALUE(`Core CPI`) OVER (ORDER BY CASE WHEN `Core CPI` IS NOT NULL THEN date END DESC) as `Core CPI`,
-            FIRST_VALUE(`Personal Income`) OVER (ORDER BY CASE WHEN `Personal Income` IS NOT NULL THEN date END DESC) as `Personal Income`,
-            FIRST_VALUE(`Unemployment Rate`) OVER (ORDER BY CASE WHEN `Unemployment Rate` IS NOT NULL THEN date END DESC) as `Unemployment Rate`,
-            FIRST_VALUE(`ISM Manufacturing`) OVER (ORDER BY CASE WHEN `ISM Manufacturing` IS NOT NULL THEN date END DESC) as `ISM Manufacturing`,
-            FIRST_VALUE(`Durable Goods Orders`) OVER (ORDER BY CASE WHEN `Durable Goods Orders` IS NOT NULL THEN date END DESC) as `Durable Goods Orders`,
-            FIRST_VALUE(`Building Permits`) OVER (ORDER BY CASE WHEN `Building Permits` IS NOT NULL THEN date END DESC) as `Building Permits`,
-            FIRST_VALUE(`Retail Sales`) OVER (ORDER BY CASE WHEN `Retail Sales` IS NOT NULL THEN date END DESC) as `Retail Sales`,
-            FIRST_VALUE(`Consumer Sentiment`) OVER (ORDER BY CASE WHEN `Consumer Sentiment` IS NOT NULL THEN date END DESC) as `Consumer Sentiment`,
-            FIRST_VALUE(`Nonfarm Payrolls`) OVER (ORDER BY CASE WHEN `Nonfarm Payrolls` IS NOT NULL THEN date END DESC) as `Nonfarm Payrolls`,
-            FIRST_VALUE(`JOLTS Hires`) OVER (ORDER BY CASE WHEN `JOLTS Hires` IS NOT NULL THEN date END DESC) as `JOLTS Hires`
-        FROM team5.fred_data
-        WHERE date IS NOT NULL
+        query = """   
+        WITH LatestValues AS (
+            SELECT 
+                date,
+                FIRST_VALUE(`FFTR`) OVER (ORDER BY CASE WHEN `FFTR` IS NOT NULL THEN date END DESC) as FFTR,
+                FIRST_VALUE(`GDP`) OVER (ORDER BY CASE WHEN `GDP` IS NOT NULL THEN date END DESC) as GDP,
+                FIRST_VALUE(`GDP Growth Rate`) OVER (ORDER BY CASE WHEN `GDP Growth Rate` IS NOT NULL THEN date END DESC) as `GDP Growth Rate`,
+                FIRST_VALUE(`PCE`) OVER (ORDER BY CASE WHEN `PCE` IS NOT NULL THEN date END DESC) as PCE,
+                FIRST_VALUE(`Core PCE`) OVER (ORDER BY CASE WHEN `Core PCE` IS NOT NULL THEN date END DESC) as `Core PCE`,
+                FIRST_VALUE(`CPI`) OVER (ORDER BY CASE WHEN `CPI` IS NOT NULL THEN date END DESC) as CPI,
+                FIRST_VALUE(`Core CPI`) OVER (ORDER BY CASE WHEN `Core CPI` IS NOT NULL THEN date END DESC) as `Core CPI`,
+                FIRST_VALUE(`Personal Income`) OVER (ORDER BY CASE WHEN `Personal Income` IS NOT NULL THEN date END DESC) as `Personal Income`,
+                FIRST_VALUE(`Unemployment Rate`) OVER (ORDER BY CASE WHEN `Unemployment Rate` IS NOT NULL THEN date END DESC) as `Unemployment Rate`,
+                FIRST_VALUE(`ISM Manufacturing`) OVER (ORDER BY CASE WHEN `ISM Manufacturing` IS NOT NULL THEN date END DESC) as `ISM Manufacturing`,
+                FIRST_VALUE(`Durable Goods Orders`) OVER (ORDER BY CASE WHEN `Durable Goods Orders` IS NOT NULL THEN date END DESC) as `Durable Goods Orders`,
+                FIRST_VALUE(`Building Permits`) OVER (ORDER BY CASE WHEN `Building Permits` IS NOT NULL THEN date END DESC) as `Building Permits`,
+                FIRST_VALUE(`Retail Sales`) OVER (ORDER BY CASE WHEN `Retail Sales` IS NOT NULL THEN date END DESC) as `Retail Sales`,
+                FIRST_VALUE(`Consumer Sentiment`) OVER (ORDER BY CASE WHEN `Consumer Sentiment` IS NOT NULL THEN date END DESC) as `Consumer Sentiment`,
+                FIRST_VALUE(`Nonfarm Payrolls`) OVER (ORDER BY CASE WHEN `Nonfarm Payrolls` IS NOT NULL THEN date END DESC) as `Nonfarm Payrolls`,
+                FIRST_VALUE(`JOLTS Hires`) OVER (ORDER BY CASE WHEN `JOLTS Hires` IS NOT NULL THEN date END DESC) as `JOLTS Hires`
+            FROM team5.fred_data
+            WHERE date IS NOT NULL
+        ),
+        SecondValues AS (
+            SELECT 
+                date,
+                FIRST_VALUE(`FFTR`) OVER (ORDER BY CASE WHEN `FFTR` IS NOT NULL AND `FFTR` != (SELECT FFTR FROM LatestValues LIMIT 1) THEN date END DESC) as FFTR,
+                FIRST_VALUE(`GDP`) OVER (ORDER BY CASE WHEN `GDP` IS NOT NULL AND `GDP` != (SELECT GDP FROM LatestValues LIMIT 1) THEN date END DESC) as GDP,
+                FIRST_VALUE(`GDP Growth Rate`) OVER (ORDER BY CASE WHEN `GDP Growth Rate` IS NOT NULL AND `GDP Growth Rate` != (SELECT `GDP Growth Rate` FROM LatestValues LIMIT 1) THEN date END DESC) as `GDP Growth Rate`,
+                FIRST_VALUE(`PCE`) OVER (ORDER BY CASE WHEN `PCE` IS NOT NULL AND `PCE` != (SELECT PCE FROM LatestValues LIMIT 1) THEN date END DESC) as PCE,
+                FIRST_VALUE(`Core PCE`) OVER (ORDER BY CASE WHEN `Core PCE` IS NOT NULL AND `Core PCE` != (SELECT `Core PCE` FROM LatestValues LIMIT 1) THEN date END DESC) as `Core PCE`,
+                FIRST_VALUE(`CPI`) OVER (ORDER BY CASE WHEN `CPI` IS NOT NULL AND `CPI` != (SELECT CPI FROM LatestValues LIMIT 1) THEN date END DESC) as CPI,
+                FIRST_VALUE(`Core CPI`) OVER (ORDER BY CASE WHEN `Core CPI` IS NOT NULL AND `Core CPI` != (SELECT `Core CPI` FROM LatestValues LIMIT 1) THEN date END DESC) as `Core CPI`,
+                FIRST_VALUE(`Personal Income`) OVER (ORDER BY CASE WHEN `Personal Income` IS NOT NULL AND `Personal Income` != (SELECT `Personal Income` FROM LatestValues LIMIT 1) THEN date END DESC) as `Personal Income`,
+                FIRST_VALUE(`Unemployment Rate`) OVER (ORDER BY CASE WHEN `Unemployment Rate` IS NOT NULL AND `Unemployment Rate` != (SELECT `Unemployment Rate` FROM LatestValues LIMIT 1) THEN date END DESC) as `Unemployment Rate`,
+                FIRST_VALUE(`ISM Manufacturing`) OVER (ORDER BY CASE WHEN `ISM Manufacturing` IS NOT NULL AND `ISM Manufacturing` != (SELECT `ISM Manufacturing` FROM LatestValues LIMIT 1) THEN date END DESC) as `ISM Manufacturing`,
+                FIRST_VALUE(`Durable Goods Orders`) OVER (ORDER BY CASE WHEN `Durable Goods Orders` IS NOT NULL AND `Durable Goods Orders` != (SELECT `Durable Goods Orders` FROM LatestValues LIMIT 1) THEN date END DESC) as `Durable Goods Orders`,
+                FIRST_VALUE(`Building Permits`) OVER (ORDER BY CASE WHEN `Building Permits` IS NOT NULL AND `Building Permits` != (SELECT `Building Permits` FROM LatestValues LIMIT 1) THEN date END DESC) as `Building Permits`,
+                FIRST_VALUE(`Retail Sales`) OVER (ORDER BY CASE WHEN `Retail Sales` IS NOT NULL AND `Retail Sales` != (SELECT `Retail Sales` FROM LatestValues LIMIT 1) THEN date END DESC) as `Retail Sales`,
+                FIRST_VALUE(`Consumer Sentiment`) OVER (ORDER BY CASE WHEN `Consumer Sentiment` IS NOT NULL AND `Consumer Sentiment` != (SELECT `Consumer Sentiment` FROM LatestValues LIMIT 1) THEN date END DESC) as `Consumer Sentiment`,
+                FIRST_VALUE(`Nonfarm Payrolls`) OVER (ORDER BY CASE WHEN `Nonfarm Payrolls` IS NOT NULL AND `Nonfarm Payrolls` != (SELECT `Nonfarm Payrolls` FROM LatestValues LIMIT 1) THEN date END DESC) as `Nonfarm Payrolls`,
+                FIRST_VALUE(`JOLTS Hires`) OVER (ORDER BY CASE WHEN `JOLTS Hires` IS NOT NULL AND `JOLTS Hires` != (SELECT `JOLTS Hires` FROM LatestValues LIMIT 1) THEN date END DESC) as `JOLTS Hires`
+            FROM team5.fred_data
+            WHERE date IS NOT NULL
+        ),
+        UniqueRankedData AS (
+            (SELECT * FROM LatestValues LIMIT 1)
+            UNION ALL
+            (SELECT * FROM SecondValues LIMIT 1)
         )
-        SELECT * 
-        FROM RankedData
-        ORDER BY date desc
-        LIMIT 2;
+        SELECT * FROM UniqueRankedData
+        ORDER BY date ASC;
         """
         fred_table_data = pd.read_sql(query, engine)
         
@@ -338,13 +362,13 @@ def economic_indicators_table_view():
                 return "N/A"
                 
             if indicator in ['GDP Growth Rate', 'FFTR', 'Unemployment Rate', 'CPI', 'Core CPI', 'Core PCE']:
-                return f"{value:.1f}%"
+                return f"{value:.2f}%"
             elif indicator in ['GDP', 'PCE', 'Personal Income', 'Retail Sales']:
-                return f"${value:.1f}B"
+                return f"${value:.2f}B"
             elif indicator in ['Nonfarm Payrolls', 'ISM Manufacturing', 'Building Permits', 'JOLTS Hires']:
-                return f"{value:.1f}K"
+                return f"{value:.2f}K"
             else:
-                return f"{value:.1f}"
+                return f"{value:.2f}"
 
         # 테이블 데이터 준비
         events_data = []
