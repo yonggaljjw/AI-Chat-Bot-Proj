@@ -160,7 +160,8 @@ def answer_question_with_context(query, context=None):
     search_query = generate_query(query)
     ############################################################################################################
     # 여기에 오픈 서치 내용 만들기
-    os_relevant_docs = os_output_text(search_query)
+    embedding_qury = get_embedding(query)
+    os_relevant_docs = os_output_text(embedding_qury)
     ############################################################################################################   
     relevant_docs = execute_query_to_dataframe(search_query)
     
