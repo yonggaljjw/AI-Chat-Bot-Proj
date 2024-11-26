@@ -43,7 +43,56 @@
             background-color: rgba(156, 163, 175, 0.5);
             border-radius: 3px;
         }
-    </style>
+        /* 대시보드 내 한 줄 인사이트 제공 */
+        /* 챗봇 아이콘 스타일 */
+        .insight-tooltip {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: inline-block;
+        z-index: 20;
+        }
+
+        .insight-icon {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+
+        .insight-icon:hover {
+            opacity: 1;
+        }
+
+        .insight-content {
+            visibility: hidden;
+            position: absolute;
+            right: 25px;
+            top: 0;
+            background-color: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            padding: 8px 12px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            width: 250px;
+            z-index: 50;
+            font-size: 14px;
+            color: #4a5568;
+            transition: visibility 0.2s;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        .insight-tooltip:hover .insight-content {
+            visibility: visible;
+        }
+
+        /* 차트 컨테이너에 position: relative 추가 */
+        .shadow-md {
+            position: relative;
+        }
+        </style>
 </head>
 
 <body class="bg-gray-100">
@@ -342,7 +391,16 @@
         const chatMessages = document.getElementById('chat-messages');
         const powerModeToggle = document.getElementById('power-mode-toggle');
         const sidebarButtons = document.querySelectorAll('[data-page]');
-
+    
+        // 인사이트 아이콘 SVG 정의
+        const INSIGHT_ICON = `
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 16v-4"></path>
+                <path d="M12 8h.01"></path>
+            </svg>
+        `;
+    
         // 대시보드 콘텐츠 매핑
         const contents = {
             'dashboard-one': document.getElementById('dashboard-content-one'),
@@ -351,6 +409,7 @@
             'dashboard-four': document.getElementById('dashboard-content-four'),
             'dashboard-five': document.getElementById('dashboard-content-five'),
         };
+    
         // 대시보드 헤더 정보 설정
         const headerConfig = {
             'dashboard-one': {
@@ -374,13 +433,7 @@
                 subtitle: '종합 분석 리포트'
             }
         };
-
-        // Chart One 
-        const chartsOne = [
-            'bankrate_indicator_json',
-            'K_GDP_indicator_json',
-            'cpi_card_predict_json',
-        ]
+    
         // 차트 관련 설정
         const charts = [
             'card_total_sales_ladar_json',
@@ -395,7 +448,7 @@
             'economic_indicators_table_json',
             'currency_rates_json',
         ];
-
+    
         // 챗봇 관련 함수들
         const chatbot = {
             toggleWindow: () => chatWindow.classList.toggle('hidden'),
@@ -432,7 +485,7 @@
                 }
             }
         };
-
+    
         // 차트 관련 함수들
         const chartUtils = {
             resizeAll: () => {
@@ -455,7 +508,7 @@
                         }
                     });
                 });
-
+    
                 const dashboardContents = document.querySelectorAll('[id^="dashboard-content-"]');
                 dashboardContents.forEach(content => {
                     observer.observe(content, {
@@ -464,29 +517,25 @@
                 });
             }
         };
-
+    
         // 페이지 전환 함수
         const pageManager = {
             switchPage: (pageId) => {
-                // 모든 콘텐츠 숨기기
                 Object.values(contents).forEach(content => {
                     if (content) content.classList.add('hidden');
                 });
-
-                // 선택된 콘텐츠만 보이기
+    
                 if (contents[pageId]) {
                     contents[pageId].classList.remove('hidden');
-
-                    // 헤더 업데이트
                     const headerInfo = headerConfig[pageId];
                     const dashboardHeader = document.getElementById('dashboard-header');
                     if (headerInfo && dashboardHeader) {
                         dashboardHeader.innerHTML = `
-                        <h1 class="text-2xl font-bold text-gray-800">${headerInfo.title}</h1>
-                        <p class="text-sm text-gray-600">${headerInfo.subtitle}</p>
-                    `;
+                            <h1 class="text-2xl font-bold text-gray-800">${headerInfo.title}</h1>
+                            <p class="text-sm text-gray-600">${headerInfo.subtitle}</p>
+                        `;
                     }
-
+    
                     setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
                 }
             },
@@ -495,30 +544,95 @@
                 activeButton.classList.add('bg-gray-300');
             }
         };
-
+    
+        // 인사이트 관련 함수들
+        const insightManager = {
+            initialize: () => {
+                const dashboardContents = [
+                    document.getElementById('dashboard-content-one'),
+                    document.getElementById('dashboard-content-two')
+                ];
+    
+                dashboardContents.forEach(content => {
+                    if (!content) return;
+                    
+                    const chartContainers = content.querySelectorAll('.shadow-md');
+                    chartContainers.forEach(container => {
+                        const jsonElement = container.querySelector('[id$="_json"]');
+                        const titleElement = container.querySelector('h3');
+                        const chartId = jsonElement?.id || titleElement?.id || 'unknown';
+                        
+                        if (container.querySelector('.insight-tooltip')) return;
+                        
+                        const tooltipDiv = document.createElement('div');
+                        tooltipDiv.className = 'insight-tooltip';
+                        tooltipDiv.innerHTML = `
+                            ${INSIGHT_ICON}
+                            <div class="insight-content" id="insight-content-${chartId}">
+                                <div class="animate-pulse">인사이트 로딩중...</div>
+                            </div>
+                        `;
+                        
+                        container.appendChild(tooltipDiv);
+                        insightManager.loadInsight(chartId, tooltipDiv.querySelector('.insight-content'));
+                    });
+                });
+            },
+    
+            loadInsight: (chartId, contentElement) => {
+                console.log(`Loading insight for chart: ${chartId}`); // 디버깅용
+                fetch(`/chatbot/send/?chartId=${encodeURIComponent(chartId)}`, {
+                    method: 'GET',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                        'Content-Type': 'application/json'
+                    }
+                })
+                .then(response => {
+                    console.log('Response status:', response.status); // 디버깅용
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Received data:', data); // 디버깅용
+                    if (data.status === 'success') {
+                        contentElement.innerHTML = data.insight;
+                    } else {
+                        throw new Error(data.message || '인사이트를 불러올 수 없습니다.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading insight:', error);
+                    contentElement.innerHTML = '현재 서비스 준비중입니다.';
+                });
+            }
+        };
+    
         // 이벤트 리스너 설정
         const initEventListeners = () => {
             // 챗봇 이벤트
             chatIcon.addEventListener('click', chatbot.toggleWindow);
             closeChat.addEventListener('click', chatbot.closeWindow);
-
+    
             chatForm.addEventListener('submit', function (e) {
                 e.preventDefault();
                 const message = messageInput.value.trim();
                 if (!message) return;
-
+    
                 chatbot.appendMessage(message, true);
                 chatbot.sendMessage(message);
                 messageInput.value = '';
             });
-
+    
             // 리사이즈 이벤트
             let resizeTimeout;
             window.addEventListener('resize', () => {
                 clearTimeout(resizeTimeout);
                 resizeTimeout = setTimeout(chartUtils.resizeAll, 100);
             });
-
+    
             // 사이드바 버튼 이벤트
             sidebarButtons.forEach(button => {
                 button.addEventListener('click', function () {
@@ -528,21 +642,22 @@
                 });
             });
         };
-
+    
         // 초기화 함수 
         const initialize = () => {
             initEventListeners();
             chartUtils.initResizeObserver();
-
+            insightManager.initialize(); // 인사이트 초기화 추가
+    
             // 첫 번째 대시보드 버튼에 활성화 스타일 적용
             const firstDashboardButton = document.querySelector('[data-page="dashboard-one"]');
             if (firstDashboardButton) {
                 pageManager.updateButtonStyles(firstDashboardButton);
             }
-
+    
             setTimeout(chartUtils.resizeAll, 100);
         };
-
+    
         initialize();
     });
-</script>
+    </script>

@@ -249,9 +249,45 @@ def get_google_search_content(keyword):
     except Exception as e:
         return f"검색 중 오류 발생: {str(e)}"
 
+
+
+# 대시보드 내 한 줄 인사이트 제공
 @csrf_exempt
 def chatbot_response(request):
-    if request.method == 'POST':
+    # GET 요청 처리 (차트 인사이트)
+    if request.method == 'GET':
+        chart_id = request.GET.get('chartId')
+        if chart_id:
+            try:
+                # OpenAI 클라이언트 초기화 및 인사이트 생성기 설정
+                insight_generator = InsightGenerator(openai)
+                
+                # 차트 데이터 조회
+                chart_data = insight_generator.get_chart_data(chart_id)
+                
+                if not chart_data or "No data available" in chart_data:
+                    return JsonResponse({
+                        'status': 'success',
+                        'insight': '이 차트에 대한 데이터를 찾을 수 없습니다.'
+                    })
+                
+                # 인사이트 생성
+                insight = insight_generator.generate_chart_insight(chart_id, chart_data)
+                
+                return JsonResponse({
+                    'status': 'success',
+                    'insight': insight
+                })
+                
+            except Exception as e:
+                print(f"Error generating insight: {str(e)}")  # 디버깅용
+                return JsonResponse({
+                    'status': 'error',
+                    'message': str(e)
+                }, status=500)
+    
+    # POST 요청 처리 (기존 챗봇 대화)
+    elif request.method == 'POST':
         try:
             data = json.loads(request.body)
             user_message = data.get('message', '')
@@ -259,15 +295,12 @@ def chatbot_response(request):
             
             search_context = None
             if is_power_mode:
-                # 사용자 메시지에서 키워드 추출
                 keyword = extract_keywords(user_message)
                 print(f"추출된 키워드: {keyword}")  # 디버깅용
                 
-                # 추출된 키워드로 구글 검색 수행
                 search_context = get_google_search_content(keyword)
                 print(f"Google 검색 컨텍스트: {search_context[:100]}...")  # 디버깅용
             
-            # 컨텍스트를 포함하여 응답 생성
             bot_response = f"우대리: {answer_question_with_context(user_message, search_context)}"
             
             return JsonResponse({
@@ -281,3 +314,73 @@ def chatbot_response(request):
             })
             
     return JsonResponse({'status': 'error'}, status=400)
+
+
+class InsightGenerator:
+    def __init__(self, openai_client):
+        self.client = openai_client
+        
+    def get_chart_data(self, chart_id):
+        """차트 ID에 따른 실제 데이터 조회"""
+        try:
+            # 엔진 재연결
+            from sqlalchemy import create_engine
+            engine = create_engine('mysql+pymysql://root:0000@localhost:3306/team5')
+            
+            # chart_id에 따라 적절한 쿼리 선택
+            if 'bankrate_indicator' in chart_id:
+                query = "SELECT * FROM team5.bank_rate ORDER BY date DESC LIMIT 5"
+            elif 'K_GDP_indicator' in chart_id:
+                query = "SELECT * FROM team5.gdp_data ORDER BY date DESC LIMIT 5"
+            elif 'K_cpi_indicator' in chart_id:
+                query = "SELECT * FROM team5.cpi_data ORDER BY date DESC LIMIT 5"
+            elif 'card_total_sales_ladar' in chart_id:
+                query = "SELECT * FROM team5.card_sales LIMIT 5"
+            elif 'wooricard_sales_treemap' in chart_id:
+                query = "SELECT * FROM team5.woori_card LIMIT 5"
+            else:
+                return "해당 차트의 데이터가 준비중입니다."
+            
+            df = pd.read_sql(query, engine)
+            engine.dispose()  # 연결 종료
+            
+            if df.empty:
+                return "데이터가 없습니다."
+                
+            return df.to_string()
+            
+        except Exception as e:
+            print(f"Error in get_chart_data: {str(e)}")  # 서버 로그에 에러 출력
+            return f"데이터 조회 중 오류가 발생했습니다: {str(e)}"
+        
+    def generate_chart_insight(self, chart_id, chart_data):
+        """차트별 인사이트 생성"""
+        base_prompt = f"""
+        다음은 {chart_id}에 대한 최근 데이터입니다:
+        {chart_data}
+        
+        이 데이터를 기반으로 다음 조건을 만족하는 인사이트를 생성해주세요:
+        1. 핵심 트렌드나 변화 패턴 포함
+        2. 비즈니스적 시사점 또는 실행 가능한 제안 제시
+        3. 50자 이내로 명확하고 간결하게 작성
+        """
+        
+        if 'bankrate' in chart_id:
+            base_prompt += "\n특히 금리 변동이 시장에 미치는 영향을 중점적으로 분석해주세요."
+        elif 'GDP' in chart_id:
+            base_prompt += "\n특히 경제 성장에 대한 시사점을 중점적으로 분석해주세요."
+        
+        try:
+            response = self.client.chat.completions.create(
+                model="gpt-4o-mini",
+                messages=[
+                    {"role": "system", "content": "You are an expert financial analyst providing clear, actionable insights in Korean."},
+                    {"role": "user", "content": base_prompt}
+                ],
+                max_tokens=100,
+                temperature=0.7
+            )
+            return response.choices[0].message.content.strip()
+        except Exception as e:
+            return f"인사이트 생성 중 오류 발생: {str(e)}"
+        
