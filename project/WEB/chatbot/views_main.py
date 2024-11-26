@@ -73,7 +73,7 @@ def dashboard_view_practice(request):
     korean_law_html = korean_law_view()
     # 여행
     tour_servey_json = tour_servey()
-    visualize_travel_advice_html = visualize_travel_advice(),
+    visualize_travel_advice_html = visualize_travel_advice()
     travel_trend_line_json = travel_trend_line()
     # 환율
     currency_rates_json = create_currency_view()
