@@ -10,6 +10,9 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="{% static 'js/dashboard.js' %}" nonce="{{ nonce }}" defer></script>
+    <script src="{% static 'js/chatbot.js' %}" defer></script>
+    <script src="{% static 'js/insight.js' %}" defer></script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -43,14 +46,46 @@
             background-color: rgba(156, 163, 175, 0.5);
             border-radius: 3px;
         }
+
+        /* 토글 버튼 스타일 */
+        .toggle-container {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .toggle-button {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease-in-out;
+            border: 1px solid #e5e7eb;
+        }
+
+        .toggle-button.active {
+            background-color: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .toggle-button.inactive {
+            background-color: white;
+            color: #4b5563;
+        }
+
+        .toggle-button.inactive:hover {
+            background-color: #f3f4f6;
+        }
+
         /* 대시보드 내 한 줄 인사이트 제공 */
         /* 챗봇 아이콘 스타일 */
         .insight-tooltip {
-        position: absolute;
-        top: 8px;
-        right: 8px;
-        display: inline-block;
-        z-index: 20;
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            display: inline-block;
+            z-index: 100;
         }
 
         .insight-icon {
@@ -74,9 +109,9 @@
             border: 1px solid #e2e8f0;
             border-radius: 6px;
             padding: 8px 12px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             width: 250px;
-            z-index: 50;
+            z-index: 1000;
             font-size: 14px;
             color: #4a5568;
             transition: visibility 0.2s;
@@ -92,16 +127,16 @@
         .shadow-md {
             position: relative;
         }
-        </style>
+    </style>
 </head>
 
 <body class="bg-gray-100">
     <!-- Sidebar -->
-    <div class="fixed top-0 left-0 w-24 h-screen bg-white shadow-md flex flex-col p-4">
-        <div class="flex flex-col gap-4">
+    <div class="fixed top-0 left-0 w-16 h-screen bg-white shadow-md flex flex-col p-2">
+        <div class="flex flex-col gap-3">
             <!-- Icon-1 -->
-            <button
-                class="p-3 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+            <button type="button"
+                class="p-2 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
                 data-page="dashboard-one">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 16 16">
                     <path
@@ -110,50 +145,44 @@
             </button>
 
             <!-- Icon-2 -->
-            <button
-                class="p-3 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+            <button type="button"
+                class="p-2 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
                 data-page="dashboard-two">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 16 16">
-                    <path
-                        d="M.5 0a.5.5 0 0 1 .5.5v15a.5.5 0 0 1-1 0V.5A.5.5 0 0 1 .5 0M2 1.5a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-4a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h6a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-6a.5.5 0 0 1-.5-.5zm2 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-7a.5.5 0 0 1-.5-.5z" />
-                </svg>
-            </button>
-
-            <!-- Icon-3 -->
-            <button
-                class="p-3 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
-                data-page="dashboard-three">
-                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd"
-                        d="M0 .5A.5.5 0 0 1 .5 0h4a.5.5 0 0 1 0 1h-4A.5.5 0 0 1 0 .5m0 2A.5.5 0 0 1 .5 2h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m9 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-9 2A.5.5 0 0 1 .5 4h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m5 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h3a.5.5 0 0 1 0 1h-3a.5.5 0 0 1-.5-.5m-12 2A.5.5 0 0 1 .5 6h6a.5.5 0 0 1 0 1h-6a.5.5 0 0 1-.5-.5m8 0a.5.5 0 0 1 .5-.5h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m-8 2A.5.5 0 0 1 .5 8h5a.5.5 0 0 1 0 1h-5a.5.5 0 0 1-.5-.5m7 0a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7a.5.5 0 0 1-.5-.5m-7 2a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 0 1h-8a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h4a.5.5 0 0 1 0 1h-4a.5.5 0 0 1-.5-.5m0 2a.5.5 0 0 1 .5-.5h2a.5.5 0 0 1 0 1h-2a.5.5 0 0 1-.5-.5" />
-                </svg>
-            </button>
-
-            <!-- Icon-4 -->
-            <button
-                class="p-3 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
-                data-page="dashboard-four">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 16 16">
                     <path fill-rule="evenodd"
                         d="M0 0h1v15h15v1H0zm14.817 3.113a.5.5 0 0 1 .07.704l-4.5 5.5a.5.5 0 0 1-.74.037L7.06 6.767l-3.656 5.027a.5.5 0 0 1-.808-.588l4-5.5a.5.5 0 0 1 .758-.06l2.609 2.61 4.15-5.073a.5.5 0 0 1 .704-.07" />
                 </svg>
             </button>
 
-            <!-- Icon-5 -->
-            <button
-                class="p-3 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
-                data-page="dashboard-five">
+            <!-- Icon-3 -->
+            <button type="button"
+                class="p-2 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95"
+                data-page="dashboard-three">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 16 16">
                     <path
-                        d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2zm2-1a1 1 0 0 0-1 1v4h10V2a1 1 0 0 0-1-1zm9 6H6v2h7zm0 3H6v2h7zm0 3H6v2h6a1 1 0 0 0 1-1zm-8 2v-2H3v1a1 1 0 0 0 1 1zm-2-3h2v-2H3zm0-3h2V7H3z" />
+                        d="m10.495 6.92 1.278-.619a.483.483 0 0 0 .126-.782c-.252-.244-.682-.139-.932.107-.23.226-.513.373-.816.53l-.102.054c-.338.178-.264.626.1.736a.48.48 0 0 0 .346-.027ZM7.741 9.808V9.78a.413.413 0 1 1 .783.183l-.22.443a.6.6 0 0 1-.12.167l-.193.185a.36.36 0 1 1-.5-.516l.112-.108a.45.45 0 0 0 .138-.326M5.672 12.5l.482.233A.386.386 0 1 0 6.32 12h-.416a.7.7 0 0 1-.419-.139l-.277-.206a.302.302 0 1 0-.298.52z" />
+                    <path
+                        d="M8 0a8 8 0 1 0 0 16A8 8 0 0 0 8 0M1.612 10.867l.756-1.288a1 1 0 0 1 1.545-.225l1.074 1.005a.986.986 0 0 0 1.36-.011l.038-.037a.88.88 0 0 0 .26-.755c-.075-.548.37-1.033.92-1.099.728-.086 1.587-.324 1.728-.957.086-.386-.114-.83-.361-1.2-.207-.312 0-.8.374-.8.123 0 .24-.055.318-.15l.393-.474c.196-.237.491-.368.797-.403.554-.064 1.407-.277 1.583-.973.098-.391-.192-.634-.484-.88-.254-.212-.51-.426-.515-.741a7 7 0 0 1 3.425 7.692 1 1 0 0 0-.087-.063l-.316-.204a1 1 0 0 0-.977-.06l-.169.082a1 1 0 0 1-.741.051l-1.021-.329A1 1 0 0 0 11.205 9h-.165a1 1 0 0 0-.945.674l-.172.499a1 1 0 0 1-.404.514l-.802.518a1 1 0 0 0-.458.84v.455a1 1 0 0 0 1 1h.257a1 1 0 0 1 .542.16l.762.49a1 1 0 0 0 .283.126 7 7 0 0 1-9.49-3.409Z" />
                 </svg>
             </button>
+
+            <!-- split line -->
+            <div class="h-[1px] w-full bg-gray-200 my-2"></div>
+
+            <!-- Icon-4 -->
+            <a href="https://github.com/woori-fisa-ai-final/AI-Chat-Bot-Proj" target="_blank" rel="noopener noreferrer"
+                class="p-2 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 16 16">
+                    <path
+                        d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8" />
+                </svg>
+            </a>
         </div>
 
         <!-- Chat Bot Icon -->
         <div id="chat-icon" class="mt-auto">
-            <button
-                class="p-3 bg-gray-700 text-gray-300 hover:bg-gray-900 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95">
+            <button type="button"
+                class="p-2 bg-gray-700 text-gray-300 hover:bg-gray-900 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95">
                 <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="none" viewBox="0 0 24 24"
                     stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -167,7 +196,7 @@
     <!-- Chat Window -->
     <div class="offcanvas" tabindex="-1">
         <div id="chat-window"
-            class="fixed bottom-4 left-24 w-[40rem] h-[40rem] bg-white rounded-lg shadow-xl hidden flex flex-col">
+            class="fixed bottom-4 left-16 w-[40rem] h-[40rem] bg-white rounded-lg shadow-xl hidden flex flex-col">
             <!-- 채팅창 헤더 -->
             <div class="flex justify-between items-center p-4 border-b">
                 <h3 class="text-lg font-semibold">WOODAERI</h3>
@@ -210,90 +239,100 @@
     </div>
 
     <!-- 상단 고정 제목 영역 -->
-    <div class="fixed top-0 left-24 right-0 bg-blue-300 shadow-md z-10">
+    <div class="fixed top-0 left-16 right-0 bg-blue-300 shadow-md z-1000">
         <div id="dashboard-header" class="px-6 py-4">
             <h1 class="text-2xl font-bold text-gray-800">첫번째</h1>
             <p class="text-sm text-gray-600">카드 사용 현황 및 분석 리포트</p>
         </div>
     </div>
 
-    <!-- Main Content에 상단 여백 추가 -->
-    <div class="flex-1 ml-24 mt-20">
+    <!-- Main Content -->
+    <div class="flex-1 ml-16 mt-20 overflow-x-hidden">
         <!-- Dashboard Content one -->
         <div id="dashboard-content-one" class="grid grid-cols-12 p-3 gap-4">
             <!-- Indicator Row -->
-            <div class="col-span-12 row-span-1 grid grid-cols-6 gap-4">
+            <div class="col-span-12 row-span-1 grid grid-cols-6 gap-4 h-[calc(20vh)]">
                 <div class="bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold mb-2">금리</h3>
-                    <div id="bankrate_indicator_json">
-                        <script>
-                            Plotly.newPlot('bankrate_indicator_json', JSON.parse('{{ bankrate_indicator_json | escapejs }}'), { responsive: true, autosize: true })
-                        </script>
+                    <div id="bankrate_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold mb-2">GDP</h3>
-                    <div id="K_GDP_indicator_json">
-                        <script>
-                            Plotly.newPlot('K_GDP_indicator_json', JSON.parse('{{ K_GDP_indicator_json | escapejs }}'), { responsive: true, autosize: true })
-                        </script>
+                    <div id="K_GDP_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold mb-2">CPI</h3>
-                    <div id="K_cpi_indicator_json">
-                        <script>
-                            Plotly.newPlot('K_cpi_indicator_json', JSON.parse('{{ K_cpi_indicator_json | escapejs }}'), { responsive: true })
-                        </script>
+                    <div id="K_cpi_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold mb-2">PCE</h3>
-                    <div id="K_pce_indicator_json">
-                        <script>
-                            Plotly.newPlot('K_pce_indicator_json', JSON.parse('{{ K_pce_indicator_json | escapejs }}'), { responsive: true })
-                        </script>
+                    <div id="K_pce_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold mb-2">달러 환율</h3>
-                    <div id="K_USD_indicator_json">
-                        <script>
-                            Plotly.newPlot('K_USD_indicator_json', JSON.parse('{{ K_USD_indicator_json | escapejs }}'), { responsive: true, autosize: true })
-                        </script>
+                    <div id="K_USD_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
                     <h3 class="text-lg font-semibold mb-2">경제성장률</h3>
-                    <div id="K_growth_indicator_json">
-                        <script>
-                            Plotly.newPlot('K_growth_indicator_json', JSON.parse('{{ K_growth_indicator_json | escapejs }}'), { responsive: true, autosize: true })
-                        </script>
+                    <div id="K_growth_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
             </div>
             <!-- End of Indicator Row -->
-            <div class="col-span-5 row-span-2 bg-white shadow-md p-3 rounded-lg flex flex-col h-[calc(100%)]">
-                <h3 class="text-lg font-semibold mb-2">은채 워드클라우드</h3>
+            <div class="col-span-5 row-span-2 bg-white shadow-md p-2 rounded-lg flex flex-col h-[calc(100%)]">
+                <h3 class="text-base font-semibold mb-1">은채 워드클라우드</h3>
                 <div class="flex-1">
                     <iframe src="http://192.168.0.101:5602/goto/4418ab1823a219ccd90b45dc6cd8a1d9" class="w-full h-full"
-                        style="min-height: 100%; border: none;"></iframe>
+                        style="min-height: 100%; border: none;" loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        referrerpolicy="no-referrer"></iframe>
                 </div>
             </div>
+            <!-- 거시경제 지표 그래프(토글 선택 방식) -->
             <div class=" col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
-                <h3 class="text-lg font-semibold mb-2">Fred 데이터 시각화</h3>
-                <div id="economic_indicators_table_json">
-                    <script>
-                        Plotly.newPlot('economic_indicators_table_json', JSON.parse('{{ economic_indicators_table_json | escapejs }}'), { responsive: true })
-                    </script>
+                <div class="flex flex-col h-full w-full">
+                    <div class="mb-2">
+                        <h3 class="text-lg font-semibold mb-3">거시 경제 지표(미국)</h3>
+                        <div class="toggle-container">
+                            <button class="toggle-button inactive" data-chart="economic">종합지표</button>
+                            <button class="toggle-button active" data-chart="gdp">기초 지표</button>
+                            <button class="toggle-button inactive" data-chart="price">물가 지표</button>
+                            <button class="toggle-button inactive" data-chart="consumer">소비자 동향</button>
+                            <button class="toggle-button inactive" data-chart="employment">고용 동향</button>
+                        </div>
+                    </div>
+                    <div class="flex-1">
+                        <div id="economic" class="chart-container hidden">
+                            <div id="economic_indicators_table_json">
+                            </div>
+                        </div>
+                        <div id="gdp" class="chart-container">
+                            <div id="gdp_rates_json">
+                            </div>
+                        </div>
+                        <div id="price" class="chart-container hidden">
+                            <div id="price_indicators_json">
+                            </div>
+                        </div>
+                        <div id="consumer" class="chart-container hidden">
+                            <div id="consumer_trends_json">
+                            </div>
+                        </div>
+                        <div id="employment" class="chart-container hidden">
+                            <div id="employment_trends_json">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">호섭 그래프</h3>
                 <div id="cpi_card_predict_json">
-                    <script>
-                        Plotly.newPlot('cpi_card_predict_json', JSON.parse('{{ cpi_card_predict_json | escapejs }}'), { responsive: true })
-                    </script>
                 </div>
             </div>
         </div>
@@ -303,60 +342,26 @@
             <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">카드사별 총 사용금액</h3>
                 <div id="card_total_sales_ladar_json">
-                    <script>
-                        Plotly.newPlot('card_total_sales_ladar_json', JSON.parse('{{ card_total_sales_ladar_json | escapejs }}'), { responsive: true })
-                    </script>
                 </div>
             </div>
             <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">우리카드 실제 현황</h3>
                 <div id="wooricard_sales_treemap_json">
-                    <script>
-                        Plotly.newPlot('wooricard_sales_treemap_json', JSON.parse('{{ wooricard_sales_treemap_json | escapejs }}'), { responsive: true })
-                    </script>
                 </div>
             </div>
             <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold">소비 카테고리 현황</h3>
                 <div id="gender_json">
-                    <script>
-                        Plotly.newPlot('gender_json', JSON.parse('{{ gender_json | escapejs }}'), { responsive: true })
-                    </script>
-                </div>
-            </div>
-            <div class="col-span-5 row-span-1 bg-white shadow-md p-3 rounded-lg overflow-hidden">
-                <h3 class="text-lg font-semibold">트래블 카드 지도</h3>
-                <div class="w-full flex justify-center items-center">
-                    {{ visualize_travel_advice_html | safe }}
                 </div>
             </div>
             <div class="col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
-                <h3 class="text-lg font-semibold">네이버 여행지역 트렌드</h3>
-                <div id="travel_trend_line_json">
-                    <script>
-                        Plotly.newPlot('travel_trend_line_json', JSON.parse('{{ travel_trend_line_json | escapejs }}'), { responsive: true })
-                    </script>
-                </div>
-            </div>
-            <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold">카드사별 세부구성 비교</h3>
                 <div id="create_card_heatmap_json">
-                    <script>
-                        Plotly.newPlot('create_card_heatmap_json', JSON.parse('{{ create_card_heatmap_json | escapejs }}'), { responsive: true })
-                    </script>
-                </div>
-            </div>
-            <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
-                <h3 class="text-lg font-semibold">여행 설문조사</h3>
-                <div id="tour_servey_json">
-                    <script>
-                        Plotly.newPlot('tour_servey_json', JSON.parse('{{ tour_servey_json | escapejs }}'), { responsive: true })
-                    </script>
                 </div>
             </div>
             <div class="col-span-5 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">법률 정보</h3>
-                <div class="overflow-y-auto h-[20rem]">
+                <div class="overflow-y-auto max-h-[30rem]">
                     {% for law in korean_law_html %}
                     <div class="mb-4 pb-3 border-b border-gray-200 last:border-b-0 last:mb-0">
                         <p class="font-semibold text-gray-800 text-sm mb-1">{{ law.title }}</p>
@@ -366,298 +371,78 @@
                     {% endfor %}
                 </div>
             </div>
+        </div>
+        <!-- Dashboard Content three -->
+        <div id="dashboard-content-three" class="grid grid-cols-12 p-3 gap-4 hidden">
+            <div class="col-span-5 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">트래블 카드 지도</h3>
+                <div id="visualize_travel_advice_json">
+                </div>
+            </div>
             <div class="col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold">환율 데이터</h3>
                 <div id="currency_rates_json">
-                    <script>
-                        Plotly.newPlot('currency_rates_json', JSON.parse('{{ currency_rates_json | escapejs }}'), { responsive: true, autosize: true })
-                    </script>
+                </div>
+            </div>
+            <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold">여행 설문조사</h3>
+                <div id="tour_servey_json">
+                </div>
+            </div>
+            <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold">네이버 여행지역 트렌드: 변동성이 큰 여행 관심 TOP 10 국가 (30개국 중)</h3>
+                <div id="travel_trend_line_json">
                 </div>
             </div>
         </div>
     </div>
+
+    <script nonce="{{ nonce }}">
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartData = {
+                bankrate_indicator_json: JSON.parse('{{ bankrate_indicator_json|escapejs }}'),
+                K_GDP_indicator_json: JSON.parse('{{ K_GDP_indicator_json|escapejs }}'),
+                K_cpi_indicator_json: JSON.parse('{{ K_cpi_indicator_json|escapejs }}'),
+                K_pce_indicator_json: JSON.parse('{{ K_pce_indicator_json|escapejs }}'),
+                K_USD_indicator_json: JSON.parse('{{ K_USD_indicator_json|escapejs }}'),
+                K_growth_indicator_json: JSON.parse('{{ K_growth_indicator_json|escapejs }}'),
+                economic_indicators_table_json: JSON.parse('{{ economic_indicators_table_json|escapejs }}'),
+                gdp_rates_json: JSON.parse('{{ gdp_rates_json|escapejs }}'),
+                price_indicators_json: JSON.parse('{{ price_indicators_json|escapejs }}'),
+                consumer_trends_json: JSON.parse('{{ consumer_trends_json|escapejs }}'),
+                employment_trends_json: JSON.parse('{{ employment_trends_json|escapejs }}'),
+                cpi_card_predict_json: JSON.parse('{{ cpi_card_predict_json|escapejs }}'),
+                card_total_sales_ladar_json: JSON.parse('{{ card_total_sales_ladar_json|escapejs }}'),
+                wooricard_sales_treemap_json: JSON.parse('{{ wooricard_sales_treemap_json|escapejs }}'),
+                gender_json: JSON.parse('{{ gender_json|escapejs }}'),
+                create_card_heatmap_json: JSON.parse('{{ create_card_heatmap_json|escapejs }}'),
+                tour_servey_json: JSON.parse('{{ tour_servey_json|escapejs }}'),
+                travel_trend_line_json: JSON.parse('{{ travel_trend_line_json|escapejs }}'),
+                currency_rates_json: JSON.parse('{{ currency_rates_json|escapejs }}'),
+                // 지도
+                visualize_travel_advice_json: JSON.parse('{{ visualize_travel_advice_json|escapejs }}')
+            };
+
+            // 차트 데이터 초기화 함수 호출
+            initializeChartConfigs(chartData);
+
+            // 각 차트 생성
+            Object.entries(chartData).forEach(([chartId, data]) => {
+                const chartElement = document.getElementById(chartId);
+                if (chartElement) {
+                    try {
+                        Plotly.newPlot(chartId, data.data, data.layout, {
+                            responsive: true,
+                            autosize: true,
+                            displayModeBar: false
+                        });
+                    } catch (error) {
+                        console.warn(`Failed to create chart ${chartId}:`, error);
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // DOM 요소 선택
-        const chatIcon = document.getElementById('chat-icon');
-        const chatWindow = document.getElementById('chat-window');
-        const closeChat = document.getElementById('close-chat');
-        const chatForm = document.getElementById('chat-form');
-        const messageInput = document.getElementById('message-input');
-        const chatMessages = document.getElementById('chat-messages');
-        const powerModeToggle = document.getElementById('power-mode-toggle');
-        const sidebarButtons = document.querySelectorAll('[data-page]');
-    
-        // 인사이트 아이콘 SVG 정의
-        const INSIGHT_ICON = `
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 16v-4"></path>
-                <path d="M12 8h.01"></path>
-            </svg>
-        `;
-    
-        // 대시보드 콘텐츠 매핑
-        const contents = {
-            'dashboard-one': document.getElementById('dashboard-content-one'),
-            'dashboard-two': document.getElementById('dashboard-content-two'),
-            'dashboard-three': document.getElementById('dashboard-content-three'),
-            'dashboard-four': document.getElementById('dashboard-content-four'),
-            'dashboard-five': document.getElementById('dashboard-content-five'),
-        };
-    
-        // 대시보드 헤더 정보 설정
-        const headerConfig = {
-            'dashboard-one': {
-                title: '첫번째 대시보드',
-                subtitle: '카드 사용 현황 및 분석 리포트'
-            },
-            'dashboard-two': {
-                title: '두번째 대시보드',
-                subtitle: '카드 사용 현황 및 분석 리포트'
-            },
-            'dashboard-three': {
-                title: '세번째 대시보드',
-                subtitle: '상세 분석 리포트'
-            },
-            'dashboard-four': {
-                title: '네번째 대시보드',
-                subtitle: '통계 분석 리포트'
-            },
-            'dashboard-five': {
-                title: '다섯번째 대시보드',
-                subtitle: '종합 분석 리포트'
-            }
-        };
-    
-        // 차트 관련 설정
-        const charts = [
-            'card_total_sales_ladar_json',
-            'wooricard_sales_treemap_json',
-            'gender_json',
-            'create_card_heatmap_json',
-            'travel_trend_line_json',
-            'tour_servey_json',
-            'bankrate_indicator_json',
-            'K_GDP_indicator_json',
-            'cpi_card_predict_json',
-            'economic_indicators_table_json',
-            'currency_rates_json',
-        ];
-    
-        // 챗봇 관련 함수들
-        const chatbot = {
-            toggleWindow: () => chatWindow.classList.toggle('hidden'),
-            closeWindow: () => chatWindow.classList.add('hidden'),
-            appendMessage: (message, isUser) => {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('flex', isUser ? 'justify-end' : 'justify-start');
-                messageDiv.innerHTML = `
-                    <div class="max-w-[70%] rounded-lg p-3 ${isUser ? 'bg-blue-500 text-white' : 'bg-gray-100'}">
-                        ${message}
-                    </div>
-                `;
-                chatMessages.appendChild(messageDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            },
-            sendMessage: async (message) => {
-                try {
-                    const response = await fetch('/chatbot/send/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        },
-                        body: JSON.stringify({
-                            message: message,
-                            isPowerMode: powerModeToggle.checked
-                        })
-                    });
-                    const data = await response.json();
-                    chatbot.appendMessage(data.response, false);
-                } catch (error) {
-                    console.error('Error:', error);
-                    chatbot.appendMessage('죄송합니다. 오류가 발생했습니다.', false);
-                }
-            }
-        };
-    
-        // 차트 관련 함수들
-        const chartUtils = {
-            resizeAll: () => {
-                charts.forEach(chartId => {
-                    const element = document.getElementById(chartId);
-                    if (element) {
-                        const update = {
-                            width: element.clientWidth,
-                            height: element.clientHeight
-                        };
-                        Plotly.relayout(chartId, update);
-                    }
-                });
-            },
-            initResizeObserver: () => {
-                const observer = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.attributeName === 'class') {
-                            setTimeout(chartUtils.resizeAll, 100);
-                        }
-                    });
-                });
-    
-                const dashboardContents = document.querySelectorAll('[id^="dashboard-content-"]');
-                dashboardContents.forEach(content => {
-                    observer.observe(content, {
-                        attributes: true
-                    });
-                });
-            }
-        };
-    
-        // 페이지 전환 함수
-        const pageManager = {
-            switchPage: (pageId) => {
-                Object.values(contents).forEach(content => {
-                    if (content) content.classList.add('hidden');
-                });
-    
-                if (contents[pageId]) {
-                    contents[pageId].classList.remove('hidden');
-                    const headerInfo = headerConfig[pageId];
-                    const dashboardHeader = document.getElementById('dashboard-header');
-                    if (headerInfo && dashboardHeader) {
-                        dashboardHeader.innerHTML = `
-                            <h1 class="text-2xl font-bold text-gray-800">${headerInfo.title}</h1>
-                            <p class="text-sm text-gray-600">${headerInfo.subtitle}</p>
-                        `;
-                    }
-    
-                    setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
-                }
-            },
-            updateButtonStyles: (activeButton) => {
-                sidebarButtons.forEach(btn => btn.classList.remove('bg-gray-300'));
-                activeButton.classList.add('bg-gray-300');
-            }
-        };
-    
-        // 인사이트 관련 함수들
-        const insightManager = {
-            initialize: () => {
-                const dashboardContents = [
-                    document.getElementById('dashboard-content-one'),
-                    document.getElementById('dashboard-content-two')
-                ];
-    
-                dashboardContents.forEach(content => {
-                    if (!content) return;
-                    
-                    const chartContainers = content.querySelectorAll('.shadow-md');
-                    chartContainers.forEach(container => {
-                        const jsonElement = container.querySelector('[id$="_json"]');
-                        const titleElement = container.querySelector('h3');
-                        const chartId = jsonElement?.id || titleElement?.id || 'unknown';
-                        
-                        if (container.querySelector('.insight-tooltip')) return;
-                        
-                        const tooltipDiv = document.createElement('div');
-                        tooltipDiv.className = 'insight-tooltip';
-                        tooltipDiv.innerHTML = `
-                            ${INSIGHT_ICON}
-                            <div class="insight-content" id="insight-content-${chartId}">
-                                <div class="animate-pulse">인사이트 로딩중...</div>
-                            </div>
-                        `;
-                        
-                        container.appendChild(tooltipDiv);
-                        insightManager.loadInsight(chartId, tooltipDiv.querySelector('.insight-content'));
-                    });
-                });
-            },
-    
-            loadInsight: (chartId, contentElement) => {
-                console.log(`Loading insight for chart: ${chartId}`); // 디버깅용
-                fetch(`/chatbot/send/?chartId=${encodeURIComponent(chartId)}`, {
-                    method: 'GET',
-                    headers: {
-                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                        'Content-Type': 'application/json'
-                    }
-                })
-                .then(response => {
-                    console.log('Response status:', response.status); // 디버깅용
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Received data:', data); // 디버깅용
-                    if (data.status === 'success') {
-                        contentElement.innerHTML = data.insight;
-                    } else {
-                        throw new Error(data.message || '인사이트를 불러올 수 없습니다.');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error loading insight:', error);
-                    contentElement.innerHTML = '현재 서비스 준비중입니다.';
-                });
-            }
-        };
-    
-        // 이벤트 리스너 설정
-        const initEventListeners = () => {
-            // 챗봇 이벤트
-            chatIcon.addEventListener('click', chatbot.toggleWindow);
-            closeChat.addEventListener('click', chatbot.closeWindow);
-    
-            chatForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const message = messageInput.value.trim();
-                if (!message) return;
-    
-                chatbot.appendMessage(message, true);
-                chatbot.sendMessage(message);
-                messageInput.value = '';
-            });
-    
-            // 리사이즈 이벤트
-            let resizeTimeout;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(chartUtils.resizeAll, 100);
-            });
-    
-            // 사이드바 버튼 이벤트
-            sidebarButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const pageId = this.dataset.page;
-                    pageManager.switchPage(pageId);
-                    pageManager.updateButtonStyles(this);
-                });
-            });
-        };
-    
-        // 초기화 함수 
-        const initialize = () => {
-            initEventListeners();
-            chartUtils.initResizeObserver();
-            insightManager.initialize(); // 인사이트 초기화 추가
-    
-            // 첫 번째 대시보드 버튼에 활성화 스타일 적용
-            const firstDashboardButton = document.querySelector('[data-page="dashboard-one"]');
-            if (firstDashboardButton) {
-                pageManager.updateButtonStyles(firstDashboardButton);
-            }
-    
-            setTimeout(chartUtils.resizeAll, 100);
-        };
-    
-        initialize();
-    });
-    </script>
