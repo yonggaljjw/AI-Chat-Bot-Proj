@@ -61,8 +61,7 @@ def card_total_sales_ladar_view():
                 tickformat=',d'
             )
         ),
-        showlegend=False,
-        autosize=True
+        showlegend=False
     )
     return to_json(fig)
 

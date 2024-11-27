@@ -10,6 +10,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <script src="{% static 'js/dashboard.js' %}" nonce="{{ nonce }}" defer></script>
+    <script src="{% static 'js/chatbot.js' %}" defer></script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -79,7 +81,7 @@
 
 <body class="bg-gray-100">
     <!-- Sidebar -->
-    <div class="fixed top-0 left-0 w-16 h-screen bg-white shadow-md flex flex-col p-2">
+    <div class="fixed top-0 left-0 w-16 h-screen bg-white shadow-md flex flex-col p-2 z-50">
         <div class="flex flex-col gap-3">
             <!-- Icon-1 -->
             <button type="button"
@@ -193,58 +195,40 @@
         </div>
     </div>
 
-    <!-- Main Content에 상단 여백 추가 -->
-    <div class="flex-1 ml-16 mt-20">
+    <!-- Main Content -->
+    <div class="flex-1 ml-16 mt-20 overflow-x-hidden">
         <!-- Dashboard Content one -->
         <div id="dashboard-content-one" class="grid grid-cols-12 p-3 gap-4">
             <!-- Indicator Row -->
-            <div class="col-span-12 row-span-1 grid grid-cols-6 gap-4 overflow-hidden">
-                <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">금리</h3>
-                    <div id="bankrate_indicator_json">
-                        <script>
-                            Plotly.newPlot('bankrate_indicator_json', JSON.parse('{{ bankrate_indicator_json | escapejs }}'), { responsive: true, autosize: true, displayModeBar: false })
-                        </script>
+            <div class="col-span-12 row-span-1 grid grid-cols-6 gap-4 h-[calc(20vh)]">
+                <div class="bg-white shadow-md p-3 rounded-lg overflow-hidden">
+                    <h3 class="text-lg font-semibold mb-2">금리</h3>
+                    <div id="bankrate_indicator_json" class="h-[calc(100%-2rem)]">
                     </div>
                 </div>
-                <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">GDP</h3>
-                    <div id="K_GDP_indicator_json">
-                        <script>
-                            Plotly.newPlot('K_GDP_indicator_json', JSON.parse('{{ K_GDP_indicator_json | escapejs }}'), { responsive: true, autosize: true })
-                        </script>
+                <div class="bg-white shadow-md p-3 rounded-lg overflow-hidden">
+                    <h3 class="text-lg font-semibold mb-2">GDP</h3>
+                    <div id="K_GDP_indicator_json" class="h-[calc(100%-2rem)]">
                     </div>
                 </div>
-                <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">CPI</h3>
-                    <div id="K_cpi_indicator_json">
-                        <script>
-                            Plotly.newPlot('K_cpi_indicator_json', JSON.parse('{{ K_cpi_indicator_json | escapejs }}'), { responsive: true })
-                        </script>
+                <div class="bg-white shadow-md p-3 rounded-lg overflow-hidden">
+                    <h3 class="text-lg font-semibold mb-2">CPI</h3>
+                    <div id="K_cpi_indicator_json" class="h-[calc(100%-2rem)]">
                     </div>
                 </div>
-                <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">PCE</h3>
-                    <div id="K_pce_indicator_json">
-                        <script>
-                            Plotly.newPlot('K_pce_indicator_json', JSON.parse('{{ K_pce_indicator_json | escapejs }}'), { responsive: true })
-                        </script>
+                <div class="bg-white shadow-md p-3 rounded-lg overflow-hidden">
+                    <h3 class="text-lg font-semibold mb-2">PCE</h3>
+                    <div id="K_pce_indicator_json" class="h-[calc(100%-2rem)]">
                     </div>
                 </div>
-                <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">달러 환율</h3>
-                    <div id="K_USD_indicator_json">
-                        <script>
-                            Plotly.newPlot('K_USD_indicator_json', JSON.parse('{{ K_USD_indicator_json | escapejs }}'), { responsive: true, autosize: true })
-                        </script>
+                <div class="bg-white shadow-md p-3 rounded-lg overflow-hidden">
+                    <h3 class="text-lg font-semibold mb-2">달러 환율</h3>
+                    <div id="K_USD_indicator_json" class="h-[calc(100%-2rem)]">
                     </div>
                 </div>
-                <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold">경제성장률</h3>
-                    <div id="K_growth_indicator_json">
-                        <script>
-                            Plotly.newPlot('K_growth_indicator_json', JSON.parse('{{ K_growth_indicator_json | escapejs }}'), { responsive: true, autosize: true })
-                        </script>
+                <div class="bg-white shadow-md p-3 rounded-lg overflow-hidden">
+                    <h3 class="text-lg font-semibold mb-2">경제성장률</h3>
+                    <div id="K_growth_indicator_json" class="h-[calc(100%-2rem)]">
                     </div>
                 </div>
             </div>
@@ -264,47 +248,32 @@
                     <div class="mb-2">
                         <h3 class="text-lg font-semibold mb-3">거시 경제 지표(미국)</h3>
                         <div class="toggle-container">
-                            <button class="toggle-button inactive" onclick="showChart('economic')">종합지표</button>
-                            <button class="toggle-button active" onclick="showChart('gdp')">기초 지표</button>
-                            <button class="toggle-button inactive" onclick="showChart('price')">물가 지표</button>
-                            <button class="toggle-button inactive" onclick="showChart('consumer')">소비자 동향</button>
-                            <button class="toggle-button inactive" onclick="showChart('employment')">고용 동향</button>
+                            <button class="toggle-button inactive" data-chart="economic">종합지표</button>
+                            <button class="toggle-button active" data-chart="gdp">기초 지표</button>
+                            <button class="toggle-button inactive" data-chart="price">물가 지표</button>
+                            <button class="toggle-button inactive" data-chart="consumer">소비자 동향</button>
+                            <button class="toggle-button inactive" data-chart="employment">고용 동향</button>
                         </div>
                     </div>
                     <div class="flex-1">
                         <div id="economic" class="chart-container hidden">
                             <div id="economic_indicators_table_json">
-                                <script>
-                                    Plotly.newPlot('economic_indicators_table_json', JSON.parse('{{ economic_indicators_table_json | escapejs }}'), { responsive: true })
-                                </script>
                             </div>
                         </div>
                         <div id="gdp" class="chart-container">
                             <div id="gdp_rates_json">
-                                <script>
-                                    Plotly.newPlot('gdp_rates_json', JSON.parse('{{ gdp_rates_json | escapejs }}'), { responsive: true })
-                                </script>
                             </div>
                         </div>
                         <div id="price" class="chart-container hidden">
                             <div id="price_indicators_json">
-                                <script>
-                                    Plotly.newPlot('price_indicators_json', JSON.parse('{{ price_indicators_json | escapejs }}'), { responsive: true })
-                                </script>
                             </div>
                         </div>
                         <div id="consumer" class="chart-container hidden">
                             <div id="consumer_trends_json">
-                                <script>
-                                    Plotly.newPlot('consumer_trends_json', JSON.parse('{{ consumer_trends_json | escapejs }}'), { responsive: true })
-                                </script>
                             </div>
                         </div>
                         <div id="employment" class="chart-container hidden">
                             <div id="employment_trends_json">
-                                <script>
-                                    Plotly.newPlot('employment_trends_json', JSON.parse('{{ employment_trends_json | escapejs }}'), { responsive: true })
-                                </script>
                             </div>
                         </div>
                     </div>
@@ -313,9 +282,6 @@
             <div class="col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">호섭 그래프</h3>
                 <div id="cpi_card_predict_json">
-                    <script>
-                        Plotly.newPlot('cpi_card_predict_json', JSON.parse('{{ cpi_card_predict_json | escapejs }}'), { responsive: true })
-                    </script>
                 </div>
             </div>
         </div>
@@ -325,33 +291,21 @@
             <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">카드사별 총 사용금액</h3>
                 <div id="card_total_sales_ladar_json">
-                    <script>
-                        Plotly.newPlot('card_total_sales_ladar_json', JSON.parse('{{ card_total_sales_ladar_json | escapejs }}'), { responsive: true })
-                    </script>
                 </div>
             </div>
             <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">우리카드 실제 현황</h3>
                 <div id="wooricard_sales_treemap_json">
-                    <script>
-                        Plotly.newPlot('wooricard_sales_treemap_json', JSON.parse('{{ wooricard_sales_treemap_json | escapejs }}'), { responsive: true })
-                    </script>
                 </div>
             </div>
             <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold">소비 카테고리 현황</h3>
                 <div id="gender_json">
-                    <script>
-                        Plotly.newPlot('gender_json', JSON.parse('{{ gender_json | escapejs }}'), { responsive: true })
-                    </script>
                 </div>
             </div>
             <div class="col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold">카드사별 세부구성 비교</h3>
                 <div id="create_card_heatmap_json">
-                    <script>
-                        Plotly.newPlot('create_card_heatmap_json', JSON.parse('{{ create_card_heatmap_json | escapejs }}'), { responsive: true })
-                    </script>
                 </div>
             </div>
             <div class="col-span-5 row-span-1 bg-white shadow-md p-3 rounded-lg">
@@ -369,282 +323,75 @@
         </div>
         <!-- Dashboard Content three -->
         <div id="dashboard-content-three" class="grid grid-cols-12 p-3 gap-4 hidden">
-            <div class="col-span-5 row-span-1 bg-white shadow-md p-3 rounded-lg overflow-hidden">
-                <h3 class="text-lg font-semibold">트래블 카드 지도</h3>
-                <div class="w-full flex justify-center items-center">
-                    {{ visualize_travel_advice_html | safe }}
+            <div class="col-span-5 row-span-1 bg-white shadow-md p-3 rounded-lg">
+                <h3 class="text-lg font-semibold mb-2">트래블 카드 지도</h3>
+                <div id="visualize_travel_advice_html">
                 </div>
             </div>
             <div class="col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold">환율 데이터</h3>
                 <div id="currency_rates_json">
-                    <script>
-                        Plotly.newPlot('currency_rates_json', JSON.parse('{{ currency_rates_json | escapejs }}'), { responsive: true, autosize: true })
-                    </script>
                 </div>
             </div>
             <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold">여행 설문조사</h3>
                 <div id="tour_servey_json">
-                    <script>
-                        Plotly.newPlot('tour_servey_json', JSON.parse('{{ tour_servey_json | escapejs }}'), { responsive: true })
-                    </script>
                 </div>
             </div>
             <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
-                <h3 class="text-lg font-semibold">네이버 여행지역 트렌드</h3>
+                <h3 class="text-lg font-semibold">네이버 여행지역 트렌드: 변동성이 큰 여행 관심 TOP 10 국가 (30개국 중)</h3>
                 <div id="travel_trend_line_json">
-                    <script>
-                        Plotly.newPlot('travel_trend_line_json', JSON.parse('{{ travel_trend_line_json | escapejs }}'), { responsive: true })
-                    </script>
                 </div>
             </div>
         </div>
     </div>
+
+    <script nonce="{{ nonce }}">
+        document.addEventListener('DOMContentLoaded', function () {
+            const chartData = {
+                bankrate_indicator_json: JSON.parse('{{ bankrate_indicator_json|escapejs }}'),
+                K_GDP_indicator_json: JSON.parse('{{ K_GDP_indicator_json|escapejs }}'),
+                K_cpi_indicator_json: JSON.parse('{{ K_cpi_indicator_json|escapejs }}'),
+                K_pce_indicator_json: JSON.parse('{{ K_pce_indicator_json|escapejs }}'),
+                K_USD_indicator_json: JSON.parse('{{ K_USD_indicator_json|escapejs }}'),
+                K_growth_indicator_json: JSON.parse('{{ K_growth_indicator_json|escapejs }}'),
+                economic_indicators_table_json: JSON.parse('{{ economic_indicators_table_json|escapejs }}'),
+                gdp_rates_json: JSON.parse('{{ gdp_rates_json|escapejs }}'),
+                price_indicators_json: JSON.parse('{{ price_indicators_json|escapejs }}'),
+                consumer_trends_json: JSON.parse('{{ consumer_trends_json|escapejs }}'),
+                employment_trends_json: JSON.parse('{{ employment_trends_json|escapejs }}'),
+                cpi_card_predict_json: JSON.parse('{{ cpi_card_predict_json|escapejs }}'),
+                card_total_sales_ladar_json: JSON.parse('{{ card_total_sales_ladar_json|escapejs }}'),
+                wooricard_sales_treemap_json: JSON.parse('{{ wooricard_sales_treemap_json|escapejs }}'),
+                gender_json: JSON.parse('{{ gender_json|escapejs }}'),
+                create_card_heatmap_json: JSON.parse('{{ create_card_heatmap_json|escapejs }}'),
+                tour_servey_json: JSON.parse('{{ tour_servey_json|escapejs }}'),
+                travel_trend_line_json: JSON.parse('{{ travel_trend_line_json|escapejs }}'),
+                currency_rates_json: JSON.parse('{{ currency_rates_json|escapejs }}'),
+                // 지도
+                visualize_travel_advice_html: JSON.parse('{{ visualize_travel_advice_html|escapejs }}')
+            };
+
+            // 차트 데이터 초기화 함수 호출
+            initializeChartConfigs(chartData);
+
+            // 각 차트 생성
+            Object.entries(chartData).forEach(([chartId, data]) => {
+                const chartElement = document.getElementById(chartId);
+                if (chartElement) {
+                    try {
+                        Plotly.newPlot(chartId, data.data, data.layout, {
+                            responsive: true,
+                            autosize: true,
+                            displayModeBar: false
+                        });
+                    } catch (error) {
+                        console.warn(`Failed to create chart ${chartId}:`, error);
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        // DOM 요소 선택
-        const chatIcon = document.getElementById('chat-icon');
-        const chatWindow = document.getElementById('chat-window');
-        const closeChat = document.getElementById('close-chat');
-        const chatForm = document.getElementById('chat-form');
-        const messageInput = document.getElementById('message-input');
-        const chatMessages = document.getElementById('chat-messages');
-        const powerModeToggle = document.getElementById('power-mode-toggle');
-        const sidebarButtons = document.querySelectorAll('[data-page]');
-
-        // 대시보드 콘텐츠 매핑
-        const contents = {
-            'dashboard-one': document.getElementById('dashboard-content-one'),
-            'dashboard-two': document.getElementById('dashboard-content-two'),
-            'dashboard-three': document.getElementById('dashboard-content-three'),
-            'dashboard-four': document.getElementById('dashboard-content-four'),
-        };
-        // 대시보드 헤더 정보 설정
-        const headerConfig = {
-            'dashboard-one': {
-                title: '첫번째 대시보드',
-                subtitle: '카드 사용 현황 및 분석 리포트'
-            },
-            'dashboard-two': {
-                title: '두번째 대시보드',
-                subtitle: '카드 사용 현황 및 분석 리포트'
-            },
-            'dashboard-three': {
-                title: '세번째 대시보드',
-                subtitle: '상세 분석 리포트'
-            },
-            'dashboard-four': {
-                title: '네번째 대시보드',
-                subtitle: '통계 분석 리포트'
-            }
-        };
-
-        // 차트 전환 함수
-        window.showChart = function (chartId) {
-            const charts = document.getElementsByClassName('chart-container');
-            for (let chart of charts) {
-                chart.style.display = 'none';
-            }
-
-            const buttons = document.getElementsByClassName('toggle-button');
-            for (let button of buttons) {
-                button.classList.remove('active');
-                button.classList.add('inactive');
-            }
-
-            const selectedChart = document.getElementById(chartId);
-            if (selectedChart) {
-                selectedChart.style.display = 'block';
-                const chartDiv = selectedChart.querySelector(`#${chartId}-chart`);
-                if (chartDiv) {
-                    Plotly.relayout(chartDiv, {
-                        'width': selectedChart.offsetWidth,
-                        'height': selectedChart.offsetHeight
-                    });
-                }
-            }
-
-            const selectedButton = document.querySelector(`button[onclick="showChart('${chartId}')"]`);
-            if (selectedButton) {
-                selectedButton.classList.remove('inactive');
-                selectedButton.classList.add('active');
-                // 리사이즈 함수 호출
-                chartUtils.resizeAll();
-            }
-        };
-
-        // 차트 관련 설정
-        const charts = [
-            'card_total_sales_ladar_json',
-            'wooricard_sales_treemap_json',
-            'gender_json',
-            'create_card_heatmap_json',
-            'travel_trend_line_json',
-            'tour_servey_json',
-            'bankrate_indicator_json',
-            'K_GDP_indicator_json',
-            'cpi_card_predict_json',
-            'economic_indicators_table_json',
-            'currency_rates_json',
-            'gdp_rates_json',
-            'price_indicators_json',
-            'consumer_trends_json',
-            'employment_trends_json'
-        ];
-
-        // 챗봇 관련 함수들
-        const chatbot = {
-            toggleWindow: () => chatWindow.classList.toggle('hidden'),
-            closeWindow: () => chatWindow.classList.add('hidden'),
-            appendMessage: (message, isUser) => {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('flex', isUser ? 'justify-end' : 'justify-start');
-                messageDiv.innerHTML = `
-                    <div class="max-w-[70%] rounded-lg p-3 ${isUser ? 'bg-blue-500 text-white' : 'bg-gray-100'}">
-                        ${message}
-                    </div>
-                `;
-                chatMessages.appendChild(messageDiv);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            },
-            sendMessage: async (message) => {
-                try {
-                    const response = await fetch('/chatbot/send/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
-                        },
-                        body: JSON.stringify({
-                            message: message,
-                            isPowerMode: powerModeToggle.checked
-                        })
-                    });
-                    const data = await response.json();
-                    chatbot.appendMessage(data.response, false);
-                } catch (error) {
-                    console.error('Error:', error);
-                    chatbot.appendMessage('죄송합니다. 오류가 발생했습니다.', false);
-                }
-            }
-        };
-
-        // 차트 관련 함수들
-        const chartUtils = {
-            resizeAll: () => {
-                charts.forEach(chartId => {
-                    const element = document.getElementById(chartId);
-                    if (element) {
-                        const update = {
-                            width: element.clientWidth,
-                            height: element.clientHeight
-                        };
-                        Plotly.relayout(chartId, update);
-                    }
-                });
-            },
-            initResizeObserver: () => {
-                const observer = new MutationObserver((mutations) => {
-                    mutations.forEach((mutation) => {
-                        if (mutation.attributeName === 'class') {
-                            setTimeout(chartUtils.resizeAll, 100);
-                        }
-                    });
-                });
-
-                const dashboardContents = document.querySelectorAll('[id^="dashboard-content-"]');
-                dashboardContents.forEach(content => {
-                    observer.observe(content, {
-                        attributes: true
-                    });
-                });
-            }
-        };
-
-        // 페이지 전환 함수
-        const pageManager = {
-            switchPage: (pageId) => {
-                // 모든 콘텐츠 숨기기
-                Object.values(contents).forEach(content => {
-                    if (content) content.classList.add('hidden');
-                });
-
-                // 선택된 콘텐츠만 보이기
-                if (contents[pageId]) {
-                    contents[pageId].classList.remove('hidden');
-
-                    // 헤더 업데이트
-                    const headerInfo = headerConfig[pageId];
-                    const dashboardHeader = document.getElementById('dashboard-header');
-                    if (headerInfo && dashboardHeader) {
-                        dashboardHeader.innerHTML = `
-                        <h1 class="text-2xl font-bold text-gray-800">${headerInfo.title}</h1>
-                        <p class="text-sm text-gray-600">${headerInfo.subtitle}</p>
-                    `;
-                    }
-
-                    setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
-                }
-            },
-            updateButtonStyles: (activeButton) => {
-                sidebarButtons.forEach(btn => btn.classList.remove('bg-gray-300'));
-                activeButton.classList.add('bg-gray-300');
-            }
-        };
-
-        // 이벤트 리스너 설정
-        const initEventListeners = () => {
-            // 챗봇 이벤트
-            chatIcon.addEventListener('click', chatbot.toggleWindow);
-            closeChat.addEventListener('click', chatbot.closeWindow);
-
-            chatForm.addEventListener('submit', function (e) {
-                e.preventDefault();
-                const message = messageInput.value.trim();
-                if (!message) return;
-
-                chatbot.appendMessage(message, true);
-                chatbot.sendMessage(message);
-                messageInput.value = '';
-            });
-
-            // 리사이즈 이벤트
-            let resizeTimeout;
-            window.addEventListener('resize', () => {
-                clearTimeout(resizeTimeout);
-                resizeTimeout = setTimeout(chartUtils.resizeAll, 100);
-            });
-
-            // 사이드바 버튼 이벤트
-            sidebarButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    const pageId = this.dataset.page;
-                    pageManager.switchPage(pageId);
-                    pageManager.updateButtonStyles(this);
-                });
-            });
-        };
-
-        // 초기화 함수 
-        const initialize = () => {
-            initEventListeners();
-            chartUtils.initResizeObserver();
-
-            // 첫 번째 대시보드 버튼에 활성화 스타일 적용
-            const firstDashboardButton = document.querySelector('[data-page="dashboard-one"]');
-            if (firstDashboardButton) {
-                pageManager.updateButtonStyles(firstDashboardButton);
-            }
-
-            // 모든 차트가 완전히 렌더링될 때까지 약간의 지연 후 다시 리사이즈
-            setTimeout(chartUtils.resizeAll, 100);
-        };
-
-        initialize();
-    });
-</script>

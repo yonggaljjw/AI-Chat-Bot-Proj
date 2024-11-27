@@ -50,10 +50,8 @@ def travel_trend_line():
         color="country",
         template="plotly_white",
         markers=True,
-        title="변동성이 큰 여행 관심 TOP 10 국가 (30개국 중)",
+        # title="변동성이 큰 여행 관심 TOP 10 국가 (30개국 중)",
         labels={"date": "Date", "ratio": "Ratio", "country": "Country"}
     )
-    
-    fig.update_layout(autosize=True)
 
     return to_json(fig) 
