@@ -54,7 +54,7 @@ RUN pip install --no-cache-dir --upgrade \
     torch \
     shapely
 
-RUN RUN pip install --no-cache-dir --upgrade transformers --no-build-isolation
+RUN pip install transformers==2.4.1
 
 # Airflow 웹 서버 시작
 CMD ["airflow", "webserver"]
