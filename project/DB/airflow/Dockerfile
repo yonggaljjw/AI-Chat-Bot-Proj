@@ -37,7 +37,7 @@ RUN pip install --no-cache-dir --upgrade \
     openai \
     opensearch-py \
     protobuf==3.20.*
-    
+
 RUN pip install --no-cache-dir --upgrade \
     opensearch-py-ml \
     pytrends
@@ -45,7 +45,6 @@ RUN pip install --no-cache-dir --upgrade \
 RUN pip install --no-cache-dir --upgrade \
     keras==2.11.0 \
     tensorflow==2.11.0 \
-    transformers \
     pymysql==1.0.2 \
     sqlalchemy==1.4.25 \
     selenium
@@ -54,6 +53,8 @@ RUN pip install --no-cache-dir --upgrade \
     nltk \ 
     torch \
     shapely
+
+RUN pip install transformers==2.4.1
 
 # Airflow 웹 서버 시작
 CMD ["airflow", "webserver"]
