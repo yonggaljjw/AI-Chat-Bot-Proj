@@ -98,8 +98,7 @@ def tour_servey():
             'x': 1.3,
             'y': 1.2
         }],
-        margin={"r":0, "t":0, "l":0, "b":0},
-        autosize=True
+        margin={"r":0, "t":0, "l":0, "b":0}
     )
 
     return to_json(fig)

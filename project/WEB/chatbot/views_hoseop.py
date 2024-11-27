@@ -215,7 +215,7 @@ def gender_expense_distribution_view():
 
     # 남성 차트 레이아웃 설정
     fig_male.update_layout(
-        showlegend=True,
+        showlegend=True, # 스타일 설정
         template="plotly_white"  # 스타일 설정
     )
 
@@ -301,13 +301,13 @@ def gender_view():
     fig.update_layout(
         showlegend=True,
         template="plotly_white",
-        height=400,
+        # height=400,
         legend=dict(
-            x=0.7,        # 범례의 x 위치를 오른쪽으로
-            y=0.5,        # 범례의 y 위치를 중앙으로
-            xanchor='left',  # 범례의 정렬 기준점을 왼쪽으로
-            yanchor='middle', # 범례의 수직 정렬을 중앙으로
-            orientation='h'  # 범례를 수직으로 배열
+            x=0,        
+            y=0,        
+            xanchor='left',
+            yanchor='top',
+            orientation='h',
         )
     )
 
