@@ -8,15 +8,16 @@ import requests
 import pymysql
 from sqlalchemy import create_engine
 import os
+from dotenv import load_dotenv
+load_dotenv()
 
-# 데이터베이스 연결 설정
+# 데이터베이스 연결 정보
 username = os.getenv('sql_username')
 password = os.getenv('sql_password')
 host = os.getenv('sql_host')
 port = os.getenv('sql_port')
 database = 'team5'
 engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
-
 
 # 데이터베이스에서 데이터를 로드하는 함수
 def load_data_from_sql():
