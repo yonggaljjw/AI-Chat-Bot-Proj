@@ -7,21 +7,16 @@ from train import normalize_mult, create_dataset, FNormalizeMult, fill_na_with_a
 import requests
 import pymysql
 from sqlalchemy import create_engine
+import os
 
 # 데이터베이스 연결 설정
-# username = os.getenv('sql_username')
-# password = os.getenv('sql_password')
-# host = os.getenv('sql_host')
-# port = os.getenv('sql_port')
-# database = 'team5'
-# engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
-
-username = 'fisaai'
-password = 'woorifisa3!W'
-host = '118.67.131.22'
-port = '3306'
+username = os.getenv('sql_username')
+password = os.getenv('sql_password')
+host = os.getenv('sql_host')
+port = os.getenv('sql_port')
 database = 'team5'
 engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
+
 
 # 데이터베이스에서 데이터를 로드하는 함수
 def load_data_from_sql():
