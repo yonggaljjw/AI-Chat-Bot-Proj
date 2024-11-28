@@ -323,10 +323,7 @@ class InsightGenerator:
         
     def get_chart_data(self, chart_id):
         """차트 ID에 따른 실제 데이터 조회"""
-        try:
-            from sqlalchemy import create_engine
-            engine = create_engine('mysql+pymysql://root:0000@localhost:3306/team5')
-            
+        try:            
             # 차트 ID별 쿼리 매핑
             query_map = {
                 'gender_json': "SELECT * FROM team5.card_category_gender ORDER BY date DESC LIMIT 10",

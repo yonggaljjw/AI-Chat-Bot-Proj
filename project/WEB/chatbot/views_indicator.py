@@ -37,7 +37,7 @@ def bankrate_indicator() :
     fig.add_trace(go.Indicator(
         mode="number+delta",
         value=current_value,
-        delta={'reference': previous_value, 'relative': True, 'valueformat' : '.2f', 'font' : {'color': delta_color}},
+        delta={'reference': previous_value, 'relative': False, 'valueformat' : '.2f', 'font' : {'color': delta_color}},
         # title={'text': variable_name, 'font': {'size': 20}, 'align': 'center'},
         number={'font': {'size': 50}},
         domain = {'x': [0, 1], 'y': [0, 1]},
@@ -194,7 +194,7 @@ def K_USD_indicator() :
     fig.add_trace(go.Indicator(
         mode="number+delta",
         value=current_value,
-        delta={'reference': previous_value, 'relative': True, 'valueformat' : '.2f', 'font' : {'color': delta_color}},
+        delta={'reference': previous_value, 'relative': False, 'valueformat' : '.2f', 'font' : {'color': delta_color}},
         # title={'text': variable_name, 'font': {'size': 20}, 'align': 'center'},
         number={'font': {'size': 50}},
         domain = {'x': [0, 1], 'y': [0, 1]},
