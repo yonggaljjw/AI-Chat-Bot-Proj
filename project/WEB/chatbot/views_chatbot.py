@@ -252,12 +252,14 @@ def get_google_search_content(keyword):
 
 
 
-# 대시보드 내 한 줄 인사이트 제공
+# 대시보드 인사이트 요약 챗봇 (mini)
 @csrf_exempt
 def chatbot_response(request):
-    # GET 요청 처리 (차트 인사이트)
+    # GET 및 POST 요청을 처리하여 대시보드와 챗봇의 인사이트 및 대화 기능을 제공
     if request.method == 'GET':
+        # GET 요청 처리: 차트 데이터를 기반으로 인사이트 생성
         chart_id = request.GET.get('chartId')
+        # chartId를 GET 파라미터로 받아서 차트 식별
         if chart_id:
             try:
                 # OpenAI 클라이언트 초기화 및 인사이트 생성기 설정
@@ -270,11 +272,11 @@ def chatbot_response(request):
                     return JsonResponse({
                         'status': 'success',
                         'insight': '이 차트에 대한 데이터를 찾을 수 없습니다.'
-                    })
+                    })  # 데이터 없으면 기본 메세지 반환
                 
                 # 인사이트 생성
                 insight = insight_generator.generate_chart_insight(chart_id, chart_data)
-                
+                # generate_chart_insight 메서드로 분석 및 인사이트 생성 (Json 형태로 반환)
                 return JsonResponse({
                     'status': 'success',
                     'insight': insight
@@ -289,11 +291,12 @@ def chatbot_response(request):
     
     # POST 요청 처리 (기존 챗봇 대화)
     elif request.method == 'POST':
+        # 사용자가 챗봇에 질문 던질때 답변 제공용
         try:
             data = json.loads(request.body)
             user_message = data.get('message', '')
             is_power_mode = data.get('isPowerMode', False)
-            
+
             search_context = None
             if is_power_mode:
                 keyword = extract_keywords(user_message)
@@ -326,20 +329,26 @@ class InsightGenerator:
         try:            
             # 차트 ID별 쿼리 매핑
             query_map = {
-                'gender_json': "SELECT * FROM team5.card_category_gender ORDER BY date DESC LIMIT 10",
+                'bankrate_indicator_json': "SELECT bor FROM team5.korea_base_rate ORDER BY time DESC LIMIT 10",
+                'K_GDP_indicator_json': "SELECT GDP FROM team5.korea_index ORDER BY TIME desc LIMIT 10",
+                'K_cpi_indicator_json': "SELECT TOTAL FROM team5.cpi_data ORDER BY TIME DESC LIMIT 10",
+                'K_pce_indicator_json': "SELECT DATA_VALUE FROM team5.pce_data ORDER BY TIME DESC LIMIT 10",
+                'K_USD_indicator_json': "SELECT USD FROM team5.currency_rate ORDER BY TIME desc LIMIT 10",
+                'K_growth_indicator_json': "SELECT 경제성장률 FROM korea_index ORDER BY TIME desc LIMIT 10",
+                'economic_indicators_table_json': "WITH MaxDate AS (SELECT MAX(date) as latest_date FROM fred_data) SELECT * FROM fred_data WHERE date >= DATE_SUB((SELECT latest_date FROM MaxDate), INTERVAL 5 YEAR) AND date <= (SELECT latest_date FROM MaxDate) ORDER BY date ASC",
+                'gdp_rates_json': "SELECT * FROM team5.gdp_rates ORDER BY date DESC LIMIT 10",
+                'price_indicators_json': "SELECT * FROM team5.price_indicators ORDER BY date DESC LIMIT 10",
+                'consumer_trends_json': "SELECT * FROM team5.consumer_trends ORDER BY date DESC LIMIT 10",
+                'employment_trends_json': "SELECT * FROM team5.employment_trends ORDER BY date DESC LIMIT 10",
+                'cpi_card_predict_json': "SELECT * FROM team5.cpi_card_predict ORDER BY date DESC LIMIT 10",
                 'card_total_sales_ladar_json': "SELECT * FROM team5.card_sales ORDER BY date DESC LIMIT 10",
                 'wooricard_sales_treemap_json': "SELECT * FROM team5.woori_card ORDER BY date DESC LIMIT 10",
+                'gender_json': "SELECT * FROM team5.card_category_gender ORDER BY date DESC LIMIT 10",
+                'create_card_heatmap_json': "SELECT * FROM team5.card_heatmap ORDER BY date DESC LIMIT 10",
                 'tour_servey_json': "SELECT * FROM team5.tour_survey ORDER BY date DESC LIMIT 10",
                 'travel_trend_line_json': "SELECT * FROM team5.travel_trend ORDER BY date DESC LIMIT 10",
                 'currency_rates_json': "SELECT * FROM team5.currency_rates ORDER BY date DESC LIMIT 10",
-                'bankrate_indicator_json': "SELECT * FROM team5.bank_rate ORDER BY date DESC LIMIT 10",
-                'K_GDP_indicator_json': "SELECT * FROM team5.gdp_data ORDER BY date DESC LIMIT 10",
-                'K_cpi_indicator_json': "SELECT * FROM team5.cpi_data ORDER BY date DESC LIMIT 10",
-                'K_pce_indicator_json': "SELECT * FROM team5.pce_data ORDER BY date DESC LIMIT 10",
-                'K_USD_indicator_json': "SELECT * FROM team5.usd_rate ORDER BY date DESC LIMIT 10",
-                'K_growth_indicator_json': "SELECT * FROM team5.growth_rate ORDER BY date DESC LIMIT 10",
-                'economic_indicators_table_json': "SELECT * FROM team5.fred_data ORDER BY date DESC LIMIT 10",
-                'cpi_card_predict_json': "SELECT * FROM team5.cpi_card_predict ORDER BY date DESC LIMIT 10"
+                'visualize_travel_advice_json': "SELECT * FROM team5.travel_caution ORDER BY date DESC LIMIT 10"
             }
             
             if chart_id not in query_map:
@@ -361,12 +370,6 @@ class InsightGenerator:
         """차트별 인사이트 생성"""
         # 차트별 컨텍스트 매핑
         context_map = {
-            'gender_json': "성별에 따른 카드 사용 패턴",
-            'card_total_sales_ladar_json': "카드사별 총 매출 현황",
-            'wooricard_sales_treemap_json': "우리카드 실제 매출 구조",
-            'tour_servey_json': "여행 관련 소비자 설문 결과",
-            'travel_trend_line_json': "여행 트렌드 변화",
-            'currency_rates_json': "주요 환율 동향",
             'bankrate_indicator_json': "금리 변동 추이",
             'K_GDP_indicator_json': "GDP 성장률 동향",
             'K_cpi_indicator_json': "소비자물가지수 변화",
@@ -374,27 +377,43 @@ class InsightGenerator:
             'K_USD_indicator_json': "달러 환율 추이",
             'K_growth_indicator_json': "경제성장률 동향",
             'economic_indicators_table_json': "주요 경제지표 현황",
-            'cpi_card_predict_json': "물가와 카드소비 연관성"
+            'gdp_rates_json': "GDP 성장률 변화",
+            'price_indicators_json': "물가 지표 변화",
+            'consumer_trends_json': "소비자 동향 지표",
+            'employment_trends_json': "고용 지표 변화",
+            'cpi_card_predict_json': "물가와 카드 소비 연관성",
+            'card_total_sales_ladar_json': "카드사별 총 매출 현황",
+            'wooricard_sales_treemap_json': "우리카드 실제 매출 구조",
+            'gender_json': "성별에 따른 카드 사용 패턴",
+            'create_card_heatmap_json': "카드사별 세부 구성 비교",
+            'tour_servey_json': "여행 관련 소비자 설문 결과",
+            'travel_trend_line_json': "여행 트렌드 변화",
+            'currency_rates_json': "주요 환율 동향",
+            'visualize_travel_advice_json': "국가별 여행 주의 정보"
         }
         
         base_prompt = f"""
         다음은 {context_map.get(chart_id, '차트')}에 대한 최근 데이터입니다:
         {chart_data}
         
-        다음 두 가지 분석을 수행해주세요:
+        다음 지침에 따라 데이터를 분석해주세요:
+
         1. 데이터 변화 요약 (15자 내외):
-        - read_sql에서 조회된 구체적인 데이터 변화 수치 설명
-        - 눈에 띄는 패턴이 있을시 우선적으로 해당 데이터와 기간을 설명
-        - 예시) "(00)기간 동안 (sql_컬럼)이 (변화율|변화 수치) 증가/감소/유지"
+        - 최신 시간순으로 정렬된 데이터에서 가장 최근 값(현재)과 직전 값(이전)을 비교
+        - 최신 시간순으로 정렬된 데이터에서 가장 변동성이 큰 값을 비교
+        - 변화의 방향(증가/감소)과 크기를 정확히 파악
+        - 최신 데이터와 변동성이 큰 데이터 중 더욱 변동성이 큰 값을 제시
+        - 예시 형식: "이전 X에서 현재 Y로 증가/감소"
+        - X와 Y 값의 적절한 단위(%, 원, 달러 등)를 추가하여 설명
         
         2. 카드 개발/마케팅 관점의 시사점 (20자 내외):
-        - 상품 개발시 유의점 제안
-        - 상품 개발 방향
-        - 마케팅 전략 제안
+        - 관찰된 변화를 바탕으로 실질적인 전략 제시
+        - 금리 변동이 소비자 행동에 미치는 영향 고려
+        - 카드 상품 개발 및 마케팅 방향성 제안
         
         결과는 다음 형식으로 제시:
-        [변화] (분석1)
-        [제안] (분석2)
+        [변화] (가장 최근 시점 기준으로 직전 대비 변화를 명시)
+        [제안] (변화를 고려한 전략적 제안)
         """
         
         try:
