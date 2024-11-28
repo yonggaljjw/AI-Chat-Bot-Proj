@@ -33,8 +33,8 @@ def extract_rate() :
         df['BOR'] = df['BOR'].astype('float')
 
     except :
-        df = pd.DataFrame({'TIME' : [datetime.todayr()],'BOR':[np.nan]})
-        df['TIME'] = pd.to_datetime(df['TIME'], fomat='%Y%m%d')
+        df = pd.DataFrame({'TIME' : [datetime.today()],'BOR':[np.nan]})
+        df['TIME'] = pd.to_datetime(df['TIME'], format='%Y%m%d')
 
     return df
 
