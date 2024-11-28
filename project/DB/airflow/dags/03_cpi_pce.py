@@ -82,7 +82,7 @@ def fetch_cpi_data():
     "outputFields": "ORG_ID TBL_ID TBL_NM OBJ_ID OBJ_NM NM ITM_ID ITM_NM UNIT_NM PRD_SE PRD_DE LST_CHN_DE",
     "orgId": "101",
     "tblId": "DT_1J22001"
-}
+    }
     response = requests.get(url, params=params)
     data = response.json()
     df = pd.DataFrame(data)
@@ -205,6 +205,34 @@ def run_data_pipeline():
     # MySQL에 업로드
     all_forecasts.to_sql('cpi_card_data', con=engine, if_exists='append', index=False)
 
+def cpi_data_upload():
+    """매달 cpi 지표를 최신화하여 MySQL에 업로드 합니다."""
+    
+    cpi_df = fetch_cpi_data()[['TIME', '0 총지수']].rename(columns={'0 총지수' : 'TOTAL'})
+
+    cpi_df.to_sql('cpi_data', con=engine, if_exists='append', index=False)
+
+def pce_data_upload():
+    """분기별 pce 지표를 최신화하여 MySQL에 업로드 합니다."""
+
+    # 현재 날짜를 기준으로 end_date 계산
+    current_date = datetime.today()
+    year = current_date.year
+    month = current_date.month
+
+    # 분기 계산 (1분기: 1~3월, 2분기: 4~6월, ...)
+    quarter = (month - 1) // 3 + 1
+    end_date = f"{year}Q{quarter}"
+
+    url = f"https://ecos.bok.or.kr/api/StatisticSearch/2IJKJSOY6OFOQZ28900C/json/kr/1/100000/200Y102/Q/2023Q1/{end_date}/10222"
+
+    response = requests.get(url)
+    data = response.json()
+    
+    df = pd.DataFrame(data['StatisticSearch']['row'])[['TIME', 'STAT_NAME', 'ITEM_NAME1', 'DATA_VALUE']]
+
+    df.to_sql('pce_data', con=engine, if_exists='append', index=False)
+
 # 기본 DAG 설정
 default_args = {
     'depends_on_past': False,
@@ -213,7 +241,7 @@ default_args = {
 }
 
 with DAG(
-    '03_PCE_data',
+    '03_CPI_CARD_data',
     default_args=default_args,
     description="소비자물가, 개인신용카드 소비현황 예측 데이터를 업로드합니다.",
     schedule_interval='@daily',
@@ -230,5 +258,17 @@ with DAG(
         execution_timeout=timedelta(hours=1)
     )
 
+    cpi_upload_task = PythonOperator(
+        task_id='cpi_data_upload',
+        python_callable=cpi_data_upload,
+        execution_timeout=timedelta(hours=1)
+    )
+
+    pce_upload_task = PythonOperator(
+        task_id='pce_data_upload',
+        python_callable=pce_data_upload,
+        execution_timeout=timedelta(hours=1)
+    )
+
     # 태스크 간의 의존성 설정
-    run_pipeline_task
+    run_pipeline_task >> cpi_upload_task >> pce_upload_task
