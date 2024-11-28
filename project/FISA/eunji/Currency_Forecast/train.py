@@ -68,17 +68,6 @@ def load_data_from_sql():
         print(f"데이터베이스에서 데이터를 불러오는 중 오류 발생: {str(e)}")
         return pd.DataFrame()
 
-# 환율 데이터 가져오기
-def get_historical_exchange_rates(base_currency, target_currencies, start_date, end_date):
-    exchange_data = {}
-    for currency in target_currencies: # target_currencies = ['USD', 'EUR', 'JPY', 'CNY', 'GBP']
-        symbol = f"{currency}{base_currency}=X"
-        try:
-            data = yf.Ticker(symbol).history(start=start_date, end=end_date)
-            exchange_data[currency] = data['Close']
-        except Exception as e:
-            print(f"Error fetching data for {currency}: {e}")
-    return pd.DataFrame(exchange_data)
 
 # 결측값 처리
 def fill_na_with_avg(df):
