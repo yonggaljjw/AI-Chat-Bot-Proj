@@ -77,6 +77,26 @@ MIDDLEWARE = [
     'django_plotly_dash.middleware.BaseMiddleware',
 ]
 
+# CSP 설정
+CSP_DEFAULT_SRC = ("'self'",)
+
+CSP_SCRIPT_SRC = (
+    "'self'",
+    "'unsafe-eval'",  # Plotly에 필요
+    "https://cdn.tailwindcss.com",
+    "https://cdn.plot.ly",
+)
+CSP_STYLE_SRC = (
+    "'self'",
+    "'unsafe-inline'",
+    "https://fonts.googleapis.com",
+)
+CSP_FONT_SRC = (
+    "'self'",
+    "https://fonts.gstatic.com",
+)
+CSP_IMG_SRC = ("'self'", "data:", "https:")
+
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 ROOT_URLCONF = "woodjango.urls"

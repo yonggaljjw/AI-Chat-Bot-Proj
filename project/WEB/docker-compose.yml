@@ -6,3 +6,7 @@ services:
       - .:/django
     ports:
       - "8000:8000"
+    environment:
+      - DEBUG=1 # 개발 모드 활성화
+      - PYTHONUNBUFFERED=1 # 파이썬 출력 버퍼링 비활성화
+    restart: always # 컨테이너 자동 재시작

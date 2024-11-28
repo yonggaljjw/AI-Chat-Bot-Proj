@@ -61,14 +61,7 @@ def card_total_sales_ladar_view():
                 tickformat=',d'
             )
         ),
-        showlegend=False,
-        # title={
-        #     'y': 0.5,
-        #     'x': 0.1,
-        #     'xanchor': 'center',
-        #     'yanchor': 'top'
-        # },
-        autosize=True
+        showlegend=False
     )
     return to_json(fig)
 
@@ -166,7 +159,7 @@ def create_card_heatmap_view():
         z=z.T,  # 데이터를 전치하여 회전
         x=card_companies,  # 카드사를 X축에 배치
         y=categories,      # 카테고리를 Y축에 배치
-        colorscale='Blues',
+        colorscale='Teal',
         annotation_text=np.around(z.T, 1).astype(str),  # 전치된 데이터를 표시
         showscale=True
     )
@@ -205,7 +198,7 @@ def wooricard_sales_treemap_view():
                      values='사용금액',
                     #  title=f'{year_month} 우리카드 월별 매출 현황',
                      color='사용금액',
-                     color_continuous_scale='Blues',
+                     color_continuous_scale='teal',
                      custom_data=['표시금액'])
 
     # 레이아웃 수정

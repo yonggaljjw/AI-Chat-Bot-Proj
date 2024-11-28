@@ -82,7 +82,7 @@ def top10_level_view():
     )
 
     # 그래프를 HTML로 변환
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def lifestage_distribution_view():
 
@@ -117,7 +117,7 @@ def lifestage_distribution_view():
     )
 
     # 그래프를 HTML로 변환
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def age_and_life_stage_distribution_view():
 
@@ -180,7 +180,7 @@ def age_and_life_stage_distribution_view():
     )
 
     # 두 개의 그래프를 HTML로 변환 및 리턴
-    return to_html(fig_age, full_html=False), to_html(fig_life_stage, full_html=False)
+    return to_json(fig_age), to_json(fig_life_stage)
 
 def gender_expense_distribution_view():
     
@@ -215,7 +215,7 @@ def gender_expense_distribution_view():
 
     # 남성 차트 레이아웃 설정
     fig_male.update_layout(
-        showlegend=True,
+        showlegend=True, # 스타일 설정
         template="plotly_white"  # 스타일 설정
     )
 
@@ -225,9 +225,10 @@ def gender_expense_distribution_view():
         template="plotly_white"
     )
 
-    return to_html(fig_male, full_html=False), to_html(fig_female, full_html=False)
+    return to_json(fig_male), to_json(fig_female)
 
 def gender_view():
+
     # 전체, 남성, 여성의 소비 카테고리 합계를 각각 계산
     total_expense = data.loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
     male_expense = data[data['성별'] == '남자'].loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
@@ -300,14 +301,14 @@ def gender_view():
     fig.update_layout(
         showlegend=True,
         template="plotly_white",
-        height=400,
+        # height=400,
         legend=dict(
-        x=0.7,        # 범례의 x 위치를 오른쪽으로
-        y=0.5,        # 범례의 y 위치를 중앙으로
-        xanchor='left',  # 범례의 정렬 기준점을 왼쪽으로
-        yanchor='middle', # 범례의 수직 정렬을 중앙으로
-        orientation='h'  # 범례를 수직으로 배열
-    )
+            x=0,        
+            y=0,        
+            xanchor='left',
+            yanchor='top',
+            orientation='h',
+        )
     )
 
     return to_json(fig)
@@ -348,11 +349,12 @@ def age_payment_distribution_view():
         yaxis=dict(title='이용 금액 (단위: 원)'),
         legend=dict(title='결제 방식'),
         template='plotly_white',  # 배경 스타일 설정
-        margin=dict(l=50, r=150, t=50, b=100)
+        margin=dict(l=50, r=150, t=50, b=100),
+        color_discrete_sequence = 'Plotly'
     )
 
     # 그래프를 HTML로 변환 후 리턴
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def age_category_top5_view():
 
@@ -407,9 +409,10 @@ def age_category_top5_view():
     )
 
     # 그래프를 HTML로 변환 후 리턴
-    return to_html(fig, full_html=False)
+    return to_json(fig)
 
 def cpi_card_predict_view():
+
     """
     드롭다운으로 카테고리를 선택하여 PCE 및 CPI 데이터를 시각화하는 Plotly 그래프 생성 함수.
     오른쪽 y축에 CPI 값을 표시하고, 신뢰구간 내부를 옅은 색으로 채웁니다.
@@ -526,13 +529,10 @@ def cpi_card_predict_view():
             }],
             legend=dict(x=0.5, y=1.2, orientation="h"),
             template="plotly_white",
-            autosize=False,
-            width=700,  # 가로 크기 조정
-            height=500,  # 세로 크기 조정
         )
 
         # HTML로 변환
-        return to_html(fig, full_html=False)
+        return to_json(fig)
     
     except Exception as e:
         print(f"그래프 생성 중 오류 발생: {e}")

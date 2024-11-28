@@ -1,6 +1,6 @@
 import pandas as pd
 import plotly.express as px
-from plotly.io import to_html
+from plotly.io import to_json
 import pycountry
 import requests
 from bs4 import BeautifulSoup
@@ -84,9 +84,20 @@ def visualize_travel_advice():
                         locations='ISO_Alpha_3',
                         color='Risk_level',
                         hover_name='Country',
-                        color_continuous_scale="Emrld")
+                        color_continuous_scale="inferno",
+                        height=400
+                        )
 
-    fig.update_geos(projection_type="natural earth", showcountries=True, countrycolor="Gray")
-    fig.update_layout(coloraxis_showscale=False, autosize=True, width=1000)
-
-    return to_html(fig)
+    fig.update_geos(projection_type="natural earth", 
+                    showcountries=True, 
+                    countrycolor="Gray",
+                    showframe=False,
+                    showcoastlines=True)
+    
+    fig.update_layout(
+        margin=dict(l=0, r=0, t=0, b=0),
+        coloraxis_showscale=False,
+        showlegend=False
+        )
+    
+    return to_json(fig)

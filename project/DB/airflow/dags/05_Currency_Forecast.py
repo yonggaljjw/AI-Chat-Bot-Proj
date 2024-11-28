@@ -24,7 +24,7 @@ engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/{da
 def load_data_from_sql():
     try:
         # MySQL 테이블을 DataFrame으로 읽어오기
-        query = "SELECT * FROM currency_rate WHERE time >= '2012-01-01'"
+        query = "SELECT TIME, USD, CNY, JPY, EUR FROM currency_rate WHERE time >= '2012-01-01'"
         currency_rate = pd.read_sql(query, engine)
         
         return currency_rate
@@ -33,25 +33,20 @@ def load_data_from_sql():
         print(f"데이터베이스에서 데이터를 불러오는 중 오류 발생: {str(e)}")
         return pd.DataFrame()
 
-# 환율 데이터 가져오기
-def get_historical_exchange_rates(base_currency, target_currencies, start_date, end_date):
-    exchange_data = {}
-    for currency in target_currencies:
-        symbol = f"{currency}{base_currency}=X"
-        try:
-            data = yf.Ticker(symbol).history(start=start_date, end=end_date)
-            exchange_data[currency] = data['Close']
-        except Exception as e:
-            print(f"Error fetching data for {currency}: {e}")
-    return pd.DataFrame(exchange_data)
-
+# 데이터셋 생성
+def create_dataset(dataset, look_back):
+    dataX, dataY = [], []
+    for i in range(len(dataset) - look_back - 1):
+        dataX.append(dataset[i:(i + look_back), :])
+        dataY.append(dataset[i + look_back, :])
+    return np.array(dataX), np.array(dataY)
 
 
 # 데이터 정규화
 def normalize_mult(data):
     normalize = np.zeros((data.shape[1], 2), dtype='float64')
     for i in range(data.shape[1]):
-        listlow, listhigh = np.percentile(data[:, i], [0, 100])
+        listlow, listhigh = np.percentile(data[:, i], [0, 60])
         normalize[i, :] = [listlow, listhigh]
         delta = listhigh - listlow
         if delta != 0:
@@ -72,69 +67,136 @@ def FNormalizeMult(data, normalize):
 def fill_na_with_avg(df):
     return (df.ffill() + df.bfill()) / 2
 
-# 미래 예측을 위한 함수
-def predict_future(model, last_data, time_steps, normalize, future_days=100):
+# 테스트 데이터를 준비하는 함수
+def prepare_test_data(test_data, time_steps, normalize):
+    test, _ = normalize_mult(test_data)  # test_data는 이미 numpy 배열 형태
+    test_X, test_Y = create_dataset(test, time_steps)
+    test_Y = FNormalizeMult(test_Y, normalize)
+    return test_X, test_Y
+
+# 미래 예측 함수
+def predict_future(model, last_sequence, future_steps, normalize):
     future_predictions = []
-    input_sequence = last_data[-time_steps:]  # 마지막 100일 데이터 사용
-    
-    for _ in range(future_days):
-        normalized_input = (input_sequence - normalize[:, 0]) / (normalize[:, 1] - normalize[:, 0])
-        prediction = model.predict(normalized_input.reshape(1, time_steps, -1))
-        prediction_denorm = prediction * (normalize[:, 1] - normalize[:, 0]) + normalize[:, 0]
-        
-        future_predictions.append(prediction_denorm[0, 0])
-        
-        # 새로운 예측값을 입력 시퀀스에 추가하여 다음 예측 준비
-        input_sequence = np.append(input_sequence[1:], prediction_denorm, axis=0)
+    current_sequence = last_sequence.copy()
 
-    return future_predictions
+    for _ in range(future_steps):
+        prediction = model.predict(current_sequence[np.newaxis, :, :])[0, 0]
+        # Denormalize prediction
+        denormalized_prediction = prediction * (normalize[0, 1] - normalize[0, 0]) + normalize[0, 0]
+        future_predictions.append(denormalized_prediction)
 
-# 메인 함수
+        # Update the sequence
+        current_sequence = np.roll(current_sequence, -1, axis=0)
+        current_sequence[-1, 0] = prediction  # Append the new prediction to the sequence
+
+    return np.array(future_predictions)
+
+def evaluate_model(model_path, test_X, test_Y, normalize, currency, future_steps, test_time):
+    model = load_model(model_path)
+
+    # Generate predictions for test data
+    predictions = model.predict(test_X)
+    predictions = FNormalizeMult(predictions, normalize).flatten()  # Flatten to 1D array
+    test_Y = test_Y.flatten()  # Flatten to 1D array
+
+    # Ensure test_time matches test_Y
+    test_time = test_time[:len(test_Y)]  # Truncate test_time to match test_Y length
+
+    # Future Predictions
+    last_sequence = test_X[-1]
+    future_predictions = predict_future(model, last_sequence, future_steps, normalize)
+
+    # Generate future time axis
+    future_time = pd.date_range(test_time[-1], periods=future_steps + 1, freq='D')[1:]
+
+    # Create DataFrame for test results (predictions)
+    test_pred_df = pd.DataFrame({
+        'TIME': test_time,
+        currency: predictions,
+        'SOURCE': 'PREDICTION'
+    })
+
+    # Create DataFrame for test results (real values)
+    test_real_df = pd.DataFrame({
+        'TIME': test_time,
+        currency: test_Y,
+        'SOURCE': 'REAL'
+    })
+
+    # Combine test prediction and real results
+    test_combined_df = pd.concat([test_pred_df, test_real_df], ignore_index=True)
+
+    # Create DataFrame for future predictions
+    future_df = pd.DataFrame({
+        'TIME': future_time,
+        currency: future_predictions,
+        'SOURCE': 'FUTURE'
+    })
+
+    # Combine all results
+    combined_df = pd.concat([test_combined_df, future_df], ignore_index=True)
+
+
+
+    return combined_df
+
+
 def run_prediction_and_upload():
-    MODEL_PATH = './dags/package/model.h5'
-    TIME_STEPS = 100
-    FUTURE_DAYS = 100
-    base_currency = 'KRW'
-    target_currencies = ['USD','CNY', 'JPY', 'EUR']
-    
-    # 모델 로드
-    model = load_model(MODEL_PATH)
-    
-    # 미래 날짜 생성
-    future_dates = [datetime.now() + timedelta(days=i) for i in range(1, FUTURE_DAYS + 1)]
-    
-    # 빈 DataFrame 초기화
-    predictions_df = pd.DataFrame({'date': future_dates})
+    TIME_STEPS = 60
+    FUTURE_STEPS = 60  # Number of future days to predict
+
+    target_currencies = ['USD', 'CNY', 'JPY', 'EUR']
     exchange_df = load_data_from_sql()
-    exchange_df['TIME'] = pd.to_datetime(exchange_df['TIME'], errors='coerce')  # 시간으로 변환
+    if exchange_df.empty:
+        print("No data loaded. Exiting.")
+        return
+
+    exchange_df['TIME'] = pd.to_datetime(exchange_df['TIME'], errors='coerce')
+    exchange_df = exchange_df.dropna().sort_values(by='TIME')  # Drop rows with NaT or NaN
     exchange_df['USD'] = pd.to_numeric(exchange_df['USD'], errors='coerce')  # 숫자로 변환
     exchange_df['CNY'] = pd.to_numeric(exchange_df['CNY'], errors='coerce')  # 숫자로 변환
     exchange_df['JPY'] = pd.to_numeric(exchange_df['JPY'], errors='coerce')  # 숫자로 변환
     exchange_df['EUR'] = pd.to_numeric(exchange_df['EUR'], errors='coerce')  # 숫자로 변환
 
-    # 각 통화에 대해 반복
-    for target_currency in target_currencies:
-        print(f"Predicting future rates for {target_currency}")
-        
-        # 환율 데이터 로드 및 결측치 처리
-        start_date = "2012-01-01"
-        end_date = datetime.now().strftime("%Y-%m-%d")
-        # exchange_df = get_historical_exchange_rates(base_currency, [target_currency], start_date, end_date)
-        df = fill_na_with_avg(exchange_df[target_currency])
-        
+    results_list = []
+
+    # 각 target currency에 대해 반복
+    for currency in target_currencies:
+        print(f"Evaluating for currency: {currency}")
+
+        MODEL_PATH = f'./dags/package/{currency}.h5'
+
+        # 해당 통화의 데이터 가져오기 및 결측치 처리
+        df = fill_na_with_avg(exchange_df[currency])
+        timestamps = exchange_df['TIME'].values
+
         # 데이터 정규화
         df = np.array(df).reshape(-1, 1)
         df, normalize = normalize_mult(df)
-        
-        # 미래 예측
-        future_predictions = predict_future(model, df, TIME_STEPS, normalize, FUTURE_DAYS)
-        
-        # DataFrame에 예측 결과 추가
-        predictions_df[target_currency] = future_predictions
-    
-    # MySQL에 데이터 업로드
-    predictions_df.to_sql(name='currency_forecast', con=engine, if_exists='replace', index=False)
-    print("Predictions successfully saved to MySQL database 'currency_forecast' table.")
+
+        # 테스트 데이터 준비
+        test_index = int(len(df) * 0.8)
+        _, test = df[:test_index], df[test_index:]
+        _, test_time = timestamps[:test_index], timestamps[test_index:]
+        test_X, test_Y = prepare_test_data(test, TIME_STEPS, normalize)
+
+        # 모델 평가 및 결과 저장
+        combined_df = evaluate_model(MODEL_PATH, test_X, test_Y, normalize, currency, FUTURE_STEPS, test_time)
+
+        # Append to results
+        results_list.append(combined_df)
+
+    # Combine all currency results
+    final_df = pd.concat(results_list, axis=1)
+
+    # Ensure columns are named correctly
+    final_df = final_df.loc[:, ~final_df.columns.duplicated()]
+    final_df = final_df.rename(columns={col: col if col in ['TIME', 'SOURCE'] else col.split('_')[-1] for col in final_df.columns})
+
+    # Save to CSV
+    # final_df.to_csv('currency_predictions.csv', index=False)
+    final_df.to_sql('currency_forecast', con=engine, if_exists='replace', index=False)
+    print("Results saved to 'currency_forecast.csv'.")
 
 # Airflow DAG definition
 default_args = {
