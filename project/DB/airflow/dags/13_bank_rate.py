@@ -31,7 +31,7 @@ def extract_rate() :
         df = df.rename(columns = {'DATA_VALUE' : 'BOR'})
         df['TIME'] = pd.to_datetime(df['TIME'], format='%Y%m%d')
         df['BOR'] = df['BOR'].astype('float')
-        
+
     except :
         df = pd.DataFrame({'TIME' : [datetime.todayr()],'BOR':[np.nan]})
         df['TIME'] = pd.to_datetime(df['TIME'], fomat='%Y%m%d')
@@ -59,16 +59,16 @@ default_args = {
 }
 
 with DAG(
-    '01_Fred_Data',
+    '13_bank_rate',
     default_args=default_args,
-    description="미 연준 데이터를 업로드 합니다.",
+    description="한국 금리 데이터를 올립니다.",
     schedule_interval='@daily',
     start_date=datetime(2015, 1, 1),
     catchup=False,
-    tags=['Opensearch', 'fred', 'data']
+    tags=['한국은행', '금리', 'data']
 ) as dag :
     t1 = PythonOperator(
-        task_id='create_index_and_mapping',
+        task_id='upload_bor_data',
         python_callable=upload_data
     )
     
