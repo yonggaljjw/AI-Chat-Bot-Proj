@@ -22,17 +22,10 @@ from tensorflow.keras.utils import get_custom_objects, register_keras_serializab
 
 
 # 데이터베이스 연결 정보
-# username = os.getenv('sql_username')
-# password = os.getenv('sql_password')
-# host = os.getenv('sql_host')
-# port = os.getenv('sql_port')
-# database = 'team5'
-# engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
-# 데이터베이스 연결 정보
-username = 'fisaai'
-password = 'woorifisa3!W'
-host = '118.67.131.22'
-port = '3306'
+username = os.getenv('sql_username')
+password = os.getenv('sql_password')
+host = os.getenv('sql_host')
+port = os.getenv('sql_port')
 database = 'team5'
 engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/{database}")
 
