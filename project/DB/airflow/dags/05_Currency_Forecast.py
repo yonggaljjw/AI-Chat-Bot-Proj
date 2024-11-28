@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 import os
 import pymysql
 from sqlalchemy import create_engine
+import requests
 
 load_dotenv()
 
@@ -91,11 +92,11 @@ def predict_future(model, last_sequence, future_steps, normalize):
 
     return np.array(future_predictions)
 
-def evaluate_model(model_path, test_X, test_Y, normalize, currency, future_steps, test_time):
-    model = load_model(model_path)
+def evaluate_model(model_url, test_X, test_Y, normalize, currency, future_steps, test_time):
+    predictions = fetch_predictions_from_model(model_url, test_X)
 
     # Generate predictions for test data
-    predictions = model.predict(test_X)
+    # predictions = model.predict(test_X)
     predictions = FNormalizeMult(predictions, normalize).flatten()  # Flatten to 1D array
     test_Y = test_Y.flatten()  # Flatten to 1D array
 
@@ -104,7 +105,7 @@ def evaluate_model(model_path, test_X, test_Y, normalize, currency, future_steps
 
     # Future Predictions
     last_sequence = test_X[-1]
-    future_predictions = predict_future(model, last_sequence, future_steps, normalize)
+    future_predictions = predict_future(model_url, last_sequence, future_steps, normalize)
 
     # Generate future time axis
     future_time = pd.date_range(test_time[-1], periods=future_steps + 1, freq='D')[1:]
