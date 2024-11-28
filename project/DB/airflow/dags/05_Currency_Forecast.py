@@ -76,12 +76,13 @@ def prepare_test_data(test_data, time_steps, normalize):
     return test_X, test_Y
 
 # 미래 예측 함수
-def predict_future(model, last_sequence, future_steps, normalize):
+def predict_future(model_url, last_sequence, future_steps, normalize):
     future_predictions = []
     current_sequence = last_sequence.copy()
 
     for _ in range(future_steps):
-        prediction = model.predict(current_sequence[np.newaxis, :, :])[0, 0]
+        # Use API call to fetch prediction
+        prediction = fetch_predictions_from_model(model_url, current_sequence[np.newaxis, :, :])[0, 0]
         # Denormalize prediction
         denormalized_prediction = prediction * (normalize[0, 1] - normalize[0, 0]) + normalize[0, 0]
         future_predictions.append(denormalized_prediction)
@@ -92,8 +93,10 @@ def predict_future(model, last_sequence, future_steps, normalize):
 
     return np.array(future_predictions)
 
+
 def evaluate_model(model_url, test_X, test_Y, normalize, currency, future_steps, test_time):
     predictions = fetch_predictions_from_model(model_url, test_X)
+    predictions = np.array(list(predictions))
 
     # Generate predictions for test data
     # predictions = model.predict(test_X)
@@ -186,7 +189,7 @@ def run_prediction_and_upload():
     for currency in target_currencies:
         print(f"Evaluating for currency: {currency}")
 
-        model_url = f"http://localhost:8501/v1/models/{currency}:predict"
+        model_url = f"http://host.docker.internal:8501/v1/models/{currency}:predict"
 
         # 해당 통화의 데이터 가져오기 및 결측치 처리
         df = fill_na_with_avg(exchange_df[currency])
