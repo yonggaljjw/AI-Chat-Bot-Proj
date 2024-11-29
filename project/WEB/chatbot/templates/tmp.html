@@ -43,6 +43,11 @@
             background-color: #e5e7eb;
             cursor: pointer;
         }
+        
+        #history-window {
+            z-index: 1000 ;
+            box-shadow: 0 4px 6px 4px rgba(0, 0, 0, 0.1), 0 2px 4px 2px rgba(0, 0, 0, 0.06);
+        }
 
         #chat-window {
             z-index: 1000;
@@ -194,6 +199,15 @@
                 </svg>
             </button>
 
+            <!-- history icon -->
+            <button id="history-btn" class="history-btn p-2 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon-rotate-45 w-8 h-8" fill="currentColor"
+                    viewBox="0 0 16 16">
+                    <path
+                        d="M8 0c-.787 0-1.292.592-1.572 1.151A4.35 4.35 0 0 0 6 3v3.691l-2 1V7.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v1.191l-1.17.585A1.5 1.5 0 0 0 0 10.618V12a.5.5 0 0 0 .582.493l1.631-.272.313.937a.5.5 0 0 0 .948 0l.405-1.214 2.21-.369.375 2.253-1.318 1.318A.5.5 0 0 0 5.5 16h5a.5.5 0 0 0 .354-.854l-1.318-1.318.375-2.253 2.21.369.405 1.214a.5.5 0 0 0 .948 0l.313-.937 1.63.272A.5.5 0 0 0 16 12v-1.382a1.5 1.5 0 0 0-.83-1.342L14 8.691V7.5a.5.5 0 0 0-.5-.5h-1a.5.5 0 0 0-.5.5v.191l-2-1V3c0-.568-.14-1.271-.428-1.849C9.292.591 8.787 0 8 0M7 3c0-.432.11-.979.322-1.401C7.542 1.159 7.787 1 8 1s.458.158.678.599C8.889 2.02 9 2.569 9 3v4a.5.5 0 0 0 .276.447l5.448 2.724a.5.5 0 0 1 .276.447v.792l-5.418-.903a.5.5 0 0 0-.575.41l-.5 3a.5.5 0 0 0 .14.437l.646.646H6.707l.647-.646a.5.5 0 0 0 .14-.436l-.5-3a.5.5 0 0 0-.576-.411L1 11.41v-.792a.5.5 0 0 1 .276-.447l5.448-2.724A.5.5 0 0 0 7 7z" />
+                </svg>
+            </button>
+
             <!-- split line -->
             <div class="h-[1px] w-full bg-gray-200 my-2"></div>
 
@@ -220,6 +234,21 @@
         </div>
     </div>
     <!-- End of Sidebar -->
+
+    <!-- 히스토리 창 -->
+    <div class="offcanvas" tabindex="-1">
+        <div id="history-window" class="fixed bottom-4 left-16 w-[40rem] h-[40rem] bg-white rounded-lg shadow-xl scale-0 transition-all duration-200 origin-bottom-left">
+            <div class="flex justify-between items-center p-4 border-b">
+                <h3 id="session" class="text-lg font-semibold">대화 기록</h3>
+                <button id="close-history" class="text-gray-500 hover:text-gray-700">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="history-messages" class="flex-1 overflow-y-scroll max-h-[calc(100vh-200px)] p-4 space-y-4"></div>
+        </div>
+    </div>
 
     <!-- Chat Window -->
     <div class="offcanvas" tabindex="-1">
@@ -439,6 +468,53 @@
 
     <script nonce="{{ nonce }}">
         document.addEventListener('DOMContentLoaded', function () {
+            const historyBtn = document.getElementById('history-btn');
+            const historyWindow = document.getElementById('history-window');
+            const closeHistory = document.getElementById('close-history');
+            const historyMessages = document.getElementById('history-messages');
+
+            // 히스토리 버튼 클릭 이벤트
+            historyBtn.addEventListener('click', function() {
+                if (historyWindow.classList.contains('scale-0')) {
+                    historyWindow.classList.remove('scale-0');
+                    historyWindow.classList.add('scale-100');
+                    loadHistoryMessages();
+                } else {
+                    closeHistoryWindow();
+                }
+            });
+
+            // 닫기 버튼 클릭 이벤트
+            closeHistory.addEventListener('click', closeHistoryWindow);
+
+            function closeHistoryWindow() {
+                historyWindow.classList.remove('scale-100');
+                historyWindow.classList.add('scale-0');
+            }
+
+            async function loadHistoryMessages() {
+                try {
+                    const response = await fetch('/chatbot/history/');
+                    const data = await response.json();
+                    
+                    historyMessages.innerHTML = '';
+                    data.messages.forEach(msg => {
+                        const messageDiv = document.createElement('div');
+                        messageDiv.className = 'mb-4 p-3 bg-gray-50 rounded-lg';
+                        messageDiv.innerHTML = `
+                            <div class="text-sm text-gray-500 mb-1">
+                                ${new Date(msg.timestamp).toLocaleString()}
+                            </div>
+                            <div class="text-gray-700">${msg.message}</div>
+                            <div class="text-blue-600 mt-2">${msg.response}</div>
+                        `;
+                        historyMessages.appendChild(messageDiv);
+                    });
+                } catch (error) {
+                    console.error('히스토리 로드 실패:', error);
+                }
+            }
+
             const chartData = {
                 bankrate_indicator_json: JSON.parse('{{ bankrate_indicator_json|escapejs }}'),
                 K_GDP_indicator_json: JSON.parse('{{ K_GDP_indicator_json|escapejs }}'),

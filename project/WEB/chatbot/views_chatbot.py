@@ -11,6 +11,10 @@ from opensearchpy import OpenSearch
 import os
 from dotenv import load_dotenv
 
+from .models import ChatMessage
+import uuid
+from django.contrib.auth.decorators import login_required
+
 load_dotenv()
 
 client = OpenSearch(
@@ -300,7 +304,22 @@ def chatbot_response(request):
                 search_context = get_google_search_content(keyword)
                 print(f"Google 검색 컨텍스트: {search_context[:100]}...")  # 디버깅용
             
+            # 세션 ID 생성 또는 가져오기
+            session_id = request.session.get('chat_session_id')
+            if not session_id:
+                session_id = str(uuid.uuid4())
+                request.session['chat_session_id'] = session_id
+            
             bot_response = f"우대리: {answer_question_with_context(user_message, search_context)}"
+
+            # 대화 저장
+            ChatMessage.objects.create(
+                user=request.user,
+                message=user_message,
+                response=bot_response,
+                is_power_mode=is_power_mode,
+                session_id=session_id
+            )
             
             return JsonResponse({
                 'status': 'success',
@@ -424,3 +443,57 @@ class InsightGenerator:
             return response.choices[0].message.content.strip()
         except Exception as e:
             return "분석 준비중입니다."
+
+## 히스토리 함수
+@login_required
+def initialize_chat_session(request):
+    if 'chat_session_id' not in request.session:
+        request.session['chat_session_id'] = str(uuid.uuid4())
+    return JsonResponse({'session_id': request.session['chat_session_id']})
+
+@login_required
+def get_chat_history(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'messages': []})
+
+    session_id = request.session.get('chat_session_id')
+    messages = ChatMessage.objects.filter(
+        user=request.user,
+        session_id=session_id
+    ).order_by('created_at')
+    
+    history = [{
+        'message': msg.message,
+        'response': msg.response,
+        'timestamp': msg.created_at.isoformat()
+    } for msg in messages]
+    
+    return JsonResponse({'messages': history})
+
+@login_required
+def get_chat_sessions(request):
+    sessions = ChatMessage.objects.filter(user=request.user)\
+        .values('session_id').annotate(
+            last_message=models.Max('message'),
+            timestamp=models.Max('created_at')
+        )\
+        .order_by('-timestamp')
+    
+    return JsonResponse({
+        'sessions': list(sessions)
+    })
+
+@login_required
+def get_session_messages(request, session_id):
+    messages = ChatMessage.objects.filter(
+        user=request.user,
+        session_id=session_id
+    ).order_by('created_at')
+    
+    return JsonResponse({
+        'messages': [{
+            'message': msg.message,
+            'response': msg.response,
+            'timestamp': msg.created_at.isoformat()
+        } for msg in messages]
+    })
