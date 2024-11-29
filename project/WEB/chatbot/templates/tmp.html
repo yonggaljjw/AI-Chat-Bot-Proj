@@ -310,22 +310,22 @@
             <!-- Indicator Row -->
             <div class="col-span-12 row-span-1 grid grid-cols-6 gap-4 h-[calc(20vh)]">
                 <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-2">금리</h3>
+                    <h3 class="text-lg font-semibold mb-2">한국 금리</h3>
                     <div id="bankrate_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-2">GDP</h3>
+                    <h3 class="text-lg font-semibold mb-2">한국 GDP</h3>
                     <div id="K_GDP_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-2">CPI</h3>
+                    <h3 class="text-lg font-semibold mb-2">한국 CPI</h3>
                     <div id="K_cpi_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-2">PCE</h3>
+                    <h3 class="text-lg font-semibold mb-2">한국 PCE</h3>
                     <div id="K_pce_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
@@ -335,7 +335,7 @@
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-2">경제성장률</h3>
+                    <h3 class="text-lg font-semibold mb-2">한국 경제성장률</h3>
                     <div id="K_growth_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
@@ -379,16 +379,19 @@
                 </div>
             </div>
             <div class="col-span-6 row-span-2 bg-white shadow-md p-2 rounded-lg flex flex-col h-[calc(100%)]">
-                <h3 class="text-base font-semibold mb-1">은채 워드클라우드</h3>
+                <h3 class="text-base font-semibold mb-1">뉴스 트랜드</h3>
+                <p class="text-sm text-gray-500 mb-3">뉴스 핵심 키워드를 분석을 통한 워드클라우드와 키워드 변동률 시각화</p>
                 <div class="flex-1">
                     <iframe src="http://192.168.0.101:5602/goto/4418ab1823a219ccd90b45dc6cd8a1d9" class="w-full h-full"
                         style="min-height: 100%; border: none;" loading="lazy"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         referrerpolicy="no-referrer"></iframe>
                 </div>
+                <p class="text-xs text-gray-400 text-right">※ 데이터 출처 : 네이버 뉴스</p>
             </div>
             <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
-                <h3 class="text-lg font-semibold mb-2">호섭 그래프</h3>
+                <h3 class="text-lg font-semibold mb-2">소비자 물가지수 및 카드 소비 내역</h3>
+                <p class="text-sm text-gray-500 mb-3">합계 PCE 및 CPI의 실제값과 예측값</p>
                 <div id="cpi_card_predict_json">
                 </div>
             </div>
