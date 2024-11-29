@@ -35,6 +35,7 @@ RUN pip install --no-cache-dir --upgrade \
     wordcloud \
     gensim \
     openai \
+    sklearn \
     opensearch-py \
     protobuf==3.20.*
 
