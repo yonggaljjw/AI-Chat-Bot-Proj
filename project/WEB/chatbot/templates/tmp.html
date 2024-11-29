@@ -310,22 +310,22 @@
             <!-- Indicator Row -->
             <div class="col-span-12 row-span-1 grid grid-cols-6 gap-4 h-[calc(20vh)]">
                 <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-2">금리</h3>
+                    <h3 class="text-lg font-semibold mb-2">한국 금리</h3>
                     <div id="bankrate_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-2">GDP</h3>
+                    <h3 class="text-lg font-semibold mb-2">한국 GDP</h3>
                     <div id="K_GDP_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-2">CPI</h3>
+                    <h3 class="text-lg font-semibold mb-2">한국 CPI</h3>
                     <div id="K_cpi_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-2">PCE</h3>
+                    <h3 class="text-lg font-semibold mb-2">한국 PCE</h3>
                     <div id="K_pce_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
@@ -335,7 +335,7 @@
                     </div>
                 </div>
                 <div class="bg-white shadow-md p-3 rounded-lg">
-                    <h3 class="text-lg font-semibold mb-2">경제성장률</h3>
+                    <h3 class="text-lg font-semibold mb-2">한국 경제성장률</h3>
                     <div id="K_growth_indicator_json" class="h-[calc(100%-2rem)] overflow-hidden">
                     </div>
                 </div>
@@ -345,7 +345,7 @@
             <div class=" col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <div class="flex flex-col h-full w-full">
                     <div class="mb-2">
-                        <h3 class="text-lg font-semibold mb-3">거시 경제 지표(미국)</h3>
+                        <h3 class="text-lg font-semibold mb-3">미국의 거시 경제 현황 확인</h3>
                         <div class="toggle-container">
                             <button class="toggle-button inactive" data-chart="economic">종합지표</button>
                             <button class="toggle-button active" data-chart="gdp">기초 지표</button>
@@ -375,20 +375,24 @@
                             <div id="employment_trends_json">
                             </div>
                         </div>
+                        <p class="text-xs text-gray-400 text-right">※ 데이터 출처: Federal Reserve Economic Data(FRED)</p>
                     </div>
                 </div>
             </div>
             <div class="col-span-6 row-span-2 bg-white shadow-md p-2 rounded-lg flex flex-col h-[calc(100%)]">
-                <h3 class="text-base font-semibold mb-1">은채 워드클라우드</h3>
+                <h3 class="text-base font-semibold mb-1">뉴스 트랜드</h3>
+                <p class="text-sm text-gray-500 mb-3">뉴스 핵심 키워드를 분석을 통한 워드클라우드와 키워드 변동률 시각화</p>
                 <div class="flex-1">
                     <iframe src="http://192.168.0.101:5602/goto/4418ab1823a219ccd90b45dc6cd8a1d9" class="w-full h-full"
                         style="min-height: 100%; border: none;" loading="lazy"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         referrerpolicy="no-referrer"></iframe>
                 </div>
+                <p class="text-xs text-gray-400 text-right">※ 데이터 출처 : 네이버 뉴스</p>
             </div>
             <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
-                <h3 class="text-lg font-semibold mb-2">호섭 그래프</h3>
+                <h3 class="text-lg font-semibold mb-2">소비자 물가지수 및 카드 소비 내역</h3>
+                <p class="text-sm text-gray-500 mb-3">합계 PCE 및 CPI의 실제값과 예측값</p>
                 <div id="cpi_card_predict_json">
                 </div>
             </div>
@@ -397,23 +401,30 @@
         <!-- Dashboard Content two -->
         <div id="dashboard-content-two" class="grid grid-cols-12 p-3 gap-4 hidden">
             <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
-                <h3 class="text-lg font-semibold mb-2">카드사별 총 사용금액</h3>
+                <h3 class="text-lg font-semibold mb-2">카드사별 경쟁 현황</h3>
+                <p class="text-sm text-gray-500 mb-3">카드사 별 총 매출액</p>
                 <div id="card_total_sales_ladar_json">
+                <p class="text-xs text-gray-400 text-right">※ 데이터 출처 : 여신금융협회</p>
                 </div>
             </div>
             <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
-                <h3 class="text-lg font-semibold mb-2">우리카드 실제 현황</h3>
+                <h3 class="text-lg font-semibold mb-2">우리카드 매출 구성</h3>
+                <p class="text-sm text-gray-500 mb-3">우리카드 이용실적에 따른 매출 구성</p>
                 <div id="wooricard_sales_treemap_json">
+                <p class="text-xs text-gray-400 text-right">※ 데이터 출처 : 여신금융협회</p>
                 </div>
             </div>
             <div class="col-span-4 row-span-1 bg-white shadow-md p-3 rounded-lg">
-                <h3 class="text-lg font-semibold">소비 카테고리 현황</h3>
+                <h3 class="text-lg font-semibold">우리카드 매출 카테고리 현황</h3>
+                
                 <div id="gender_json">
+                <p class="text-xs text-gray-400 text-right">※ 데이터 출처 : 우리카드 내부 데이터</p>
                 </div>
             </div>
             <div class="col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
-                <h3 class="text-lg font-semibold">카드사별 세부구성 비교</h3>
+                <h3 class="text-lg font-semibold">카드사별 매출 구성 비교</h3>
                 <div id="create_card_heatmap_json">
+                <p class="text-xs text-gray-400 text-right">※ 데이터 출처 : 여신금융협회</p>
                 </div>
             </div>
             <div class="col-span-5 row-span-1 bg-white shadow-md p-3 rounded-lg">
@@ -430,6 +441,7 @@
                         </a>
                         <p class="text-xs text-gray-500 mb-1">시행일: {{ law.start_date }} ~ {{ law.end_date }}</p>
                         <p class="text-xs text-gray-600 leading-relaxed">{{ law.summary }}</p>
+                        <p class="text-xs text-gray-400 text-right">※ 데이터 출처 : 금융 위원회</p>
                     </div>
                     {% endfor %}
                 </div>
@@ -441,6 +453,7 @@
                 <h3 class="text-lg font-semibold mb-2">여행 경보</h3>
                 <p class="text-sm text-gray-500 mb-3">여행 경보는 현재 국가별 안전 상태를 안내하기 위한 정보</p>
                 <div id="visualize_travel_advice_json">
+                <p class="text-xs text-gray-400 text-right">※ 데이터 출처 : 외교부 해외안전여행</p>
                 </div>
             </div>
             <div class="col-span-7 row-span-1 bg-white shadow-md p-3 rounded-lg">
