@@ -152,7 +152,7 @@ def fetch_article_details(url):
 
 def load_sentiment_model():
     # 로컬 디렉토리 경로
-    model_directory = "./dags/package/KcELECTRA"
+    model_directory = "./dags/package/Kc"
 
     # 토크나이저와 모델 로드
     tokenizer = AutoTokenizer.from_pretrained(model_directory)
