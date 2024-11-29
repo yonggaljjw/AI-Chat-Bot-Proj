@@ -42,7 +42,9 @@ def convert_to_datetime(date_str):
     date_str = re.sub(r"오전", "AM", date_str)
     date_str = re.sub(r"오후", "PM", date_str)
     try:
-        return pd.to_datetime(date_str, format="%Y.%m.%d. %p %I:%M")
+        date_obj = pd.to_datetime(date_str, format="%Y.%m.%d. %p %I:%M")
+        return date_obj.strftime("%Y-%m-%d %H:%M:%S")  # 문자열로 변환
+        
     except ValueError as e:
         print(f"Error parsing date: {date_str}, Error: {e}")
         return None
@@ -87,8 +89,17 @@ def calculate_trend_index(keywords, article_date, baseline_date="2023-01-01"):
     valid_keywords = validate_keywords(keywords)
     if not valid_keywords:
         return 0.0
+
+    # article_date가 str이라면, datetime 객체로 변환
+    if isinstance(article_date, str):
+        article_date = pd.to_datetime(article_date, errors='coerce')
+    
+    if pd.isna(article_date):  # 날짜가 제대로 파싱되지 않으면 처리
+        return 0.0
+
     start_date = pd.to_datetime(baseline_date).strftime("%Y-%m-%d")
     end_date = (article_date - timedelta(days=1)).strftime("%Y-%m-%d")
+    
     trend_data = get_trend_data(valid_keywords, start_date, end_date)
     try:
         trend_scores = []
@@ -100,6 +111,7 @@ def calculate_trend_index(keywords, article_date, baseline_date="2023-01-01"):
     except Exception as e:
         print(f"Error calculating trend index: {e}")
         return 0.0
+
 
 def fetch_news_links_by_date(sid, date, max_links=10):
     links = []
@@ -215,15 +227,18 @@ def save_trend_predictions_to_db(results):
     print(f"{len(df)}개의 예측 결과가 'trend_predictions' 테이블에 업로드되었습니다.")
 
 def predict_trends(**kwargs):
-    file_path = "/path/to/today_articles_with_trend_and_sentiment.csv"
-    data = pd.read_csv(file_path)
+    # 바로 fetch_today_articles에서 받아온 데이터를 사용
+    articles = kwargs['ti'].xcom_pull(task_ids='fetch_articles')
+
+    # DataFrame으로 변환
+    data = pd.DataFrame(articles)
     category_means = data.groupby("category")[["sentiment_score", "trend_index"]].mean().reset_index()
     optimal_lags = {100: 129, 101: 167, 102: 40, 103: 158, 104: 29, 105: 175}
     scaler = MinMaxScaler()
     scaler.fit(category_means[["sentiment_score", "trend_index"]])
     results = {}
     for category_id in optimal_lags.keys():
-        model_path = f"project/DB/airflow/models/best_model_category_{category_id}.h5"
+        model_path = f"./dags/package/models/best_model_category_{category_id}.h5"
         lag = optimal_lags[category_id]
         try:
             category_data = category_means[category_means["category"] == category_id]
@@ -233,9 +248,10 @@ def predict_trends(**kwargs):
             trend_index = category_data["trend_index"].values[0]
             input_data = np.array([[sentiment_score, trend_index]])
             input_data = scaler.transform(input_data)
-            input_data = input_data.reshape((1, input_data.shape[1], 1))
-            model = load_model(model_path)
-            predicted_trend = model.predict(input_data)[0][0]
+            input_data = input_data.reshape((1, 2))  # 배치 차원 수정
+
+            model = load_model(model_path, compile=False)
+            predicted_trend = model.predict(input_data, batch_size=1)[0][0]
             results[category_id] = {
                 "predicted_trend": float(predicted_trend),
                 "today_trend": float(trend_index),
