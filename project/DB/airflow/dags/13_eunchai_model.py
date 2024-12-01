@@ -94,7 +94,7 @@ def calculate_trend_index(keywords, article_date, baseline_date="2023-01-01"):
     if isinstance(article_date, str):
         article_date = pd.to_datetime(article_date, errors='coerce')
     
-    if pd.isna(article_date):  
+    if pd.isna(article_date):  # 날짜가 제대로 파싱되지 않으면 처리
         return 0.0
 
     start_date = pd.to_datetime(baseline_date).strftime("%Y-%m-%d")
@@ -163,9 +163,14 @@ def fetch_article_details(url):
         return {"title": np.nan, "date": np.nan, "main": np.nan, "url": url}
 
 def load_sentiment_model():
+    # 로컬 디렉토리 경로
     model_directory = "./dags/package/Kc"
+
+    # 토크나이저와 모델 로드
     tokenizer = AutoTokenizer.from_pretrained(model_directory)
     model = AutoModelForSequenceClassification.from_pretrained(model_directory)
+    
+    # Sentiment Analysis 파이프라인 반환
     return pipeline("sentiment-analysis", model=model, tokenizer=tokenizer)
 
 def analyze_sentiment(text, sentiment_analyzer):
@@ -207,40 +212,25 @@ def save_trend_predictions_to_db(results):
                 "date": datetime.now().strftime("%Y-%m-%d"),
                 "predicted_trend": None,
                 "today_trend": None,
+                "urls": None,
                 "error": data["error"]
             })
         else:
-            urls = data["urls"][:6]  # 각 카테고리별 URL 6개만 저장
-            for url in urls:
-                rows.append({
-                    "category_id": category_id,
-                    "date": datetime.now().strftime("%Y-%m-%d"),
-                    "predicted_trend": data["predicted_trend"],
-                    "today_trend": data["today_trend"],
-                    "urls": url,
-                    "error": None
-                })
+            rows.append({
+                "category_id": category_id,
+                "date": datetime.now().strftime("%Y-%m-%d"),
+                "predicted_trend": data["predicted_trend"],
+                "today_trend": data["today_trend"],
+                "urls": json.dumps(data["urls"]),  # URL 리스트를 JSON 형식으로 저장
+                "error": None
+            })
     df = pd.DataFrame(rows)
     df.to_sql('trend_predictions', con=engine, if_exists='replace', index=False)
     print(f"{len(df)}개의 예측 결과가 'trend_predictions' 테이블에 업로드되었습니다.")
 
-# Airflow DAG 설정
-default_args = {
-    "owner": "airflow",
-    "depends_on_past": False,
-    "start_date": datetime(2024, 11, 29),
-    "retries": 1,
-    "retry_delay": timedelta(minutes=5),
-}
-
-dag = DAG(
-    "trend_analysis_dag",
-    default_args=default_args,
-    schedule_interval="0 8 * * *",  # 매일 오전 8시에 실행
-)
 
 def predict_trends(**kwargs):
-    # fetch_today_articles에서 받아온 데이터를 사용
+    # 바로 fetch_today_articles에서 받아온 데이터를 사용
     articles = kwargs['ti'].xcom_pull(task_ids='fetch_articles')
 
     # DataFrame으로 변환
@@ -275,19 +265,35 @@ def predict_trends(**kwargs):
     save_trend_predictions_to_db(results)
     return results
 
+default_args = {
+    "owner": "airflow",
+    "depends_on_past": False,
+    "email": ["your_email@example.com"],
+    "email_on_failure": False,
+    "email_on_retry": False,
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5),
+}
 
-fetch_articles = PythonOperator(
-    task_id="fetch_articles",
-    python_callable=fetch_today_articles,
-    op_args=[["100", "101", "102", "103", "104", "105"]],
-    dag=dag,
-)
+with DAG(
+    dag_id="trend_analysis_dag",
+    default_args=default_args,
+    description="Daily trend analysis",
+    schedule_interval="0 9 * * *",
+    start_date=datetime(2023, 11, 1),
+    catchup=False,
+    tags=["trend_analysis"],
+) as dag:
+    fetch_articles_task = PythonOperator(
+        task_id="fetch_articles",
+        python_callable=fetch_today_articles,
+        op_kwargs={"section_lst": [100, 101, 102, 103, 104, 105]},
+    )
 
-predict_trends_task = PythonOperator(
-    task_id="predict_trends",
-    python_callable=predict_trends,
-    provide_context=True,
-    dag=dag,
-)
+    predict_trends_task = PythonOperator(
+        task_id="predict_trends",
+        python_callable=predict_trends,
+        provide_context=True,
+    )
 
-fetch_articles >> predict_trends_task
+    fetch_articles_task >> predict_trends_task
