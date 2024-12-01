@@ -80,12 +80,21 @@ def search_documents(query):
     index_name = 'korean_law_data'
     body = {
         "query": {
-            "script_score": {
-                "query": {"match_all": {}},
-                "script": {
-                    "source": "cosineSimilarity(params.query_vector, doc['embedding_vector']) + 1.0",
-                    "params": {
-                        "query_vector": get_embedding(query)
+            "bool": {
+                "must": {
+                    "script_score": {
+                        "query": {"match_all": {}},
+                        "script": {
+                            "source": "cosineSimilarity(params.query_vector, doc['embedding_vector']) + 1.0",
+                            "params": {
+                                "query_vector": get_embedding(query)
+                            }
+                        }
+                    }
+                },
+                "filter": {
+                    "range": {
+                        "_score": {"gte": 1.7}
                     }
                 }
             }
@@ -94,6 +103,7 @@ def search_documents(query):
     }
     results = client.search(index=index_name, body=body)
     return [hit["_source"]['content'] for hit in results["hits"]["hits"]]
+
 
 # new_trend 오픈서치 검색
 def generate_opensearch_query(query) :
@@ -108,7 +118,7 @@ def generate_opensearch_query(query) :
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "You are an excellent OpenSearch query creator, Only Provide OpenSearch Query"},
+            {"role": "system", "content": "You are an excellent ElasticSearch query creator. Only provide ElasticSearch queries. You must include a filter for score greater than or equal to 1.7."},
             {"role": "user", "content": prompt}
         ]
     )
@@ -116,8 +126,8 @@ def generate_opensearch_query(query) :
     generate_query = generate_query.replace("```json","").replace("```","").strip()
 
     relevant_docs = client.search(
-    index=index_name,
-    body = generate_query)
+        index=index_name,
+        body = generate_query)
     
     return relevant_docs
 
@@ -228,7 +238,7 @@ def answer_question_with_context(query, context=None):
     context_text = f"\nAdditional context from Wikipedia:\n{context}" if context else ""
     
     prompt = f"""
-    The following is a table of data extracted from an OpenSearch query:\n\n{os_relevant_docs}\n\n{relevant_docs}\n\n{newtrend_docs}\n 
+    The following is a table of data extracted from an MySQL query and OpenSearch query:\n\n{os_relevant_docs}\n\n{relevant_docs}\n\n{newtrend_docs}\n 
     {context_text}\n
     Based on this data and context, provide an effective and detailed answer to the following natural language query: {query}
     
@@ -236,7 +246,8 @@ def answer_question_with_context(query, context=None):
     1. Provide accurate and concise answers based on both the data and Wikipedia context if available.
     2. Only mention information relevant to the question.
     3. If using Wikipedia information, integrate it naturally with the database information.
-    4. Write your answer in Korean and keep it under 800 characters.
+    4. If you cannot respond answer based on data and context, you should answer "죄송합니다. 데이터가 없습니다." Only.
+    5. Write your answer in Korean and keep it under 800 characters.
     
     Answer: """
 
@@ -310,7 +321,7 @@ def chatbot_response(request):
                 session_id = str(uuid.uuid4())
                 request.session['chat_session_id'] = session_id
             
-            bot_response = f"우대리: {answer_question_with_context(user_message, search_context)}"
+            bot_response = f"{answer_question_with_context(user_message, search_context)}"
 
             # 대화 저장
             ChatMessage.objects.create(
