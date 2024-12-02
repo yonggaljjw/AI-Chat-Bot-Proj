@@ -12,6 +12,7 @@
     <script src="{% static 'js/dashboard.js' %}" nonce="{{ nonce }}" defer></script>
     <script src="{% static 'js/chatbot.js' %}" defer></script>
     <script src="{% static 'js/insight.js' %}" defer></script>
+    <script src="{% static 'js/history.js' %}" defer></script>
     <style>
         @font-face {
             font-family: 'Wooridaum';
@@ -239,14 +240,16 @@
     <div class="offcanvas" tabindex="-1">
         <div id="history-window" class="fixed bottom-4 left-16 w-[40rem] h-[40rem] bg-white rounded-lg shadow-xl scale-0 transition-all duration-200 origin-bottom-left">
             <div class="flex justify-between items-center p-4 border-b">
-                <h3 id="session" class="text-lg font-semibold">대화 기록</h3>
+                <h3 class="text-lg font-semibold">대화 기록</h3>
                 <button id="close-history" class="text-gray-500 hover:text-gray-700">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
-            <div id="history-messages" class="flex-1 overflow-y-scroll max-h-[calc(100vh-200px)] p-4 space-y-4"></div>
+            <div id="session-list" class="flex-1 overflow-y-auto p-4">
+                <!-- 세션 목록이 여기에 표시됩니다 -->
+            </div>
         </div>
     </div>
 
@@ -481,52 +484,6 @@
 
     <script nonce="{{ nonce }}">
         document.addEventListener('DOMContentLoaded', function () {
-            const historyBtn = document.getElementById('history-btn');
-            const historyWindow = document.getElementById('history-window');
-            const closeHistory = document.getElementById('close-history');
-            const historyMessages = document.getElementById('history-messages');
-
-            // 히스토리 버튼 클릭 이벤트
-            historyBtn.addEventListener('click', function() {
-                if (historyWindow.classList.contains('scale-0')) {
-                    historyWindow.classList.remove('scale-0');
-                    historyWindow.classList.add('scale-100');
-                    loadHistoryMessages();
-                } else {
-                    closeHistoryWindow();
-                }
-            });
-
-            // 닫기 버튼 클릭 이벤트
-            closeHistory.addEventListener('click', closeHistoryWindow);
-
-            function closeHistoryWindow() {
-                historyWindow.classList.remove('scale-100');
-                historyWindow.classList.add('scale-0');
-            }
-
-            async function loadHistoryMessages() {
-                try {
-                    const response = await fetch('/chatbot/history/');
-                    const data = await response.json();
-                    
-                    historyMessages.innerHTML = '';
-                    data.messages.forEach(msg => {
-                        const messageDiv = document.createElement('div');
-                        messageDiv.className = 'mb-4 p-3 bg-gray-50 rounded-lg';
-                        messageDiv.innerHTML = `
-                            <div class="text-sm text-gray-500 mb-1">
-                                ${new Date(msg.timestamp).toLocaleString()}
-                            </div>
-                            <div class="text-gray-700">${msg.message}</div>
-                            <div class="text-blue-600 mt-2">${msg.response}</div>
-                        `;
-                        historyMessages.appendChild(messageDiv);
-                    });
-                } catch (error) {
-                    console.error('히스토리 로드 실패:', error);
-                }
-            }
 
             const chartData = {
                 bankrate_indicator_json: JSON.parse('{{ bankrate_indicator_json|escapejs }}'),

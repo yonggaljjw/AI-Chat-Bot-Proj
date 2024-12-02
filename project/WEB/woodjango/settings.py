@@ -112,7 +112,6 @@ TEMPLATES = [
                 "django.template.context_processors.request",
                 "django.contrib.auth.context_processors.auth",
                 "django.contrib.messages.context_processors.messages",
-                # 'django_plotly_dash.context_processors.default',
             ],
         },
     },
@@ -124,17 +123,10 @@ WSGI_APPLICATION = "woodjango.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.sqlite3",
-#         "NAME": BASE_DIR / "db.sqlite3",
-#     }
-# }
-
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "team5", # mysql의 scheme랑 일치해야한다.
+        "NAME":  "team5", # mysql의 scheme랑 일치해야한다.
         "USER": os.getenv("sql_username"),
         "PASSWORD": os.getenv("sql_password"),
         "HOST": os.getenv("sql_host"),
