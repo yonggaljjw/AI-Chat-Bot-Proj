@@ -172,6 +172,13 @@ def run_prediction_and_upload():
 
     target_currencies = ['USD', 'CNY', 'JPY', 'EUR']
     exchange_df = load_data_from_sql()
+    exchange_df['TIME'] = pd.to_datetime(exchange_df['TIME'], errors='coerce')
+    exchange_df = exchange_df.dropna().sort_values(by='TIME')
+    exchange_df['USD'] = pd.to_numeric(exchange_df['USD'], errors='coerce')
+    exchange_df['CNY'] = pd.to_numeric(exchange_df['CNY'], errors='coerce')
+    exchange_df['JPY'] = pd.to_numeric(exchange_df['JPY'], errors='coerce')
+    exchange_df['EUR'] = pd.to_numeric(exchange_df['EUR'], errors='coerce')
+    
     if exchange_df.empty:
         print("No data loaded. Exiting.")
         return
@@ -235,10 +242,15 @@ def run_prediction_and_upload():
 
     # 모든 결과 통합
     final_df = pd.concat(results_list, axis=0).sort_values(by='TIME').reset_index(drop=True)
+    final_df = final_df.groupby(['TIME', 'SOURCE'], as_index=False).mean()
+
+    # 또는 NaN 값을 무시하고 첫 번째 값을 유지하려면:
+    final_df = final_df.groupby(['TIME', 'SOURCE'], as_index=False).first()
 
     # 데이터베이스에 저장
     final_df.to_sql('currency_forecast', con=engine, if_exists='replace', index=False)
     print("All results saved to MySQL database.")
+
 
 
 # Airflow DAG definition
