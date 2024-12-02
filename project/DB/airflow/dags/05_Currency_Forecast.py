@@ -168,7 +168,7 @@ def fetch_predictions_from_model(url, input_data):
     
 def run_prediction_and_upload():
     TIME_STEPS = 60
-    FUTURE_STEPS = 60  # Number of future days to predict
+    FUTURE_STEPS = 30  # Number of future days to predict
 
     target_currencies = ['USD', 'CNY', 'JPY', 'EUR']
     exchange_df = load_data_from_sql()
