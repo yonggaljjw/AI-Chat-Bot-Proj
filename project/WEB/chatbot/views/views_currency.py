@@ -10,7 +10,7 @@ from chatbot.sql import engine
 def load_currency_forecast_from_sql():
     try:
         # MySQL 테이블을 DataFrame으로 읽어오기
-        query = "SELECT TIME, USD, CNY, JPY, EUR, SOURCE FROM currency_forecast"
+        query = "SELECT TIME, USD, CNY, JPY, EUR, SOURCE FROM currency_forecast where time > '2023-01-01'"
         currency_forecast = pd.read_sql(query, engine)
 
         return currency_forecast
