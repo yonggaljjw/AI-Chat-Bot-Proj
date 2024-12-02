@@ -1,11 +1,11 @@
 from django.urls import path
-from . import views_main
-from . import views_chatbot
+from .views import views_main
+from .views import views_chatbot
 from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('tmp/', views_main.dashboard_view_practice, name='tmp'),
+    path('main/', views_main.dashboard_view, name='main'),
     path('chatbot/send/', views_chatbot.chatbot_response, name='chatbot_send'),
     path('chatbot/initialize-session/', views_chatbot.initialize_chat_session, name='initialize_chat_session'),
     path('chatbot/sessions/', views_chatbot.get_chat_sessions, name='chat_sessions'),

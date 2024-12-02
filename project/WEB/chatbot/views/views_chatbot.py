@@ -12,7 +12,7 @@ import os
 from dotenv import load_dotenv
 
 from django.db import models
-from .models import ChatMessage
+from ..models import ChatMessage
 import uuid
 from django.contrib.auth.decorators import login_required
 
