@@ -5,12 +5,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 
 urlpatterns = [
-    path('index/', views_main.dashboard_view, name='index'),
     path('tmp/', views_main.dashboard_view_practice, name='tmp'),
-    path('tmp_origin/', views_main.dashboard_view_practice2, name='tmp_origin'),
     path('chatbot/send/', views_chatbot.chatbot_response, name='chatbot_send'),
-    path('chatbot/history/', views_chatbot.get_chat_history, name='chat_history'),
-    path('chatbot/init/', views_chatbot.initialize_chat_session, name='init_chat'),
+    path('chatbot/initialize-session/', views_chatbot.initialize_chat_session, name='initialize_chat_session'),
     path('chatbot/sessions/', views_chatbot.get_chat_sessions, name='chat_sessions'),
-    path('chatbot/messages/<str:session_id>/', views_chatbot.get_session_messages, name='session_messages'),
+    path('chatbot/sessions/<str:session_id>/messages/', views_chatbot.get_session_messages, name='session_messages'),
+    path('chatbot/clear-session/', views_chatbot.clear_chat_session, name='clear_chat_session')
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

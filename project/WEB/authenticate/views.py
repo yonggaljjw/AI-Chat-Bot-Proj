@@ -2,10 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash 
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm, PasswordChangeForm
 from django.contrib import messages 
-from .forms import SignUpForm, EditProfileForm 
-# Create your views here.
-# def home(request): 
-# 	return render(request, 'authenticate/home.html', {})
+from .forms import SignUpForm, EditProfileForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 def login_user (request):
 	if request.method == 'POST': #if someone fills out form , Post it 
@@ -15,7 +14,7 @@ def login_user (request):
 		if user is not None:# if user exist
 			login(request, user)
 			messages.success(request,('Youre logged in'))
-			return redirect('tmp') #routes to 'index' on successful login  
+			return redirect('tmp') #routes to 'tmp' on successful login  
 		else:
 			messages.success(request,('Error logging in'))
 			return redirect('login') #re routes to login page upon unsucessful login
@@ -74,12 +73,7 @@ def change_password(request):
 	context = {'form': form}
 	return render(request, 'authenticate/change_password.html', context)
 
-def index(request):
-    return render(request, 'main.html', {})  # index.html 렌더링
-
-
+@login_required
 def tmp(request):
-    return render(request, 'tmp.html', {})  # index.html 렌더링
-
-def tmp_origin(request):
-    return render(request, 'tmp_origin.html', {})  # index.html 렌더링
+	print('login tmp')
+	return render(request, 'tmp.html', {})  # index.html 렌더링

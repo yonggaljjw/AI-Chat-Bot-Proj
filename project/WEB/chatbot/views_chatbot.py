@@ -11,6 +11,7 @@ from opensearchpy import OpenSearch
 import os
 from dotenv import load_dotenv
 
+from django.db import models
 from .models import ChatMessage
 import uuid
 from django.contrib.auth.decorators import login_required
@@ -458,34 +459,29 @@ class InsightGenerator:
 ## 히스토리 함수
 @login_required
 def initialize_chat_session(request):
-    if 'chat_session_id' not in request.session:
-        request.session['chat_session_id'] = str(uuid.uuid4())
-    return JsonResponse({'session_id': request.session['chat_session_id']})
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        session_id = data.get('session_id') or str(uuid.uuid4())  # 세션 ID가 없으면 새로 생성
+        request.session['chat_session_id'] = session_id
+        return JsonResponse({'status': 'success'})
 
-@login_required
-def get_chat_history(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'messages': []})
+    elif request.method == 'GET':
+        # 페이지 새로고침 시 새 세션 ID 생성
+        new_session_id = str(uuid.uuid4())
+        request.session['chat_session_id'] = new_session_id
+        return JsonResponse({'status': 'success', 'session_id': new_session_id})
 
-    session_id = request.session.get('chat_session_id')
-    messages = ChatMessage.objects.filter(
-        user=request.user,
-        session_id=session_id
-    ).order_by('created_at')
-    
-    history = [{
-        'message': msg.message,
-        'response': msg.response,
-        'timestamp': msg.created_at.isoformat()
-    } for msg in messages]
-    
-    return JsonResponse({'messages': history})
+    return JsonResponse({'status': 'error'}, status=400)
 
 @login_required
 def get_chat_sessions(request):
+    latest_message_subquery = ChatMessage.objects.filter(
+        session_id=models.OuterRef('session_id')
+    ).order_by('-created_at').values('message')[:1]  # 최근 메시지 가져오기
+
     sessions = ChatMessage.objects.filter(user=request.user)\
         .values('session_id').annotate(
-            last_message=models.Max('message'),
+            last_message=models.Subquery(latest_message_subquery),
             timestamp=models.Max('created_at')
         )\
         .order_by('-timestamp')
@@ -493,6 +489,7 @@ def get_chat_sessions(request):
     return JsonResponse({
         'sessions': list(sessions)
     })
+
 
 @login_required
 def get_session_messages(request, session_id):
@@ -508,3 +505,12 @@ def get_session_messages(request, session_id):
             'timestamp': msg.created_at.isoformat()
         } for msg in messages]
     })
+
+@login_required
+def clear_chat_session(request):
+    if request.method == 'POST':
+        # 기존 세션 ID 삭제
+        if 'chat_session_id' in request.session:
+            del request.session['chat_session_id']
+        return JsonResponse({'status': 'success', 'message': '세션 ID가 삭제되었습니다.'})
+    return JsonResponse({'status': 'error'}, status=400)
