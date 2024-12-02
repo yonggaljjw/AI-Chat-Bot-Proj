@@ -199,36 +199,40 @@ def run_prediction_and_upload():
         df = np.array(df).reshape(-1, 1)
         df, normalize = normalize_mult(df)
 
-        # 전체 데이터를 테스트에 사용
+        # 테스트 데이터 준비
         test_X, test_Y = prepare_test_data(df, TIME_STEPS, normalize)
 
-        # 현재 시점부터 60일 예측
+        # 테스트 데이터에 대한 예측
+        test_time = timestamps[TIME_STEPS:len(timestamps) - 1]
+        test_combined_df = evaluate_model(model_url, test_X, test_Y, normalize, currency, FUTURE_STEPS, test_time)
+
+        # 미래 예측
         last_sequence = df[-TIME_STEPS:]
         future_predictions = predict_future(model_url, last_sequence, FUTURE_STEPS, normalize)
-
-        # 예측 결과에 대한 시간 생성
         future_time = pd.date_range(exchange_df['TIME'].iloc[-1], periods=FUTURE_STEPS + 1, freq='D')[1:]
 
-        # 결과 데이터프레임 생성
+        # 미래 예측 데이터프레임 생성
         future_df = pd.DataFrame({
             'TIME': future_time,
             currency: future_predictions,
             'SOURCE': 'FUTURE'
         })
 
-        # Combine all results
-        results_list.append(future_df)
+        # 테스트 및 미래 데이터 결합
+        combined_df = pd.concat([test_combined_df, future_df], ignore_index=True)
 
-    # Combine all currency results
-    final_df = pd.concat(results_list, axis=1)
+        # 결과 저장
+        results_list.append(combined_df)
 
-    # Ensure columns are named correctly
-    final_df = final_df.loc[:, ~final_df.columns.duplicated()]
-    final_df = final_df.rename(columns={col: col if col in ['TIME', 'SOURCE'] else col.split('_')[-1] for col in final_df.columns})
+    # 모든 통화 결과 결합
+    final_df = pd.concat(results_list, axis=0)
+
+    # 중복 제거 및 정렬
+    final_df = final_df.sort_values(by='TIME').reset_index(drop=True)
 
     # Save to MySQL
     final_df.to_sql('currency_forecast', con=engine, if_exists='replace', index=False)
-    print("Results saved to MySQL database.")
+    print("Results (Test and Future Predictions) saved to MySQL database.")
 
 # Airflow DAG definition
 default_args = {
