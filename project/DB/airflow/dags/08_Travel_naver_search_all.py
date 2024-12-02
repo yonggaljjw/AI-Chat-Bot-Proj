@@ -47,7 +47,7 @@ def fetch_monthly_trend_data(country, city_list):
     }
     today = datetime.today()
     start_date = (today.replace(year=today.year - 1)).strftime('%Y-%m-%d')  # 1년 전
-    end_date = today.strftime('%Y-%m-%d')  # 오늘
+    end_date = (today.replace(day=1) - timedelta(days=1)).strftime('%Y-%m-%d')  # 전달 말일
 
     # 도시 목록을 keywords로 전달 (리스트 형태)
     body = json.dumps({
@@ -197,7 +197,7 @@ def make_final_df():
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime.now(),
+    'start_date': datetime(2024, 12, 1, 9, 0),  # 12월 1일 9:00으로 설정
     'retries': 1,
     'retry_delay': timedelta(minutes=5),
 }
@@ -206,15 +206,12 @@ with DAG(
     '08_Travel_naver_search_all',
     default_args=default_args,
     description='Fetch and upload travel data to MySQL',
-    schedule_interval=None,
+    schedule_interval='0 9 1 * *',  # 매월 1일 09:00 실행
     catchup=False,
 ) as dag:
 
-    # Airflow Operator로 함수 실행
     task = PythonOperator(
         task_id='fetch_and_upload_travel_data',
         python_callable=make_final_df,
         dag=dag,
     )
-
-    task
