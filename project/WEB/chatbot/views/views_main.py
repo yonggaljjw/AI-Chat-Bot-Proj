@@ -8,6 +8,7 @@ from .views_travel_trend import *
 from .views_currency import *
 from .views_indicator import *
 from .views_fred import *
+from .views_trend import *
 from django.views.decorators.cache import cache_page
 import secrets
 from django.contrib.auth.decorators import login_required
@@ -50,6 +51,8 @@ def dashboard_view(request):
         "consumer_trends_json": consumer_trends_view(),
         "employment_trends_json": employment_trends_view(),
         "economic_indicators_table_json" : economic_indicators_table_view(),
+        # 트랜드 - 은채
+        'trend_data': json.dumps(get_trend_data())
     }
     response = render(request, "main.html", context)
     response['Content-Security-Policy'] = f"script-src 'self' 'unsafe-eval' 'nonce-{nonce}' https://cdn.tailwindcss.com https://cdn.plot.ly;"

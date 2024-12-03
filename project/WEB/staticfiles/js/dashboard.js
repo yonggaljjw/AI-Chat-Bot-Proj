@@ -97,16 +97,16 @@ const pageManager = {
 			// 헤더 타이틀 업데이트
 			const headerTitles = {
 				one: {
-					title: "첫번째",
-					subtitle: "카드 사용 현황 및 분석 리포트",
+					title: "거시경제 & 트렌드",
+					subtitle: "한국과 미국 거시경제 지표 및 뉴스 트렌드",
 				},
 				two: {
-					title: "두번째",
-					subtitle: "회원 이용 패턴 및 분석",
+					title: "카드사 정보 및 입법 현황",
+					subtitle: "우리카드와 카드사별 매출 및 경쟁 현황 정보 및 입법 현황",
 				},
 				three: {
-					title: "세번째",
-					subtitle: "워드 클라우드 및 감성 분석",
+					title: "트레블 카드를 위한 여행 트렌드",
+					subtitle: "여행 트랜드와 환율 정보",
 				},
 			};
 			header = document.getElementById("dashboard-header");

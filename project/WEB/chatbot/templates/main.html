@@ -159,6 +159,51 @@
             /* 부드러운 애니메이션 효과 추가 (선택사항) */
             transition: transform 0.3s ease;
         }
+
+        #categorySelect {
+            width: 200px;
+            padding: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        #categoryInfo {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        #categoryInfo p {
+            margin: 5px 0;
+        }
+
+        .trend-info a {
+            color: #0066cc;
+            text-decoration: none;
+        }
+
+        .trend-info a:hover {
+            text-decoration: underline;
+        }
+
+        .trend-info ul {
+            list-style-type: none;
+            padding-left: 0;
+            margin-top: 10px;
+        }
+
+        .trend-info li {
+            margin-bottom: 8px;
+            padding-left: 15px;
+            position: relative;
+        }
+
+        .trend-info li:before {
+            content: "-";
+            position: absolute;
+            left: 0;
+        }
     </style>
 </head>
 
@@ -382,16 +427,30 @@
                     </div>
                 </div>
             </div>
-            <div class="col-span-6 row-span-2 bg-white shadow-md p-2 rounded-lg flex flex-col h-[calc(80%)]">
+            <div class="col-span-6 row-span-2 bg-white shadow-md p-2 rounded-lg flex flex-col h-[1200px]">
                 <h3 class="text-base font-semibold mb-1">뉴스 트랜드</h3>
                 <p class="text-sm text-gray-500 mb-3">뉴스 핵심 키워드를 분석을 통한 워드클라우드와 키워드 변동률 시각화</p>
                 <div class="flex-1">
-                    <iframe src="http://192.168.0.101:5602/goto/4418ab1823a219ccd90b45dc6cd8a1d9" class="w-full h-full"
-                        style="min-height: 100%; border: none;" loading="lazy"
+                    <iframe src="http://192.168.0.101:5602/goto/4418ab1823a219ccd90b45dc6cd8a1d9" class="w-full"
+                        style="height: 800px; border: none;" loading="lazy"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         referrerpolicy="no-referrer"></iframe>
                 </div>
-                <p class="text-xs text-gray-400 text-right">※ 데이터 출처 : 네이버 뉴스</p>
+                <div id="trend_data">
+                    <select id="categorySelect" class="form-select">
+                        <option value="100">정치</option>
+                        <option value="101">경제</option>
+                        <option value="102">사회</option>
+                        <option value="103">생활/문화</option>
+                        <option value="104">세계</option>
+                        <option value="105">IT/과학</option>
+                    </select>
+                    
+                    <div id="categoryInfo" class="mt-3">
+                        <!-- 카테고리 정보가 여기에 표시됨 -->
+                    </div>
+                    <p class="text-xs text-gray-400 text-right">※ 데이터 출처 : 네이버 뉴스</p>
+                </div>
             </div>
             <div class="col-span-6 row-span-1 bg-white shadow-md p-3 rounded-lg">
                 <h3 class="text-lg font-semibold mb-2">소비자 물가지수 및 카드 소비 내역</h3>
@@ -483,8 +542,37 @@
     </div>
 
     <script nonce="{{ nonce }}">
-        document.addEventListener('DOMContentLoaded', function () {
+        // 은채 트렌드 지수 데이터
+        const trendData = JSON.parse('{{ trend_data | escapejs }}');
 
+        function displayCategoryInfo(categoryId) {
+            const data = trendData[categoryId];
+            if (!data) return;
+
+            const infoHtml = `
+                <div class="trend-info">
+                    <p>${data.category} 분야:</p>
+                    <p>- ${data.lag}일 후 예측 트렌드 지수: ${data.predicted_trend}</p>
+                    <p>- 오늘의 트렌드 지수: ${data.today_trend}</p>
+                    <p>관련 뉴스 URL:</p>
+                    <ul>
+                        ${data.urls.map(url => `<li><a href="${url}" target="_blank">${url}</a></li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            document.getElementById('categoryInfo').innerHTML = infoHtml;
+        }
+
+        // dropdown 이벤트
+        document.getElementById('categorySelect').addEventListener('change', function(e) {
+            displayCategoryInfo(e.target.value);
+        });
+
+        // 초기 카테고리 정보 표시
+        displayCategoryInfo('100');
+
+        document.addEventListener('DOMContentLoaded', function () {
             const chartData = {
                 bankrate_indicator_json: JSON.parse('{{ bankrate_indicator_json|escapejs }}'),
                 K_GDP_indicator_json: JSON.parse('{{ K_GDP_indicator_json|escapejs }}'),
