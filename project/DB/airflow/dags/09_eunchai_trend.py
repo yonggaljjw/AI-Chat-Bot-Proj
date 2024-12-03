@@ -14,13 +14,6 @@ from opensearchpy import OpenSearch
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
-# MySQL 연결 정보 설정
-username = os.getenv('sql_username')
-password = os.getenv('sql_password')
-host = os.getenv('sql_host')
-port = os.getenv('sql_port')
-engine = create_engine(f"mysql+pymysql://{username}:{password}@{host}:{port}/team5")
-
 
 NAVER_CLIENT_ID = os.getenv("NAVER_API_ID")
 NAVER_CLIENT_SECRET = os.getenv("NAVER_API_SECRET")
@@ -217,8 +210,7 @@ def upload_to_opensearch(data):
                 data.append(document)
                 print(f"Uploading {word} for period {period} with ratio {ratio}")
                 client.index(index=index_name, body=document)
-            df = pd.DataFrame(data)
-            df.to_sql('new_trend', con=engine, if_exists='replace', index=False)  # MySQL에 저장
+            
     print(f"All data uploaded to OpenSearch index {index_name}.")
 
 def run_pipeline_with_trends_and_upload():
