@@ -1,6 +1,7 @@
 from django.shortcuts import render
 import pandas as pd
 from sqlalchemy import create_engine
+from chatbot.sql import engine
 import json
 
 def get_trend_data():
@@ -10,8 +11,6 @@ def get_trend_data():
     
     try:
         # DB 연결 및 데이터 로드
-        connection_string = "mysql+pymysql://root:0000@192.168.0.101:3306/team5"
-        engine = create_engine(connection_string)
         data = pd.read_sql("SELECT * FROM trend_predictions", engine)
         
         # 각 카테고리별 데이터 처리
