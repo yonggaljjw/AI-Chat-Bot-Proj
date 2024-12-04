@@ -16,7 +16,7 @@ def load_wooricard_data():
         engine = create_engine(connection_string)
         
         # MySQL 테이블을 DataFrame으로 읽어오기
-        query = "SELECT * FROM edu_data_f_cleaned"
+        query = "SELECT * FROM wooricard_data"
         data = pd.read_sql(query, engine)
         
         return data
@@ -230,9 +230,9 @@ def gender_expense_distribution_view():
 def gender_view():
 
     # 전체, 남성, 여성의 소비 카테고리 합계를 각각 계산
-    total_expense = data.loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
-    male_expense = data[data['성별'] == '남자'].loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
-    female_expense = data[data['성별'] == '여자'].loc[:, '가전/가구/주방용품':'학원'].sum().nlargest(10)
+    total_expense = data.set_index('index').전체.nlargest(10)
+    male_expense = data.set_index('index').남성.nlargest(10)
+    female_expense = data.set_index('index').여성.nlargest(10)
 
     # Figure 생성
     fig = go.Figure()
@@ -244,7 +244,7 @@ def gender_view():
         name='전체 소비 유형',
         hole=0.3,
         visible=True,
-        hoverinfo='label+value',
+        hoverinfo='label+percent',
         textinfo='none'  # 텍스트 표시 제거
     ))
 
@@ -255,7 +255,7 @@ def gender_view():
         name='남성 소비 유형',
         hole=0.3,
         visible=False,
-        hoverinfo='label+value',
+        hoverinfo='label+percent',
         textinfo='none'  # 텍스트 표시 제거
     ))
 
@@ -266,7 +266,7 @@ def gender_view():
         name='여성 소비 유형',
         hole=0.3,
         visible=False,
-        hoverinfo='label+value',
+        hoverinfo='label+percent',
         textinfo='none'  # 텍스트 표시 제거
     ))
 

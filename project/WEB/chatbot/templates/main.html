@@ -267,6 +267,16 @@
             </a>
         </div>
 
+        <!-- logout Icon -->
+        <form action="{% url 'logout' %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="p-2 text-gray-600 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95">
+                <svg xmlns="http://www.w3.org/2000/svg" class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M16 17v-3H9v-4h7V7l5 5-5 5M14 2a2 2 0 012 2v2h-2V4H5v16h9v-2h2v2a2 2 0 01-2 2H5a2 2 0 01-2-2V4a2 2 0 012-2h9z"/>
+                </svg>
+            </button>
+        </form>
+
         <!-- Chat Bot Icon -->
         <div id="chat-icon" class="mt-auto">
             <button type="button"
@@ -346,8 +356,8 @@
     <!-- 상단 고정 제목 영역 -->
     <div class="fixed top-0 left-16 right-0 bg-blue-300 shadow-md z-50">
         <div id="dashboard-header" class="px-6 py-4">
-            <h1 class="text-2xl font-bold text-gray-800">첫번째</h1>
-            <p class="text-sm text-gray-600">카드 사용 현황 및 분석 리포트</p>
+            <h1 class="text-2xl font-bold text-gray-800">거시경제 & 트렌드</h1>
+            <p class="text-sm text-gray-600">한국과 미국 거시경제 지표 및 뉴스 트렌드</p>
         </div>
     </div>
 
@@ -457,6 +467,7 @@
                 <p class="text-sm text-gray-500 mb-3">합계 PCE 및 CPI의 실제값과 예측값</p>
                 <div id="cpi_card_predict_json">
                 </div>
+                <p class="text-xs text-gray-400 text-right">※ 데이터 출처 : 한국은행</p>
             </div>
         </div>
 
