@@ -91,13 +91,6 @@ def plot_training_history(history):
     plt.grid(True)
     plt.show()
 
-# 데이터셋 생성
-def create_dataset(dataset, look_back):
-    dataX, dataY = [], []
-    for i in range(len(dataset) - look_back - 1):
-        dataX.append(dataset[i:(i + look_back), :])
-        dataY.append(dataset[i + look_back, :])
-    return np.array(dataX), np.array(dataY)
 
 # 데이터 정규화
 def normalize_mult(data):
@@ -176,8 +169,15 @@ def save_model_for_tensorserving(model, currency_code, export_path='./models'):
     model.export(model_export_path)
     print(f"Model for {currency_code} saved in TensorFlow Serving format at: {model_export_path}")
 
+def create_dataset(dataset, look_back):
+    dataX, dataY = [], []
+    for i in range(len(dataset) - look_back):
+        dataX.append(dataset[i:(i + look_back)])
+        dataY.append(dataset[i + look_back])
+    return np.array(dataX), np.array(dataY)
+
 def main():
-    target_currencies = ['EUR']#['USD', 'CNY', 'JPY', 'EUR']
+    target_currencies = ['USD', 'CNY', 'JPY', 'EUR']
     exchange_df = load_data_from_sql()
     if exchange_df.empty:
         print("No data loaded. Exiting.")
@@ -195,9 +195,6 @@ def main():
     epochs = 20
     batch_size = 64
 
-    # Create base directory for TensorFlow Serving models
-    # os.makedirs('./tensorserving_models', exist_ok=True)
-
     for currency in target_currencies:
         if currency not in exchange_df.columns:
             print(f"{currency} 데이터가 없습니다. 건너뜁니다.")
@@ -206,28 +203,33 @@ def main():
         print(f"Processing {currency}...")
 
         # 해당 통화 데이터 선택 및 결측값 처리
-        df = fill_na_with_avg(exchange_df[currency])
+        df = exchange_df[['TIME', currency]].dropna()
+        df = df.set_index('TIME')[currency].values
         df = np.array(df).reshape(-1, 1)
         df, normalize_params = normalize_mult(df)
 
         # 데이터셋 생성
-        train_X, _ = create_dataset(df, TIME_STEPS)
-        _, train_Y = create_dataset(df[:, 0].reshape(len(df), 1), TIME_STEPS)
-
-        # 데이터 분리
-        train_X, test_X, train_Y, test_Y = train_test_split(train_X, train_Y, test_size=0.2, random_state=42)
+        dataX, dataY = create_dataset(df, TIME_STEPS)
+        train_X, test_X, train_Y, test_Y = train_test_split(dataX, dataY, test_size=0.2, random_state=42)
 
         # 모델 학습
         model = attention_model(1, TIME_STEPS, LSTM_UNITS)
         model.compile(loss='mse', optimizer='adam', metrics=['mse'])
-        model.fit(
-            [train_X], train_Y,
-            epochs=epochs, batch_size=batch_size, validation_split=0.25,
+        history = model.fit(
+            train_X, train_Y,
+            validation_data=(test_X, test_Y),
+            epochs=epochs,
+            batch_size=batch_size,
             callbacks=[EarlyStopping(monitor='val_loss', patience=10, mode='min')]
         )
 
+        # 학습 기록 시각화
+        plot_training_history(history)
+
         # Save model in TensorFlow Serving format
         save_model_for_tensorserving(model, currency)
+
 if __name__ == "__main__":
     main()
+
 
