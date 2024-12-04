@@ -61,7 +61,16 @@ def generate_query(query):
     table_info_str = "\n".join([f"{table}: {columns}" for table, columns in table_info.items()])
 
     # 프롬프트 생성
-    prompt = f"The database has the following tables and fields:\n{table_info_str}\nWrite an only MySQL query for the following question: {query}"
+    prompt = f"""
+    The database has the following tables and fields:\n{table_info_str}\n
+    Write an only MySQL query for the following question as much information as possible from the given database.: {query}\n
+    Your goal is to extract as much information as possible based on the available data. 
+    For example, if the query is "Tell me the interest rate and consumer price index of South Korea," and the database only contains information on the interest rate, 
+    the query must only retrieve the interest rate.
+
+    # In MySQL queries, use backticks (`) for variable names (column names) containing special characters. 
+    # Example: SELECT `오락/문화_pce_lower` FROM korea_index;
+    """
 
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
@@ -102,8 +111,12 @@ def search_documents(query):
         },
         "size": 3
     }
-    results = client.search(index=index_name, body=body)
-    return [hit["_source"]['content'] for hit in results["hits"]["hits"]]
+    try :
+        document = client.search(index=index_name, body=body)
+        result = [hit["_source"]['content'] for hit in document["hits"]["hits"]]
+    except :
+        result = ""
+    return result
 
 
 # new_trend 오픈서치 검색
@@ -115,7 +128,13 @@ def generate_opensearch_query(query) :
     fields = list(mapping[index_name]['mappings']['properties'].keys())
     fields_info = ", ".join(fields)
     # 프롬포트 생성
-    prompt = f"The index {index_name} has the following fields : {fields_info}, Write an only OpenSearch query for the following question : {query}"
+    prompt = f"""
+    The index {index_name} has the following fields : {fields_info}, Write an only ElasticSearch query for the following question : {query},
+    Your goal is to extract as much information as possible based on the available data. 
+    For example, if the query is "Tell me the interest rate and consumer price index of South Korea," and the database only contains information on the interest rate, 
+    the query should only retrieve the interest rate. 
+    """
+
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -126,9 +145,12 @@ def generate_opensearch_query(query) :
     generate_query = response.choices[0].message.content
     generate_query = generate_query.replace("```json","").replace("```","").strip()
 
-    relevant_docs = client.search(
-        index=index_name,
-        body = generate_query)
+    try :
+        relevant_docs = client.search(
+            index=index_name,
+            body = generate_query)
+    except :
+        relevant_docs = ""
     
     return relevant_docs
 
