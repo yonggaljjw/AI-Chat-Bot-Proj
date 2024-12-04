@@ -54,7 +54,7 @@ def K_GDP_indicator() :
     SELECT 
         GDP 
     FROM korea_index
-    WHERE GDP IS NOT ULL
+    WHERE GDP IS NOT NULL
     ORDER BY TIME desc
     LIMIT 2;
     """
