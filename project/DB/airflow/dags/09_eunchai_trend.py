@@ -11,6 +11,7 @@ from airflow import DAG
 from airflow.operators.python import PythonOperator
 from sqlalchemy import create_engine
 from opensearchpy import OpenSearch
+from sqlalchemy import create_engine
 
 # .env 파일에서 환경 변수 로드
 load_dotenv()
@@ -176,7 +177,8 @@ def analyze_articles_with_trends(articles):
             'count': count,
             'trend_growth': trend_growth,
             'monthly_ratios': monthly_ratios,  # 월별 ratio 추가
-            **{k: v for art in related_articles for k, v in art.items()}  # 관련 기사 정보를 동일한 계층에 추가
+            'related_articles': related_articles,  # 관련 기사 리스트 추가
+            'upload_date': datetime.now().strftime('%Y-%m-%d')  # 업로드 날짜  # 관련 기사 정보를 동일한 계층에 추가
         })
 
     return filtered_data
@@ -213,6 +215,67 @@ def upload_to_opensearch(data):
             
     print(f"All data uploaded to OpenSearch index {index_name}.")
 
+
+
+def insert_to_sql(data):
+    """트렌드 분석 데이터를 SQL에 삽입하는 함수"""
+    
+    # 환경 변수에서 DB 연결 정보 가져오기
+    sql_username = os.getenv("sql_username")
+    sql_password = os.getenv("sql_password")
+    sql_host = os.getenv("sql_host")
+    sql_port = os.getenv("sql_port")
+    
+    # SQL 연결 설정
+    connection_string = f"mysql+pymysql://{sql_username}:{sql_password}@{sql_host}:{sql_port}/team5"
+    engine = create_engine(connection_string)
+    
+    # DataFrame으로 변환
+    df = pd.DataFrame(data)
+    
+    # `dict`를 포함하는 열을 JSON 문자열로 변환
+    for column in df.columns:
+        if df[column].apply(lambda x: isinstance(x, (dict, list))).any():
+            print(f"Column '{column}' contains dict or list values. Converting to JSON strings.")
+            df[column] = df[column].apply(
+                lambda x: json.dumps(x, ensure_ascii=False) if isinstance(x, (dict, list)) else x
+            )
+    
+    print("Processed data snapshot before insertion:", df.head())
+    print("Processed data types:", df.dtypes)
+    
+    # SQL에 삽입
+    try:
+        df.to_sql('new_trend', con=engine, index=False, if_exists='append')
+        print("Data successfully inserted into the 'new_trend' table.")
+    except Exception as e:
+        print(f"Error while inserting data into SQL: {e}")
+        raise
+
+
+def insert_trend_data_to_sql(all_articles):
+    """트렌드 분석 결과를 SQL에 삽입하는 함수"""
+    data = []
+
+    # `all_articles`에서 각 카테고리의 분석 결과를 순회하면서 데이터 준비
+    for category_name, articles in all_articles.items():
+        for article in articles:
+            # 분석된 데이터에서 필요한 항목만 추출하여 SQL 삽입에 맞는 형식으로 변환
+            data.append({
+                'category': category_name,
+                'word': article['word'],
+                'count': article['count'],
+                'trend_growth': article['trend_growth'],
+                'monthly_ratios': article['monthly_ratios'],
+                'related_articles': article.get('related_articles', []),  # 리스트 형태
+                'upload_date': article['upload_date']
+            })
+
+    # 데이터 삽입
+    insert_to_sql(data)
+    print("new_trend inserted into SQL.")
+
+
 def run_pipeline_with_trends_and_upload():
     """뉴스 크롤링, 트렌드 분석 및 OpenSearch 업로드를 수행하는 파이프라인 실행."""
     categories = {
@@ -236,6 +299,8 @@ def run_pipeline_with_trends_and_upload():
         all_articles[category_name] = analysis_results  # 분석 결과만 저장
     
     upload_to_opensearch(all_articles)  # OpenSearch에 데이터 업로드
+    # SQL에 데이터 삽입
+    insert_trend_data_to_sql(all_articles)
     
     print("Pipeline completed successfully.")
 
