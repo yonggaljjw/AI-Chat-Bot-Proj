@@ -4,6 +4,8 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm, Password
 from django.contrib import messages 
 from .forms import SignUpForm, EditProfileForm
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_protect
+from django.core.cache import cache
 
 def login_user (request):
 	if request.method == 'POST': #if someone fills out form , Post it 
@@ -12,6 +14,7 @@ def login_user (request):
 		user = authenticate(request, username=username, password=password)
 		if user is not None:# if user exist
 			login(request, user)
+			print(user.username)
 			messages.success(request,('Youre logged in'))
 			return redirect('main') #routes to 'main' on successful login  
 		else:
@@ -20,7 +23,12 @@ def login_user (request):
 	else:
 		return render(request, 'authenticate/login.html', {})
 
+@csrf_protect
 def logout_user(request):
+	# if request.method == "POST":
+	cache_key = f"user_{request.user.id}_cache"
+	cache.delete(cache_key)
+
 	logout(request)
 	messages.success(request,('Youre now logged out'))
 	return redirect('login')
