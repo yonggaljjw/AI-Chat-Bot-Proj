@@ -51,32 +51,33 @@ def get_risk_level(advice):
 
 # 데이터 병합 및 처리 함수
 def merge_and_process_data():
-    web_data = fetch_data()
-    sql_data = load_data_from_sql()
+    web_data = fetch_data()  # 웹에서 데이터 가져오기
+    sql_data = load_data_from_sql()  # SQL에서 데이터 가져오기
     
     if 'Country' not in sql_data.columns and 'Country_EN' in sql_data.columns:
-        sql_data['Country'] = sql_data['Country_EN']
+        sql_data['Country'] = sql_data['Country_EN']  # 'Country'가 없으면 'Country_EN'을 기반으로 추가
     
-    merged_df = pd.merge(web_data, sql_data, on='Country', how='outer')
+    merged_df = pd.merge(web_data, sql_data, on='Country', how='outer')  # 웹 데이터와 SQL 데이터 병합
     
-    def get_iso_code(country_name):
+    # 'ISO_Alpha_3' 추가: 'Country_EN'을 기반으로 ISO Alpha-3 코드 가져오기
+    def get_iso_code(country_en):
         try:
-            if pd.isnull(country_name):
+            if pd.isnull(country_en):
                 return None
-            country = pycountry.countries.search_fuzzy(country_name)
-            return country[0].alpha_3 if country else None
+            country = pycountry.countries.get(name=country_en)
+            return country.alpha_3 if country else None
         except LookupError:
             return None
 
+    # 'ISO_Alpha_3' 컬럼 추가
     merged_df['ISO_Alpha_3'] = merged_df['Country_EN'].apply(get_iso_code)
-    merged_df['Risk_level'] = merged_df['Travel_Advice'].apply(get_risk_level)
     
     return merged_df
 
-# 시각화 함수
 
+# 시각화 함수
 def visualize_travel_advice():
-    df = merge_and_process_data()
+    df = merge_and_process_data()  # 데이터 병합 및 처리
     if df.empty:
         print("경고: 시각화할 데이터가 없습니다.")
         return None
@@ -90,7 +91,7 @@ def visualize_travel_advice():
         "여행금지": "#640D5F"        # 딥 블루
     }
 
-    # 색상 맵핑을 위해 'Risk_level'을 범주형 문자열로 변환
+    # 'Risk_level_str'을 범주형 문자열로 변환
     risk_mapping = {
         0: "안전",
         1: "여행유의",
@@ -98,7 +99,7 @@ def visualize_travel_advice():
         3: "출국권고",
         4: "여행금지"
     }
-    df['Risk_level_str'] = df['Risk_level'].map(risk_mapping)
+    df['Risk_level_str'] = df['Risk_Level'].map(risk_mapping)  # SQL에서 가져온 'Risk_Level' 사용
 
     # 데이터가 범주형인지 확인
     df['Risk_level_str'] = pd.Categorical(df['Risk_level_str'], categories=color_map.keys())
