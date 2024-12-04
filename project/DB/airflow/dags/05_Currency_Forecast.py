@@ -166,10 +166,107 @@ def fetch_predictions_from_model(url, input_data):
         return None
     
     
+# def run_prediction_and_upload():
+#     TIME_STEPS = 60
+#     FUTURE_STEPS = 30  # Number of future days to predict
+
+#     target_currencies = ['USD', 'CNY', 'JPY', 'EUR']
+#     exchange_df = load_data_from_sql()
+#     exchange_df['TIME'] = pd.to_datetime(exchange_df['TIME'], errors='coerce')
+#     exchange_df = exchange_df.dropna().sort_values(by='TIME')
+#     exchange_df['USD'] = pd.to_numeric(exchange_df['USD'], errors='coerce')
+#     exchange_df['CNY'] = pd.to_numeric(exchange_df['CNY'], errors='coerce')
+#     exchange_df['JPY'] = pd.to_numeric(exchange_df['JPY'], errors='coerce')
+#     exchange_df['EUR'] = pd.to_numeric(exchange_df['EUR'], errors='coerce')
+    
+#     if exchange_df.empty:
+#         print("No data loaded. Exiting.")
+#         return
+
+#     # 데이터 전처리
+#     exchange_df['TIME'] = pd.to_datetime(exchange_df['TIME'], errors='coerce')
+#     exchange_df = exchange_df.dropna().sort_values(by='TIME')
+#     for currency in target_currencies:
+#         exchange_df[currency] = pd.to_numeric(exchange_df[currency], errors='coerce')
+
+#     results_list = []
+
+#     for currency in target_currencies:
+#         print(f"Processing currency: {currency}")
+#         model_url = f"http://host.docker.internal:8501/v1/models/{currency}:predict"
+
+#         # 결측값 처리 및 정규화
+#         df = exchange_df[currency].fillna(method='ffill').fillna(method='bfill')
+#         timestamps = exchange_df['TIME'].values
+#         df = np.array(df).reshape(-1, 1)
+#         df, normalize = normalize_mult(df)
+
+#         # 테스트 데이터 준비
+#         test_X, test_Y = prepare_test_data(df, TIME_STEPS, normalize)
+#         test_time = timestamps[TIME_STEPS:len(timestamps) - 1]
+
+#         # 모델 예측 (테스트 데이터)
+#         predictions = fetch_predictions_from_model(model_url, test_X)
+#         predictions = FNormalizeMult(predictions, normalize).flatten()
+#         test_Y = test_Y.flatten()
+
+#         # 데이터프레임 생성
+#         test_pred_df = pd.DataFrame({
+#             'TIME': test_time,
+#             currency: predictions,
+#             'SOURCE': 'PREDICTION'
+#         })
+
+#         test_real_df = pd.DataFrame({
+#             'TIME': test_time,
+#             currency: test_Y,
+#             'SOURCE': 'REAL'
+#         })
+
+#         test_combined_df = pd.concat([test_pred_df, test_real_df], ignore_index=True)
+
+#         # 미래 예측
+#         last_sequence = df[-TIME_STEPS:]
+#         future_predictions = predict_future(model_url, last_sequence, FUTURE_STEPS, normalize)
+#         future_time = pd.date_range(exchange_df['TIME'].iloc[-1], periods=FUTURE_STEPS + 1, freq='D')[1:]
+
+#         future_df = pd.DataFrame({
+#             'TIME': future_time,
+#             currency: future_predictions,
+#             'SOURCE': 'FUTURE'
+#         })
+
+#         # 테스트 및 미래 데이터 결합
+#         combined_df = pd.concat([test_combined_df, future_df], ignore_index=True)
+#         results_list.append(combined_df)
+
+#     # 모든 결과 통합
+#     final_df = pd.concat(results_list, axis=0).sort_values(by='TIME').reset_index(drop=True)
+#     final_df = final_df.groupby(['TIME', 'SOURCE'], as_index=False).mean()
+
+#     # 또는 NaN 값을 무시하고 첫 번째 값을 유지하려면:
+#     final_df = final_df.groupby(['TIME', 'SOURCE'], as_index=False).first()
+
+#     # 데이터베이스에 저장
+#     final_df.to_sql('currency_forecast', con=engine, if_exists='replace', index=False)
+#     print("All results saved to MySQL database.")
+
+def save_to_sql_with_replace(final_df, table_name, engine):
+    try:
+        with engine.connect() as conn:
+            # 기존 테이블 삭제
+            conn.execute(f"DROP TABLE IF EXISTS {table_name}")
+            print(f"Table {table_name} dropped successfully.")
+            
+            # 새 데이터 삽입
+            final_df.to_sql(table_name, con=engine, if_exists='replace', index=False)
+            print(f"Data saved to table {table_name} successfully.")
+    except SQLAlchemyError as e:
+        print(f"Error occurred while replacing the table {table_name}: {str(e)}")
+
 def run_prediction_and_upload():
     TIME_STEPS = 60
     FUTURE_STEPS = 30  # Number of future days to predict
-
     target_currencies = ['USD', 'CNY', 'JPY', 'EUR']
     exchange_df = load_data_from_sql()
     exchange_df['TIME'] = pd.to_datetime(exchange_df['TIME'], errors='coerce')
@@ -184,17 +281,11 @@ def run_prediction_and_upload():
         return
 
     # 데이터 전처리
-    exchange_df['TIME'] = pd.to_datetime(exchange_df['TIME'], errors='coerce')
-    exchange_df = exchange_df.dropna().sort_values(by='TIME')
-    for currency in target_currencies:
-        exchange_df[currency] = pd.to_numeric(exchange_df[currency], errors='coerce')
-
     results_list = []
-
     for currency in target_currencies:
         print(f"Processing currency: {currency}")
         model_url = f"http://host.docker.internal:8501/v1/models/{currency}:predict"
-
+        
         # 결측값 처리 및 정규화
         df = exchange_df[currency].fillna(method='ffill').fillna(method='bfill')
         timestamps = exchange_df['TIME'].values
@@ -244,14 +335,8 @@ def run_prediction_and_upload():
     final_df = pd.concat(results_list, axis=0).sort_values(by='TIME').reset_index(drop=True)
     final_df = final_df.groupby(['TIME', 'SOURCE'], as_index=False).mean()
 
-    # 또는 NaN 값을 무시하고 첫 번째 값을 유지하려면:
-    final_df = final_df.groupby(['TIME', 'SOURCE'], as_index=False).first()
-
-    # 데이터베이스에 저장
-    final_df.to_sql('currency_forecast', con=engine, if_exists='replace', index=False)
-    print("All results saved to MySQL database.")
-
-
+    # 데이터베이스 저장 호출
+    save_to_sql_with_replace(final_df, 'currency_forecast', engine)
 
 # Airflow DAG definition
 default_args = {
