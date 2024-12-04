@@ -34,9 +34,7 @@ def execute_query_to_dataframe(query):
         return None
 
 table_query = """
-SELECT COLUMN_NAME, DATA_TYPE, IS_NULLABLE, TABLE_NAME
-FROM information_schema.COLUMNS
-WHERE TABLE_SCHEMA = 'team5'
+SELECT * FROM data_list;
 """
 result_df = execute_query_to_dataframe(table_query)
 
@@ -52,17 +50,14 @@ def get_embedding(text):
 ## 쿼리문 짜기
 # MySQL
 def generate_query(query):
-    # 필드 정보 추출
-    table_info = result_df.groupby('TABLE_NAME').apply(
-        lambda x: ", ".join(x['COLUMN_NAME'] + " (" + x['DATA_TYPE'] + ", 결측값: " + x['IS_NULLABLE'] + ")")
+    table_info = result_df.groupby(by=['table_name', 'table_description']).apply(
+        lambda x: ", ".join(x['column_name'].astype(str) + " ( 데이터 유형 : " + x['datetype'].astype(str) + ", 데이터 설명: " + x['column_description'].astype(str) + ")")
     ).to_dict()
-
-    # 테이블 정보 포맷팅
-    table_info_str = "\n".join([f"{table}: {columns}" for table, columns in table_info.items()])
 
     # 프롬프트 생성
     prompt = f"""
-    The database has the following tables and fields:\n{table_info_str}\n
+    The database has the following tables and fields:\n{table_info}\n\n
+    
     Write an only MySQL query for the following question as much information as possible from the given database.: {query}\n
     Your goal is to extract as much information as possible based on the available data. 
     For example, if the query is "Tell me the interest rate and consumer price index of South Korea," and the database only contains information on the interest rate, 
@@ -71,11 +66,11 @@ def generate_query(query):
     # In MySQL queries, use backticks (`) for variable names (column names) containing special characters. 
     # Example: SELECT `오락/문화_pce_lower` FROM korea_index;
     """
-
+    
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "You are an excellent MySQL query creator, Only Provide MySQL Query"},
+            {"role": "system", "content": "You are an expert SQL generator. Only Provide MySQL Query"},
             {"role": "user", "content": prompt}
         ]
     )
@@ -132,18 +127,20 @@ def generate_opensearch_query(query) :
     The index {index_name} has the following fields : {fields_info}, Write an only ElasticSearch query for the following question : {query},
     Your goal is to extract as much information as possible based on the available data. 
     For example, if the query is "Tell me the interest rate and consumer price index of South Korea," and the database only contains information on the interest rate, 
-    the query should only retrieve the interest rate. 
+    the query should only retrieve the interest rate.
+    and You must include the condition where the score is greater than or equal to 1.7 in the query.
     """
-
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "You are an excellent ElasticSearch query creator. Only provide ElasticSearch queries. You must include a filter for score greater than or equal to 1.7."},
+            {"role": "system", "content": "You are an excellent ElasticSearch query creator, Only Provide ElasticSearch Query"},
             {"role": "user", "content": prompt}
         ]
     )
     generate_query = response.choices[0].message.content
     generate_query = generate_query.replace("```json","").replace("```","").strip()
+
+    print('opensearch 쿼리문 결과 :', generate_query)
 
     try :
         relevant_docs = client.search(
@@ -153,7 +150,6 @@ def generate_opensearch_query(query) :
         relevant_docs = ""
     
     return relevant_docs
-
 
 ## POWER MODE 코드
 # 위키피디아 검색
@@ -251,17 +247,22 @@ def answer_question_with_context(query, context=None):
     # Search for relevant documents
     # mysql
     search_query = generate_query(query)
+    print('mysql 쿼리문 결과 :', search_query)
     relevant_docs = execute_query_to_dataframe(search_query)
-    
+    print('mysql 검색 결과:', relevant_docs)
+
     # 오픈서치
     os_relevant_docs = search_documents(query)
+    print('법령 데이터 검색 결과 :',os_relevant_docs)
+
     newtrend_docs = generate_opensearch_query(query)
-    
+    print('뉴스 트렌드 검색 결과 :', newtrend_docs)
+
     # 컨텍스트가 있는 경우와 없는 경우에 따라 프롬프트 구성
     context_text = f"\nAdditional context from Wikipedia:\n{context}" if context else ""
     
     prompt = f"""
-    The following is a table of data extracted from an MySQL query and OpenSearch query:\n\n{os_relevant_docs}\n\n{relevant_docs}\n\n{newtrend_docs}\n 
+    The following is a table of data extracted from an MySQL query and ElasticSearch query:\n\n{os_relevant_docs}\n\n{relevant_docs}\n\n{newtrend_docs}\n 
     {context_text}\n
     Based on this data and context, provide an effective and detailed answer to the following natural language query: {query}
     
@@ -269,9 +270,8 @@ def answer_question_with_context(query, context=None):
     1. Provide accurate and concise answers based on both the data and Wikipedia context if available.
     2. Only mention information relevant to the question.
     3. If using Wikipedia information, integrate it naturally with the database information.
-    4. If you cannot respond answer based on data and context, you should answer "죄송합니다. 데이터가 없습니다." Only.
-    5. Write your answer in Korean and keep it under 800 characters.
-    
+    4. Write your answer in Korean and keep it under 800 characters.
+    5. If you cannot respond answer based on data and context, you should introduce yourself ONLY
     Answer: """
 
     response = openai.chat.completions.create(
