@@ -13,6 +13,8 @@ def bankrate_indicator() :
         bor 
     FROM 
         korea_base_rate
+    WHERE
+        bor IS NOT NULL
     ORDER BY time DESC 
     LIMIT 2;
     """
@@ -52,6 +54,7 @@ def K_GDP_indicator() :
     SELECT 
         GDP 
     FROM korea_index
+    WHERE GDP IS NOT ULL
     ORDER BY TIME desc
     LIMIT 2;
     """
@@ -91,6 +94,7 @@ def K_growth_indicator() :
     SELECT 
         경제성장률
     FROM korea_index
+    WHERE 경제성장률 IS NOT NULL
     ORDER BY TIME desc
     LIMIT 2;
     """
