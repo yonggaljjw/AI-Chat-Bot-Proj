@@ -347,17 +347,21 @@ def chatbot_response(request):
             bot_response = f"{answer_question_with_context(user_message, search_context)}"
 
             # 대화 저장
-            ChatMessage.objects.create(
+            chat_message = ChatMessage.objects.create(
                 user=request.user,
                 message=user_message,
                 response=bot_response,
                 is_power_mode=is_power_mode,
                 session_id=session_id
             )
+
+            # 생성된 메시지의 ID 값 가져오기
+            message_id = chat_message.id
             
             return JsonResponse({
                 'status': 'success',
-                'response': bot_response
+                'response': bot_response,
+                'message_id': message_id  # 생성된 message_id 반환
             })
         except Exception as e:
             return JsonResponse({
@@ -536,3 +540,27 @@ def clear_chat_session(request):
             del request.session['chat_session_id']
         return JsonResponse({'status': 'success', 'message': '세션 ID가 삭제되었습니다.'})
     return JsonResponse({'status': 'error'}, status=400)
+
+@csrf_exempt
+@login_required
+def update_message_like(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            message_id = data.get('message_id')
+            like_value = data.get('like_value')
+            
+            message = ChatMessage.objects.get(id=message_id)
+            message.like_count = models.F('like_count') + like_value
+            message.save()
+            
+            return JsonResponse({
+                'status': 'success',
+                'new_like_count': message.like_count
+            })
+        except Exception as e:
+            return JsonResponse({
+                'status': 'error',
+                'message': str(e)
+            }, status=400)
+    return JsonResponse({'status': 'error'}, status=405)
