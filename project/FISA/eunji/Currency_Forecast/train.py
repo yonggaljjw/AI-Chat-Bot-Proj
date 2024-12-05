@@ -59,7 +59,7 @@ get_custom_objects().update({"attention_model": attention_model})
 def load_data_from_sql():
     try:
         # MySQL 테이블을 DataFrame으로 읽어오기
-        query = "SELECT TIME, USD, CNY,JPY, EUR  FROM currency_rate WHERE time >= '2012-01-01' and time <= '2024-11-01'"
+        query = "SELECT TIME, USD, CNY,JPY, EUR  FROM currency_rate WHERE time >= '2012-01-01'"
         currency_rate = pd.read_sql(query, engine)
 
         return currency_rate
