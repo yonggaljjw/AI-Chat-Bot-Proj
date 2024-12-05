@@ -538,6 +538,7 @@ class ChatMessage(models.Model):
     is_power_mode = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     session_id = models.CharField(max_length=100)
+    like_count = models.IntegerField(default=0)
     
     class Meta:
         ordering = ['created_at']

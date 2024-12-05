@@ -438,11 +438,13 @@ def chatbot_response(request):
                 message=user_message,
                 response=bot_response,
                 is_power_mode=is_power_mode,
-                session_id=session_id
+                session_id=session_id,
+                like_count=0
             )
 
             # 생성된 메시지의 ID 값 가져오기
             message_id = chat_message.id
+            print("chatbot_reponse_like : ", chat_message.like_count)
             
             return JsonResponse({
                 'status': 'success',
@@ -637,8 +639,13 @@ def update_message_like(request):
             like_value = data.get('like_value')
             
             message = ChatMessage.objects.get(id=message_id)
-            message.like_count = models.F('like_count') + like_value
+            message.like_count = like_value
             message.save()
+
+            print(message.like_count)
+
+            print(f"Received message_id: {type(message_id)}, like_value: {type(like_value)}")
+            print(f"Received message_id: {message_id}, like_value: {like_value}")
             
             return JsonResponse({
                 'status': 'success',
