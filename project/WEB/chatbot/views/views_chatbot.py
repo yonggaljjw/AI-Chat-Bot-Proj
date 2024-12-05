@@ -49,12 +49,13 @@ def get_embedding(text):
 
 ## 쿼리문 짜기
 # MySQL
-def generate_query(query):
+def generate_query(query, max_queries=3):
+    # 데이터 명세서 넘기기
     table_info = result_df.groupby(by=['table_name', 'table_description']).apply(
-        lambda x: ", ".join(x['column_name'].astype(str) + " ( 데이터 유형 : " + x['datetype'].astype(str) + ", 데이터 설명: " + x['column_description'].astype(str) + ")")
+    lambda x: ", ".join(x['column_name'].astype(str) + " ( 데이터 유형 : " + x['datetype'].astype(str) + ", 데이터 설명: " + x['column_description'].astype(str) + ")")
     ).to_dict()
 
-    # 프롬프트 생성
+    # 프롬포트 생성
     prompt = f"""
     The database has the following tables and fields:\n{table_info}\n\n
     
@@ -65,6 +66,7 @@ def generate_query(query):
 
     # In MySQL queries, use backticks (`) for variable names (column names) containing special characters. 
     # Example: SELECT `오락/문화_pce_lower` FROM korea_index;
+    # If a join is needed, write up to {max_queries} without using joins. Separate each query with newline characters (\n\n)
     """
     
     response = openai.chat.completions.create(
@@ -114,21 +116,105 @@ def search_documents(query):
     return result
 
 
+
 # new_trend 오픈서치 검색
 def generate_opensearch_query(query) :
     index_name = 'new_trend'
-    # 매핑정보 가져오기
-    mapping = client.indices.get_mapping(index=index_name)
-    # 필드 정보 추출
-    fields = list(mapping[index_name]['mappings']['properties'].keys())
-    fields_info = ", ".join(fields)
+    # 매핑정보 생성
+    mapping = {
+        "mappings": {
+            "_meta": {
+                "description": "네이버 뉴스 제목 분석 결과",
+                "fields": {
+                    "date_news_trend": "업로드 날짜와 구분 필드",
+                    "category": "뉴스 카테고리",
+                    "word": "분석된 키워드",
+                    "count": "키워드 출현 빈도. 특정 카테고리 내에서 키워드가 언급된 횟수.",
+                    "trend_growth": "키워드의 트렌드 평균 성장률 (%)",
+                    "period": "트렌드 데이터의 월별 기간",
+                    "ratio": "해당 월의 트렌드 지수",
+                    "related_articles:title": "관련기사 제목",
+                    "related_articles:link": "관련기사 링크",
+                    "related_articles:date": "관련기사 날짜"
+                }
+            },
+            "properties": {
+                "date_news_trend": {
+                    "type": "text",
+                    "fields": {
+                        "keyword": {
+                            "type": "keyword",
+                            "ignore_above": 256
+                        }
+                    }
+                },
+                "category": {
+                    "type": "text",
+                    "fields": {
+                        "keyword": {
+                            "type": "keyword",
+                            "ignore_above": 256
+                        }
+                    }
+                },
+                "word": {
+                    "type": "text",
+                    "fields": {
+                        "keyword": {
+                            "type": "keyword",
+                            "ignore_above": 256
+                        }
+                    }
+                },
+                "count": {
+                    "type": "float"
+                },
+                "trend_growth": {
+                    "type": "float"
+                },
+                "period": {
+                    "type": "date"
+                },
+                "ratio": {
+                    "type": "float"
+                },
+                "related_articles": {
+                    "properties": {
+                        "title": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "link": {
+                            "type": "text",
+                            "fields": {
+                                "keyword": {
+                                    "type": "keyword",
+                                    "ignore_above": 256
+                                }
+                            }
+                        },
+                        "date": {
+                            "type": "date"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    # 프롬포트 생성
     # 프롬포트 생성
     prompt = f"""
-    The index {index_name} has the following fields : {fields_info}, Write an only ElasticSearch query for the following question : {query},
+    The index {index_name} has the following mappings : {mapping}, Write an only ElasticSearch query for the following question : {query},
     Your goal is to extract as much information as possible based on the available data. 
     For example, if the query is "Tell me the interest rate and consumer price index of South Korea," and the database only contains information on the interest rate, 
     the query should only retrieve the interest rate.
-    and You must include the condition where the score is greater than or equal to 1.7 in the query.
+    Make the "category" field and the "word" field always output.
     """
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
@@ -139,9 +225,7 @@ def generate_opensearch_query(query) :
     )
     generate_query = response.choices[0].message.content
     generate_query = generate_query.replace("```json","").replace("```","").strip()
-
-    print('opensearch 쿼리문 결과 :', generate_query)
-
+    print(generate_query)
     try :
         relevant_docs = client.search(
             index=index_name,
@@ -247,8 +331,9 @@ def answer_question_with_context(query, context=None):
     # Search for relevant documents
     # mysql
     search_query = generate_query(query)
-    print('mysql 쿼리문 결과 :', search_query)
-    relevant_docs = execute_query_to_dataframe(search_query)
+    relevant_docs = []
+    for sql in search_query.split('\n\n') :
+        relevant_docs.append(execute_query_to_dataframe(sql))
     print('mysql 검색 결과:', relevant_docs)
 
     # 오픈서치
@@ -262,7 +347,7 @@ def answer_question_with_context(query, context=None):
     context_text = f"\nAdditional context from Wikipedia:\n{context}" if context else ""
     
     prompt = f"""
-    The following is a table of data extracted from an MySQL query and ElasticSearch query:\n\n{os_relevant_docs}\n\n{relevant_docs}\n\n{newtrend_docs}\n 
+    The following is a table of data extracted from an MySQL query and OpenSearch query:\n\n{os_relevant_docs}\n\n{relevant_docs}\n\n{newtrend_docs}\n 
     {context_text}\n
     Based on this data and context, provide an effective and detailed answer to the following natural language query: {query}
     
@@ -277,7 +362,7 @@ def answer_question_with_context(query, context=None):
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
-            {"role": "system", "content": "Your name is 우대리, You are an excellent assistant proficient in data analysis"},
+            {"role": "system", "content": "Your name is 우대리. You and I belong to 'Woori Financial Group'. You are an excellent assistant proficient in data analysis"},
             {"role": "user", "content": prompt}
         ],
         max_tokens=800
@@ -348,6 +433,7 @@ def chatbot_response(request):
 
             # 대화 저장
             chat_message = ChatMessage.objects.create(
+            chat_message = ChatMessage.objects.create(
                 user=request.user,
                 message=user_message,
                 response=bot_response,
@@ -362,6 +448,8 @@ def chatbot_response(request):
             
             return JsonResponse({
                 'status': 'success',
+                'response': bot_response,
+                'message_id': message_id  # 생성된 message_id 반환
                 'response': bot_response,
                 'message_id': message_id  # 생성된 message_id 반환
             })

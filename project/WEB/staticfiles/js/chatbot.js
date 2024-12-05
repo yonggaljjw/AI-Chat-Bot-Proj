@@ -121,9 +121,6 @@ document.addEventListener("DOMContentLoaded", function () {
 			if (!response.ok) throw new Error("Network response was not ok");
 
 			const data = await response.json();
-
-			console.log("like_count값이 있나 ?", data.like_count);  // 디버깅
-
 			appendMessage(data.response, false, data.message_id);
 		} catch (error) {
 			console.error("Error:", error);
