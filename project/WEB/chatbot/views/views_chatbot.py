@@ -18,6 +18,7 @@ from django.contrib.auth.decorators import login_required
 
 load_dotenv()
 
+
 client = OpenSearch(
     hosts = [{'host': os.getenv("OPENSEARCH_HOST"), 'port': os.getenv("OPENSEARCH_PORT")}]
 )
