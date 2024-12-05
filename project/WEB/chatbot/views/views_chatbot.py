@@ -433,7 +433,6 @@ def chatbot_response(request):
 
             # 대화 저장
             chat_message = ChatMessage.objects.create(
-            chat_message = ChatMessage.objects.create(
                 user=request.user,
                 message=user_message,
                 response=bot_response,
@@ -448,8 +447,6 @@ def chatbot_response(request):
             
             return JsonResponse({
                 'status': 'success',
-                'response': bot_response,
-                'message_id': message_id  # 생성된 message_id 반환
                 'response': bot_response,
                 'message_id': message_id  # 생성된 message_id 반환
             })
