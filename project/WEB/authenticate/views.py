@@ -4,7 +4,7 @@ from django.contrib.auth.forms import UserCreationForm, UserChangeForm, Password
 from django.contrib import messages 
 from .forms import SignUpForm, EditProfileForm
 from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect
+from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.core.cache import cache
 
 def login_user (request):
@@ -23,7 +23,7 @@ def login_user (request):
 	else:
 		return render(request, 'authenticate/login.html', {})
 
-@csrf_protect
+@csrf_exempt
 def logout_user(request):
 	# if request.method == "POST":
 	cache_key = f"user_{request.user.id}_cache"
