@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_protect, csrf_exempt
 from django.core.cache import cache
 
+@csrf_exempt
 def login_user (request):
 	if request.method == 'POST': #if someone fills out form , Post it 
 		username = request.POST['username']
@@ -33,6 +34,7 @@ def logout_user(request):
 	messages.success(request,('Youre now logged out'))
 	return redirect('login')
 
+@csrf_exempt
 def register_user(request):
 	if request.method =='POST':
 		form = SignUpForm(request.POST)
@@ -50,6 +52,7 @@ def register_user(request):
 	context = {'form': form}
 	return render(request, 'authenticate/register.html', context)
 
+@csrf_exempt
 def edit_profile(request):
 	if request.method =='POST':
 		form = EditProfileForm(request.POST, instance= request.user)
@@ -65,7 +68,7 @@ def edit_profile(request):
 	#return render(request, 'authenticate/edit_profile.html',{})
 
 
-
+@csrf_exempt
 def change_password(request):
 	if request.method =='POST':
 		form = PasswordChangeForm(data=request.POST, user= request.user)
