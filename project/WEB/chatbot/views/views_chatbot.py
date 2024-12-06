@@ -11,6 +11,9 @@ from opensearchpy import OpenSearch
 import os
 from dotenv import load_dotenv
 
+from langchain.memory import ConversationBufferMemory
+from langchain.llms import OpenAI
+
 from django.db import models
 from ..models import ChatMessage
 import uuid
@@ -327,8 +330,6 @@ def get_google_search_content(keyword):
         return f"검색 중 오류 발생: {str(e)}"
 
 
-from langchain.memory import ConversationBufferMemory
-from langchain.llms import OpenAI
 
 # Memory 객체 생성
 memory = ConversationBufferMemory()
