@@ -327,29 +327,37 @@ def get_google_search_content(keyword):
         return f"검색 중 오류 발생: {str(e)}"
 
 
+from langchain.memory import ConversationBufferMemory
+from langchain.llms import OpenAI
+
+# Memory 객체 생성
+memory = ConversationBufferMemory()
+
 # 최종 응답
 def answer_question_with_context(query, context=None):
     # Search for relevant documents
     # mysql
     search_query = generate_query(query)
     relevant_docs = []
-    for sql in search_query.split('\n\n') :
+    for sql in search_query.split('\n\n'):
         relevant_docs.append(execute_query_to_dataframe(sql))
     print('mysql 검색 결과:', relevant_docs)
 
     # 오픈서치
     os_relevant_docs = search_documents(query)
-    print('법령 데이터 검색 결과 :',os_relevant_docs)
+    print('법령 데이터 검색 결과 :', os_relevant_docs)
 
     newtrend_docs = generate_opensearch_query(query)
     print('뉴스 트렌드 검색 결과 :', newtrend_docs)
 
-    # 컨텍스트가 있는 경우와 없는 경우에 따라 프롬프트 구성
+    # Memory를 통해 대화 히스토리를 관리
+    memory_context = memory.load_memory_variables({}).get("history", "")
+    print('히스토리 :' , memory_context)
+
     context_text = f"\nAdditional context from Wikipedia:\n{context}" if context else ""
-    
     prompt = f"""
-    The following is a table of data extracted from an MySQL query and OpenSearch query:\n\n{os_relevant_docs}\n\n{relevant_docs}\n\n{newtrend_docs}\n 
-    {context_text}\n
+    The following is a table of data extracted from MySQL and OpenSearch queries:\n\n{os_relevant_docs}\n\n{relevant_docs}\n\n{newtrend_docs}\n 
+    {context_text}\n\n Recent conversation history:\n{memory_context}
     Based on this data and context, provide an effective and detailed answer to the following natural language query: {query}
     
     Please follow these guidelines when answering:
@@ -357,9 +365,10 @@ def answer_question_with_context(query, context=None):
     2. Only mention information relevant to the question.
     3. If using Wikipedia information, integrate it naturally with the database information.
     4. Write your answer in Korean and keep it under 800 characters.
-    5. If you cannot respond answer based on data and context, you should introduce yourself ONLY
+    5. If you cannot respond based on data and context, you should introduce yourself ONLY.
     Answer: """
-
+    
+    # GPT 호출
     response = openai.chat.completions.create(
         model="gpt-4o-mini",
         messages=[
@@ -368,6 +377,10 @@ def answer_question_with_context(query, context=None):
         ],
         max_tokens=800
     )
+    
+    # Memory 업데이트 (대화 내용 저장)
+    memory.save_context({"input": query}, {"output": response.choices[0].message.content})
+
     return response.choices[0].message.content
 
 
