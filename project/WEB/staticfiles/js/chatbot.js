@@ -139,6 +139,23 @@ document.addEventListener("DOMContentLoaded", function () {
 		chatMessages.scrollTop = chatMessages.scrollHeight;
 	}
 
+	// 채팅 메시지 HTML 생성
+	const createChatMessageHTML = `
+	<div class="flex items-start mb-4">
+		<div class="flex-shrink-0 rounded-full p-1 mr-3">
+			${BOT_ICON}
+		</div>
+		<div class="flex-1 bg-gray-100 rounded-lg p-3">
+			<p class="text-gray-800">데이터를 자유롭게 조회하고 분석해보세요!<br><br>
+			ex) 경제 뉴스 트렌드 추이가 어떻게 돼?<br>
+			ex) 2022년 이후 한국과 미국의 기준금리 차이 추이를 분석해줘
+			</p>
+		</div>
+	</div>
+	`;
+
+	chatMessages.innerHTML = createChatMessageHTML;
+
 	// 챗봇 메시지 생성 함수 수정
 	function createBotMessage(message, messageId) {
 	
@@ -186,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		container.appendChild(iconWrapper);
 		container.appendChild(messageWrapper);
 		
-		document.getElementById('chat-messages').appendChild(container);
+		chatMessages.appendChild(container);
 	}
 
 	// 사용자 메시지 생성 함수
