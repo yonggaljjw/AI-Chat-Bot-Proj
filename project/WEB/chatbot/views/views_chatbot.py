@@ -69,6 +69,8 @@ def generate_query(query, max_queries=3):
     # In MySQL queries, use backticks (`) for variable names (column names) containing special characters. 
     # Example: SELECT `오락/문화_pce_lower` FROM korea_index;
     # If a join is needed, write up to {max_queries} without using joins. Separate each query with newline characters (\n\n)
+    # When asked about today, the latest data is retrieved.
+    # If the question asks for information about 'today', 'recent', or a specific date, a column about time or date is also displayed.
     """
     
     response = openai.chat.completions.create(
@@ -81,6 +83,7 @@ def generate_query(query, max_queries=3):
     
     generated_query = response.choices[0].message.content
     generated_query = generated_query.replace("```sql","").replace("```","").strip()
+    print(generated_query)
     return generated_query
 
 # 법령데이터 OpenSearch 검색
@@ -353,7 +356,7 @@ def answer_question_with_context(query, context=None):
     # Memory를 통해 대화 히스토리를 관리
     memory_context = memory.load_memory_variables({}).get("history", "")
     print('히스토리 :' , memory_context)
-
+    print('--------------------------------------------------------------')
     context_text = f"\nAdditional context from Wikipedia:\n{context}" if context else ""
     prompt = f"""
     The following is a table of data extracted from MySQL and OpenSearch queries:\n\n{os_relevant_docs}\n\n{relevant_docs}\n\n{newtrend_docs}\n 
@@ -366,6 +369,7 @@ def answer_question_with_context(query, context=None):
     3. If using Wikipedia information, integrate it naturally with the database information.
     4. Write your answer in Korean and keep it under 800 characters.
     5. If you cannot respond based on data and context, you should introduce yourself ONLY.
+    6. BOR is korea '금리'.
     Answer: """
     
     # GPT 호출
