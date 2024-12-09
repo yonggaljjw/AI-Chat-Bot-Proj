@@ -482,21 +482,21 @@ class InsightGenerator:
         try:            
             # 차트 ID별 쿼리 매핑
             query_map = {
-                'bankrate_indicator_json': "SELECT bor FROM team5.korea_base_rate ORDER BY time DESC LIMIT 10",
-                'K_GDP_indicator_json': "SELECT GDP FROM team5.korea_index ORDER BY TIME desc LIMIT 10",
-                'K_cpi_indicator_json': "SELECT TOTAL FROM team5.cpi_data ORDER BY TIME DESC LIMIT 10",
-                'K_pce_indicator_json': "SELECT DATA_VALUE FROM team5.pce_data ORDER BY TIME DESC LIMIT 10",
-                'K_USD_indicator_json': "SELECT USD FROM team5.currency_rate ORDER BY TIME desc LIMIT 10",
-                'K_growth_indicator_json': "SELECT 경제성장률 FROM korea_index ORDER BY TIME desc LIMIT 10",
-                'economic_indicators_table_json': "WITH MaxDate AS (SELECT MAX(date) as latest_date FROM fred_data) SELECT * FROM fred_data WHERE date >= DATE_SUB((SELECT latest_date FROM MaxDate), INTERVAL 5 YEAR) AND date <= (SELECT latest_date FROM MaxDate) ORDER BY date ASC",
-                'gdp_rates_json': "SELECT * FROM team5.gdp_rates ORDER BY date DESC LIMIT 10",
-                'price_indicators_json': "SELECT * FROM team5.price_indicators ORDER BY date DESC LIMIT 10",
-                'consumer_trends_json': "SELECT * FROM team5.consumer_trends ORDER BY date DESC LIMIT 10",
-                'employment_trends_json': "SELECT * FROM team5.employment_trends ORDER BY date DESC LIMIT 10",
-                'cpi_card_predict_json': "SELECT * FROM team5.cpi_card_data ORDER BY TIME DESC LIMIT 10",
-                'card_total_sales_ladar_json': "SELECT * FROM team5.card_sales ORDER BY date DESC LIMIT 10",
+                'bankrate_indicator_json': "SELECT bor, time FROM team5.korea_base_rate ORDER BY time DESC LIMIT 10;",
+                'K_GDP_indicator_json': "SELECT GDP, time FROM team5.korea_index ORDER BY TIME desc LIMIT 10",
+                'K_cpi_indicator_json': "SELECT TOTAL, time FROM team5.cpi_data ORDER BY TIME DESC LIMIT 10",
+                'K_pce_indicator_json': "SELECT DATA_VALUE, time FROM team5.pce_data ORDER BY TIME DESC LIMIT 2",
+                'K_USD_indicator_json': "SELECT USD, time FROM team5.currency_rate ORDER BY TIME desc LIMIT 10",
+                'K_growth_indicator_json': "SELECT 경제성장률, time FROM korea_index ORDER BY TIME desc LIMIT 10",
+                'economic_indicators_table_json': "WITH MaxDate AS (SELECT MAX(date) as latest_date FROM fred_data) SELECT * FROM fred_data WHERE date >= DATE_SUB((SELECT latest_date FROM MaxDate), INTERVAL 5 YEAR) AND date <= (SELECT latest_date FROM MaxDate) ORDER BY date desc",
+                # 'gdp_rates_json': "SELECT * FROM team5.gdp_rates ORDER BY date DESC LIMIT 10",
+                # 'price_indicators_json': "SELECT * FROM team5.price_indicators ORDER BY date DESC LIMIT 10",
+                # 'consumer_trends_json': "SELECT * FROM team5.consumer_trends ORDER BY date DESC LIMIT 10",
+                # 'employment_trends_json': "SELECT * FROM team5.employment_trends ORDER BY date DESC LIMIT 10",
+                'cpi_card_predict_json': "SELECT * FROM team5.cpi_card_predict ORDER BY date DESC LIMIT 10",
+                'card_total_sales_ladar_json': "SELECT * FROM team5.card_sales ORDER BY date DESC LIMIT 1",
                 'wooricard_sales_treemap_json': "SELECT * FROM team5.woori_card ORDER BY date DESC LIMIT 10",
-                'gender_json': "SELECT * FROM team5.wooricard_data",
+                'gender_json': "SELECT * FROM team5.card_category_gender ORDER BY date DESC LIMIT 10",
                 'create_card_heatmap_json': "SELECT * FROM team5.card_heatmap ORDER BY date DESC LIMIT 10",
                 'tour_servey_json': "SELECT * FROM team5.tour_survey ORDER BY date DESC LIMIT 10",
                 'travel_trend_line_json': "SELECT * FROM team5.travel_trend ORDER BY date DESC LIMIT 10",
@@ -513,7 +513,7 @@ class InsightGenerator:
             if df.empty:
                 return "데이터가 없습니다."
                 
-            return df.to_string()
+            return df.to_json(orient='records', date_format='iso')
             
         except Exception as e:
             print(f"Error in get_chart_data: {str(e)}")
@@ -558,6 +558,7 @@ class InsightGenerator:
         - 최신 데이터와 변동성이 큰 데이터 중 더욱 변동성이 큰 값을 제시
         - 예시 형식: "이전 X에서 현재 Y로 증가/감소"
         - X와 Y 값의 적절한 단위(%, 원, 달러 등)를 추가하여 설명
+        - 여러개의 컬럼이 있는 경우 컬럼별 비교
         
         2. 카드 개발/마케팅 관점의 시사점 (20자 내외):
         - 관찰된 변화를 바탕으로 실질적인 전략 제시
@@ -567,6 +568,11 @@ class InsightGenerator:
         결과는 다음 형식으로 제시:
         [변화] (가장 최근 시점 기준으로 직전 대비 변화를 명시)
         [제안] (변화를 고려한 전략적 제안)
+
+        예시:
+        [변화] 이전 113.17에서 현재 114.69로 증가 (1.37% 상승) 
+        [제안] 소비자물가지수 상승에 따른 소비자 신용카드 수요 증가 전략 필요.
+
         """
         
         try:
