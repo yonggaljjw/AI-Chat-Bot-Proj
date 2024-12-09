@@ -50,7 +50,7 @@ def create_currency_view():
                     y=filtered_data[currency],
                     mode='lines',
                     name=f"{currency} ({source_korean})",  # 한국어로 설명된 source 사용
-                    visible=(currency == "USD"),  # 초기에는 USD만 표시
+                    visible=(currency == "JPY"),  # 초기에는 JPY만 표시
                 )
             )
 
