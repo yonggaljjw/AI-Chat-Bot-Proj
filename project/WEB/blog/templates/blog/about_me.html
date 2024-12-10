@@ -1,0 +1,21 @@
+<!-- blog/templates/blog/about_me.html -->
+{% extends 'blog/base.html' %}
+
+{% block page_area %}
+<div class="container mt-5">
+    <h1>About Me</h1>
+    <img src="{% static 'data/profile.jpg' %}" alt="Profile Image" class="img-fluid rounded-circle mb-4" style="width: 200px;">
+    <p>안녕하세요! 저는 데이터 엔지니어를 꿈꾸는 박은채입니다. 다양한 데이터를 다루며 분석하고, 이를 통해 인사이트를 도출하는 것을 좋아합니다.</p>
+
+    <h2>기술 스택</h2>
+    <ul>
+        <li>Python, Django, Flask</li>
+        <li>SQL, NoSQL (MySQL, MongoDB)</li>
+        <li>데이터 분석 및 시각화 (Pandas, Matplotlib)</li>
+        <!-- 추가 기술 스택 -->
+    </ul>
+
+    <h2>연락처</h2>
+    <p>Email: example@example.com</p> <!-- 실제 이메일로 변경 -->
+</div>
+{% endblock %}

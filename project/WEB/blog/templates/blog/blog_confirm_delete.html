@@ -1,0 +1,12 @@
+<!-- blog/templates/blog/blog_confirm_delete.html -->
+{% extends 'blog/blog_home.html' %}  <!-- 블로그 애플리케이션의 기본 템플릿으로 수정 -->
+
+{% block page_area %}
+  <h2>게시글 삭제</h2>
+  <p>정말로 이 게시글을 삭제하시겠습니까?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">삭제하기</button>
+  </form>
+  <a href="{% url 'blog:blog_home' %}">취소</a>  <!-- 수정된 URL 네임스페이스 -->
+{% endblock %}

@@ -1,0 +1,37 @@
+<!-- blog/templates/blog/base.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>우대리 게시판</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="{% url 'blog:blog_home' %}">내 블로그</a>
+        <div class="collapse navbar-collapse">
+            <ul class="navbar-nav">
+                <li class="nav-item"><a class="nav-link" href="{% url 'blog:about_me' %}">About Us</a></li>
+                <li class="nav-item"><a class="nav-link" href="{% url 'blog:blog_create' %}">게시글 작성</a></li>
+            </ul>
+        </div>
+    </nav>
+</header>
+
+<main role="main" class="container">
+    {% block page_area %}{% endblock %}
+</main>
+
+<footer class="text-center mt-4">
+    <p>Copyright &copy; 2024 WOODAERI</p>
+</footer>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+</body>
+</html>

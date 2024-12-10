@@ -1,0 +1,13 @@
+<!-- blog/templates/blog/board_form.html -->
+{% extends 'blog/base.html' %}
+
+{% block page_area %}
+<div class="container mt-5">
+    <h2>게시글 작성</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}  <!-- 폼 필드를 자동으로 생성 -->
+        <button type="submit" class="btn btn-primary">작성하기</button>
+    </form>
+</div>
+{% endblock %}

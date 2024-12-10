@@ -269,6 +269,11 @@
                 </svg>
             </a>
         </div>
+        
+        <!-- Q/A Link -->
+        <a href="{% url 'blog:blog_home' %}" class="p-2 hover:bg-gray-200 rounded-xl transition-all duration-200 hover:scale-110 active:scale-95 inline-block">
+            <img src="{% static 'images/blog.png' %}" alt="Blog" class="w-8 h-8">
+        </a>
 
         <!-- logout Icon -->
         <form action="{% url 'logout' %}" method="POST">
