@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 `;
                 chatMessages.appendChild(userMessageDiv);
                 
-                // 챗봇 응답 표시 ('우대리: ' 접두어 제거)
+                // 챗봇 응답 표시
                 if (msg.response) {
                     const botResponse = msg.response;
                     const botMessageDiv = document.createElement('div');

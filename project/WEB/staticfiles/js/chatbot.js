@@ -110,8 +110,7 @@ document.addEventListener("DOMContentLoaded", function () {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					"X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]")
-						.value,
+					"X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
 				},
 				body: JSON.stringify({
 					message: message,
@@ -131,12 +130,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// 메시지 추가 함수
 	function appendMessage(message, isUser, messageId) {
-		const messageHTML = isUser
-			? createUserMessage(message)
-			: createBotMessage(message, messageId);
-		chatMessages.insertAdjacentHTML("beforeend", messageHTML);
+		if (isUser) {
+			const messageHTML = createUserMessage(message);
+			chatMessages.insertAdjacentHTML("beforeend", messageHTML);
+		} else {
+			createBotMessage(message, messageId); // 직접 DOM에 삽입
+		}
 		chatMessages.scrollTop = chatMessages.scrollHeight;
 	}
+
+	// 채팅 메시지 HTML 생성
+	const createChatMessageHTML = `
+	<div class="flex items-start mb-4">
+		<div class="flex-shrink-0 rounded-full p-1 mr-3">
+			${BOT_ICON}
+		</div>
+		<div class="flex-1 bg-gray-100 rounded-lg p-3">
+			<p class="text-gray-800">데이터를 자유롭게 조회하고 분석해보세요!<br><br>
+			ex) 경제 뉴스 트렌드 추이가 어떻게 돼?<br>
+			ex) 2022년 이후 한국과 미국의 기준금리 차이 추이를 분석해줘
+			</p>
+		</div>
+	</div>
+	`;
+
+	chatMessages.innerHTML = createChatMessageHTML;
 
 	// 챗봇 메시지 생성 함수 수정
 	function createBotMessage(message, messageId) {
@@ -144,6 +162,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		// 컨테이너 요소 생성
 		const container = document.createElement('div');
 		container.className = 'flex items-start mb-4';
+		container.setAttribute('data-message-id', messageId); // 메시지 ID 설정
 
 		// Bot Icon 섹션
 		const iconWrapper = document.createElement('div');
@@ -161,7 +180,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		// 좋아요 버튼
 		const likeButton = document.createElement('button');
-		likeButton.className = 'text-gray-500 hover:text-blue-500';
+		likeButton.className = 'like-button text-gray-500 hover:text-blue-500';
 		likeButton.innerHTML = `
 			<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
 				<path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
@@ -170,7 +189,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
 		// 싫어요 버튼
 		const dislikeButton = document.createElement('button');
-		dislikeButton.className = 'text-gray-500 hover:text-red-500';
+		dislikeButton.className = 'dislike-button text-gray-500 hover:text-red-500';
 		dislikeButton.innerHTML = `
 			<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
 				<path d="M18 9.5a1.5 1.5 0 11-3 0v-6a1.5 1.5 0 013 0v6zM14 9.667v-5.43a2 2 0 00-1.105-1.79l-.05-.025A4 4 0 0011.055 2H5.64a2 2 0 00-1.962 1.608l-1.2 6A2 2 0 004.44 12H8v4a2 2 0 002 2 1 1 0 001-1v-.667a4 4 0 01.8-2.4l1.4-1.866a4 4 0 00.8-2.4z" />
@@ -184,7 +203,7 @@ document.addEventListener("DOMContentLoaded", function () {
 		container.appendChild(iconWrapper);
 		container.appendChild(messageWrapper);
 		
-		document.getElementById('chat-messages').appendChild(container);
+		chatMessages.appendChild(container);
 	}
 
 	// 사용자 메시지 생성 함수
@@ -199,6 +218,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
 	// 좋아요/싫어요 처리 함수 추가
 	async function handleLike(messageId, value) {
+		console.log('handleLike executed!', messageId, value); // 디버깅용
+		console.log('/chatbot/like/');
 		try {
 			const response = await fetch('/chatbot/like/', {
 				method: 'POST',
@@ -213,11 +234,45 @@ document.addEventListener("DOMContentLoaded", function () {
 			});
 			
 			if (!response.ok) throw new Error('Network response was not ok');
-			
+
+			console.log(response)
+
 			const data = await response.json();
-			// 좋아요/싫어요 UI 업데이트 로직 추가 가능
+			
+			// 버튼 UI 업데이트
+			updateLikeUI(messageId, value);
+
 		} catch (error) {
 			console.error('Error:', error);
+		}
+	}
+
+	// 좋아요/싫어요 UI 업데이트 함수
+	function updateLikeUI(messageId, value) {
+		// 메시지 ID를 기준으로 해당 버튼들을 찾아옵니다
+		const messageContainer = document.querySelector(`[data-message-id="${messageId}"]`);
+		if (!messageContainer) {
+			console.error(`Message with ID ${messageId} not found.`);
+			return;
+		}
+
+		// 버튼 요소들 찾기
+		const likeButton = messageContainer.querySelector('.like-button');
+		const dislikeButton = messageContainer.querySelector('.dislike-button');
+
+		// 활성화 상태 초기화
+		likeButton.classList.remove('text-blue-500');
+		likeButton.classList.add('text-gray-500');
+		dislikeButton.classList.remove('text-red-500');
+		dislikeButton.classList.add('text-gray-500');
+
+		// 누른 버튼 활성화
+		if (value === 1) {
+			likeButton.classList.remove('text-gray-500');
+			likeButton.classList.add('text-blue-500'); // 활성화된 색상으로 변경
+		} else if (value === -1) {
+			dislikeButton.classList.remove('text-gray-500');
+			dislikeButton.classList.add('text-red-500'); // 활성화된 색상으로 변경
 		}
 	}
 });
