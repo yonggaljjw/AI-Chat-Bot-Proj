@@ -1,0 +1,20 @@
+<!-- blog/templates/blog/blog_list.html -->
+{% extends 'blog/base.html' %}  <!-- 블로그 애플리케이션의 기본 템플릿으로 수정 -->
+
+{% block page_area %}
+<!-- 게시판 목록 -->
+<div class="container mt-5">
+    <h1>게시판 목록</h1>
+    <a href="{% url 'blog:blog_create' %}" class="btn btn-primary">게시글 작성</a>  <!-- 게시글 작성 버튼 -->
+    <ul>
+        {% for post in boards %}  <!-- boards를 posts로 변경하여 일관성 유지 -->
+            <li>
+                <a href="{% url 'blog:blog_detail' post.pk %}">{{ post.title }}</a> - 
+                <span>{{ post.created_at }}</span>
+            </li>
+        {% empty %}
+            <li>게시글이 없습니다.</li>  <!-- 게시글이 없을 경우 메시지 추가 -->
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

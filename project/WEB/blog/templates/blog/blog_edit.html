@@ -1,0 +1,11 @@
+<!-- blog/templates/blog/blog_edit.html -->
+{% extends 'blog/base.html' %}
+
+{% block page_area %}
+<h2>게시글 수정</h2>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-warning">수정하기</button>
+</form>
+{% endblock %}

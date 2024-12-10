@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'channels',  # WebSocket을 지원하기 위해 추가
     'dpd_static_support',  # plotly_dash 정적 파일 지원을 위해 추가
     'authenticate',
+    'blog',
     'django_bootstrap5',
 ]
 
