@@ -49,6 +49,8 @@
 - MySQL 8.0
 - Elasticsearch 7.15
 
+---------
+
 # 우대리
 ![image](https://github.com/user-attachments/assets/5062b5f9-07b0-44f5-8332-3aa8fc20830b)
 
@@ -78,8 +80,54 @@
 
 
 
-## 프로젝트 구조
+## 기술 스택
+- Python 3.12
+- Django 5.0
+- MySQL 8.0
+- OpenSearch 2.18.0
 
+## 프로젝트 구조
+```
+AI-Chat-Bot-Proj/
+├── FISA/
+│   ├── eunchai/
+│   │   ├── watching_word.py
+│   │   ├── another_script.py
+│   │   └── ...
+├── project/
+│   ├── WEB/
+│   │   ├── woodjango/
+│   │   │   ├── settings.py
+│   │   │   ├── urls.py
+│   │   │   ├── asgi.py
+│   │   │   ├── wsgi.py
+│   │   │   ├── __init__.py
+│   │   │   ├── models.py
+│   │   │   ├── views.py
+│   │   │   ├── static/
+│   │   │   │   ├── css/
+│   │   │   │   │   ├── style.css
+│   │   │   │   └── js/
+│   │   │   │       ├── script.js
+│   │   │   ├── templates/
+│   │   │   │   ├── index.html
+│   │   │   │   └── dashboard/
+│   │   │   │       ├── dashboard.html
+│   │   │   └── migrations/
+│   │   │       ├── __init__.py
+│   │   ├── chatbot/
+│   │   │   ├── __init__.py
+│   │   │   ├── admin.py
+│   │   │   ├── apps.py
+│   │   │   ├── models.py
+│   │   │   ├── views.py
+│   │   │   └── urls.py
+│   │   ├── manage.py
+│   ├── requirements.txt
+├── .gitignore
+├── README.md
+└── LICENSE
+```
 
 ## 개발기간 및 작업관리
 
