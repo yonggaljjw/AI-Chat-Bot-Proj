@@ -136,17 +136,6 @@ def grouping_data(pce_df, cpi_df):
         # 결과 저장
         category_dfs[pce_category] = merged_df
 
-    # 각 카테고리별 데이터프레임도 따로 저장
-    # 식료품_df = category_dfs['식료품']
-    # 의류잡화_df = category_dfs['의류/잡화']
-    # 연료_df = category_dfs['연료']
-    # 가구가전_df = category_dfs['가구/가전']
-    # 의료보건_df = category_dfs['의료/보건']
-    # 여행교통_df = category_dfs['여행/교통']
-    # 오락문화_df = category_dfs['오락/문화']
-    # 교육_df = category_dfs['교육']
-    # 숙박음식_df = category_dfs['숙박/음식']
-
     return category_dfs
 
 def forecast_future(df, column_name, periods=3):
@@ -244,7 +233,7 @@ with DAG(
     '03_CPI_CARD_data',
     default_args=default_args,
     description="소비자물가, 개인신용카드 소비현황 예측 데이터를 업로드합니다.",
-    schedule_interval='@daily',
+    schedule_interval='@monthly',
     start_date=datetime.now(),
     catchup=False,
     tags=['MySQL', 'api', 'forecast'],
