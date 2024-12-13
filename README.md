@@ -32,7 +32,7 @@
 
 ## Project Structure
 
-![project structure](./Documents/diagrams/systemArchitecture.drawio.png)
+![image](https://github.com/user-attachments/assets/68344a40-8837-43da-bf9d-6a3ab9f0790a)
 
 > [draw.io](https://app.diagrams.net/)를 이용하여 작성하였습니다.
 
