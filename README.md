@@ -171,8 +171,7 @@ AI-Chat-Bot-Proj/
 ---
 
 ### 🛠 챗봇 구성 구조
-![image](https://github.com/user-attachments/assets/31a5e579-3373-4452-8f5d-f6d25588f365)
-
+![챗봇그림](https://github.com/user-attachments/assets/f036e16a-9f2d-4d9c-90ca-15635c49405a)
 
 ---
 
